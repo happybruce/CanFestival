@@ -51,12 +51,10 @@ static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId);
 UNS8 init_consise_dcf(CO_Data* d,UNS8 nodeId);
 
 
-#ifdef _MSC_VER
-#define inline _inline
-#endif  /* _MSC_VER */
 
 
-inline void start_node(CO_Data* d, UNS8 nodeId){
+void start_node(CO_Data* d, UNS8 nodeId)
+{
     /* Ask slave node to go in operational mode */
     masterSendNMTstateChange (d, nodeId, NMT_Start_Node);
     d->NMTable[nodeId] = Connecting;
@@ -91,7 +89,8 @@ UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
 ** @param d
 ** @param nodeId
 */
-inline void start_and_seek_node(CO_Data* d, UNS8 nodeId){
+void start_and_seek_node(CO_Data* d, UNS8 nodeId)
+{
    UNS8 node;
    if(nodeId)
        start_node(d,nodeId);
