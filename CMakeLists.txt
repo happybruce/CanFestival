@@ -8,7 +8,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/default/
     ${CMAKE_CURRENT_SOURCE_DIR}/include/unix/
     ${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix/
-    # ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od/
 )
 
 # add_compile_options(-fPIC -Wall -g -Wmissing-prototypes -fno-strict-aliasing)
@@ -46,12 +46,11 @@ set(CANFESTIVAL_DRV_SRC
 
 
 
-# set(SLAVE_APP_SRC 
-#     ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/gendcf.c
-#     ${CMAKE_CURRENT_SOURCE_DIR}/src/slavedic.c
-
-#     ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/slave.c
-# )
+set(SLAVE_APP_SRC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/gendcf.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od/slavedic.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/slave.c
+)
 
 # set(MASTER_APP_SRC 
 #     ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/gendcf.c
@@ -67,15 +66,15 @@ add_library(canfestival_can_socket STATIC ${CANFESTIVAL_DRV_SRC})
 
 
 
-# add_executable(slave ${SLAVE_APP_SRC} )
+add_executable(slave ${SLAVE_APP_SRC} )
 
-# target_link_libraries(slave 
-#         ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcanfestival.a 
-#         ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcanfestival_can_socket.a 
-#         pthread
-#         dl
-#         rt
-# )
+target_link_libraries(slave 
+    canfestival
+    canfestival_can_socket
+    pthread
+    dl
+    rt
+)
 
 # add_executable(master ${MASTER_APP_SRC} )
 # target_link_libraries(master 
