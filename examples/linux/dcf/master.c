@@ -42,15 +42,15 @@ static char Run;
 
 void setup_dcf(void)
 {
-    uint8_t subidx;
-    uint8_t nbr_subidx = *(uint8_t *)masterdic_Index1F22[0].pObject;
-    printf("setup_dcf : %u sub indexes to set\n", nbr_subidx);
-    dcf_read_in_file(DEVICE_DICT_NAME, dcfdatas);
-    dcf_data_display(dcfdatas);
-    for(subidx = 0 ; subidx < nbr_subidx ; subidx++){
-        masterdic_Index1F22[subidx + 1].pObject = dcfdatas[subidx];
-        masterdic_Index1F22[subidx + 1].size = DCF_MAX_SIZE;
-    }
+    // uint8_t subidx;
+    // uint8_t nbr_subidx = *(uint8_t *)masterdic_Index1F22[0].pObject;
+    // printf("setup_dcf : %u sub indexes to set\n", nbr_subidx);
+    // dcf_read_in_file(DEVICE_DICT_NAME, dcfdatas);
+    // dcf_data_display(dcfdatas);
+    // for(subidx = 0 ; subidx < nbr_subidx ; subidx++){
+    //     masterdic_Index1F22[subidx + 1].pObject = dcfdatas[subidx];
+    //     masterdic_Index1F22[subidx + 1].size = DCF_MAX_SIZE;
+    // }
 }
 
 void display_usage(char *prog)
@@ -68,8 +68,8 @@ void slave_bootup_callback(CO_Data* d, UNS8 nodeid)
 
 void Exit(CO_Data* d, UNS32 id)
 {
-	masterSendNMTstateChange(&masterdic_Data, 0x0, NMT_Reset_Node);    
-	setState(&masterdic_Data, Stopped);
+    masterSendNMTstateChange(&masterdic_Data, 0x0, NMT_Reset_Node);    
+    setState(&masterdic_Data, Stopped);
 }
 
 void slave_state_change_callback(CO_Data* d, UNS8 nodeId, e_nodeState newNodeState)
@@ -102,18 +102,18 @@ void heartbeatTimeOut(CO_Data* d, UNS8 nodeid)
 /*--- handler on SIGINT (CTL-C) signal ---*/
 void sortie(int sig)
 {
-	Run = 0;
+    Run = 0;
 }
 
 int main(int argc,char **argv)
 {
     struct sigaction act;
 
-	// register handler on SIGINT signal 
-	act.sa_handler=sortie;
-	sigemptyset(&act.sa_mask);
-	act.sa_flags=0;
-	sigaction(SIGINT,&act,0);
+    // register handler on SIGINT signal 
+    act.sa_handler=sortie;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags=0;
+    sigaction(SIGINT,&act,0);
 
     // Check that we have the right command line parameters
     if(argc != 2){
@@ -135,29 +135,30 @@ int main(int argc,char **argv)
     masterdic_Data.post_SlaveStateChange = slave_state_change_callback;
     masterdic_Data.heartbeatError = heartbeatTimeOut;
 
-	if (LoadCanDriver("./libcanfestival_can_socket.so") == NULL){
-	    printf("Unable to load driver library\n");
-        printf("please put file libcanfestival_can_socket.so in the current directory\n");
+    // if (LoadCanDriver("./libcanfestival_can_socket.so") == NULL){
+    //     printf("Unable to load driver library\n");
+    //     printf("please put file libcanfestival_can_socket.so in the current directory\n");
+    //     exit(1);
+    // }
+
+    if(!canOpen(&MasterBoard0,&masterdic_Data))
+    {
+        printf("Cannot open can interface %s\n",MasterBoard0.busname);
         exit(1);
     }
 
-	if(!canOpen(&MasterBoard0,&masterdic_Data)){
-        printf("Cannot open can interface %s\n",MasterBoard0.busname);
-        exit(1);
-	}
-
     TimerInit();
-	
+    
     /* Put the master in Pre_operational mode, this will broadcast a comunication reset */
     setState(&masterdic_Data, Pre_operational);
     /* Now put it in Operational */
-	setState(&masterdic_Data, Operational);
-	
+    setState(&masterdic_Data, Operational);
+    
     printf("Master starting on %s\n", MasterBoard0.busname);
     Run = 1;
-	while(Run)
-	{
-		EnterMutex();
+    while(Run)
+    {
+        EnterMutex();
         printf("Slaves : counter 1 = %u, counter 2 = %u, counter 3 = %u\n",counter_1, counter_2, counter_3);
         position_1 += 1;
         position_2 += 2;
@@ -165,15 +166,15 @@ int main(int argc,char **argv)
         sendOnePDOevent(&masterdic_Data, 0);
         sendOnePDOevent(&masterdic_Data, 1);
         sendOnePDOevent(&masterdic_Data, 2);
-		LeaveMutex();
+        LeaveMutex();
         sleep(5);
-	}
+    }
 
-	// Stop timer thread
-	StopTimerLoop(&Exit);
-	// Close CAN devices (and can threads)
-	canClose(&masterdic_Data);
-	return 0;
+    // Stop timer thread
+    StopTimerLoop(&Exit);
+    // Close CAN devices (and can threads)
+    canClose(&masterdic_Data);
+    return 0;
 }
 
 

@@ -47,16 +47,15 @@ set(CANFESTIVAL_DRV_SRC
 
 
 set(SLAVE_APP_SRC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/gendcf.c
     ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od/slavedic.c
     ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/slave.c
 )
 
-# set(MASTER_APP_SRC 
-#     ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/gendcf.c
-#     ${CMAKE_CURRENT_SOURCE_DIR}/src/masterdic.c
-#     ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/master.c
-# )
+set(MASTER_APP_SRC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/gendcf.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od/masterdic.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/master.c
+)
 
 
 add_library(canfestival STATIC ${CANFESTIVAL_SRC})
@@ -76,11 +75,11 @@ target_link_libraries(slave
     rt
 )
 
-# add_executable(master ${MASTER_APP_SRC} )
-# target_link_libraries(master 
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcanfestival.a 
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcanfestival_can_socket.a 
-#     pthread
-#     dl
-#     rt
-# )
+add_executable(master ${MASTER_APP_SRC} )
+target_link_libraries(master 
+    canfestival
+    canfestival_can_socket
+    pthread
+    dl
+    rt
+)
