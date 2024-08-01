@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "gendcf.h"
 #include "dcf.h"
 
-extern subindex masterdic_Index1F22[];
+extern subindex masterdic_Index1F22[]; // TODO: need fix, masterdic_Index1F22 is const
 
 UNS8 dcfdatas[DCF_MAX_NODE_ID][DCF_MAX_SIZE];
 
@@ -42,16 +42,16 @@ static char Run;
 
 void setup_dcf(void)
 {
-    uint8_t subidx;
-    uint8_t nbr_subidx = *(uint8_t *)(masterdic_Index1F22[0].pObject);
-    printf("setup_dcf : %u sub indexes to set\n", nbr_subidx);
-    dcf_read_in_file(DEVICE_DICT_NAME, dcfdatas);
-    dcf_data_display(dcfdatas);
-    for(subidx = 0 ; subidx < nbr_subidx ; subidx++)
-    {
-        masterdic_Index1F22[subidx + 1].pObject = dcfdatas[subidx];
-        masterdic_Index1F22[subidx + 1].size = DCF_MAX_SIZE;
-    }
+    // uint8_t subidx;
+    // uint8_t nbr_subidx = *(uint8_t *)(masterdic_Index1F22[0].pObject);
+    // printf("setup_dcf : %u sub indexes to set\n", nbr_subidx);
+    // dcf_read_in_file(DEVICE_DICT_NAME, dcfdatas);
+    // dcf_data_display(dcfdatas);
+    // for(subidx = 0 ; subidx < nbr_subidx ; subidx++)
+    // {
+    //     masterdic_Index1F22[subidx + 1].pObject = dcfdatas[subidx];
+    //     masterdic_Index1F22[subidx + 1].size = DCF_MAX_SIZE;
+    // }
 }
 
 void display_usage(char *prog)
