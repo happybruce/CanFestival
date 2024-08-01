@@ -314,7 +314,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1800 :   b'Transmit PDO 1 Parameter'. */
                     UNS8 slavedic_highestSubIndex_obj1800 = 6; /* number of subindex - 1*/
-                    UNS32 slavedic_obj1800_COB_ID_used_by_PDO = 0x0;	/* 0 */
+                    UNS32 slavedic_obj1800_COB_ID_used_by_PDO = 0x180;	/* 384 */
                     UNS8 slavedic_obj1800_Transmission_Type = 0xFE;	/* 254 */
                     UNS16 slavedic_obj1800_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 slavedic_obj1800_Compatibility_Entry = 0x0;	/* 0 */
