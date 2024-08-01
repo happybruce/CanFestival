@@ -42,15 +42,16 @@ static char Run;
 
 void setup_dcf(void)
 {
-    // uint8_t subidx;
-    // uint8_t nbr_subidx = *(uint8_t *)masterdic_Index1F22[0].pObject;
-    // printf("setup_dcf : %u sub indexes to set\n", nbr_subidx);
-    // dcf_read_in_file(DEVICE_DICT_NAME, dcfdatas);
-    // dcf_data_display(dcfdatas);
-    // for(subidx = 0 ; subidx < nbr_subidx ; subidx++){
-    //     masterdic_Index1F22[subidx + 1].pObject = dcfdatas[subidx];
-    //     masterdic_Index1F22[subidx + 1].size = DCF_MAX_SIZE;
-    // }
+    uint8_t subidx;
+    uint8_t nbr_subidx = *(uint8_t *)(masterdic_Index1F22[0].pObject);
+    printf("setup_dcf : %u sub indexes to set\n", nbr_subidx);
+    dcf_read_in_file(DEVICE_DICT_NAME, dcfdatas);
+    dcf_data_display(dcfdatas);
+    for(subidx = 0 ; subidx < nbr_subidx ; subidx++)
+    {
+        masterdic_Index1F22[subidx + 1].pObject = dcfdatas[subidx];
+        masterdic_Index1F22[subidx + 1].size = DCF_MAX_SIZE;
+    }
 }
 
 void display_usage(char *prog)
