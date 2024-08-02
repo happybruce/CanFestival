@@ -6,31 +6,31 @@
 <attr name="Description" type="string" value="" />
 <attr name="Dictionary" type="dict" id="140506054488984" >
   <entry>
-    <key type="numeric" value="4096" />
+    <key type="numeric" value="4096" />0x1000
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="8192" />
+    <key type="numeric" value="8192" />0x2000
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="8194" />
+    <key type="numeric" value="8194" />0x2002
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="12291" />
+    <key type="numeric" value="12291" />0x3003
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="12288" />
+    <key type="numeric" value="12288" />0x3000
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="4097" />
+    <key type="numeric" value="4097" />0x1001
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="5122" />
+    <key type="numeric" value="5122" />0x1402
     <val type="list" id="140506054480528" >
       <item type="numeric" value="387" />
       <item type="numeric" value="254" />
@@ -41,7 +41,7 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="6146" />
+    <key type="numeric" value="6146" />0x1802
     <val type="list" id="140506054480744" >
       <item type="numeric" value="515" />
       <item type="numeric" value="254" />
@@ -52,13 +52,13 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="6658" />
+    <key type="numeric" value="6658" />0x1A02
     <val type="list" id="140506054480816" >
       <item type="numeric" value="537002000" />
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="4118" />
+    <key type="numeric" value="4118" />0x1016
     <val type="list" id="140506054480888" >
       <item type="numeric" value="67036" />
       <item type="numeric" value="132572" />
@@ -66,11 +66,11 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="4119" />
+    <key type="numeric" value="4119" />0x1017
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="4120" />
+    <key type="numeric" value="4120" />0x1018
     <val type="list" id="140506054480960" >
       <item type="numeric" value="0" />
       <item type="numeric" value="0" />
@@ -79,7 +79,7 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="4736" />
+    <key type="numeric" value="4736" />0x1280
     <val type="list" id="140506054481032" >
       <item type="numeric" value="0" />
       <item type="numeric" value="0" />
@@ -87,7 +87,7 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="7970" />
+    <key type="numeric" value="7970" />0x1F22
     <val type="list" id="140506054481104" >
       <item type="string" value="" />
       <item type="string" value="" />
@@ -95,11 +95,11 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="8193" />
+    <key type="numeric" value="8193" />0x2001
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="5120" />
+    <key type="numeric" value="5120" />0x1400
     <val type="list" id="140506054481176" >
       <item type="numeric" value="385" />
       <item type="numeric" value="254" />
@@ -110,17 +110,17 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="5632" />
+    <key type="numeric" value="5632" />0x1600
     <val type="list" id="140506054481248" >
       <item type="numeric" value="805306400" />
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="12289" />
+    <key type="numeric" value="12289" />0x3001
     <val type="numeric" value="0" />
   </entry>
   <entry>
-    <key type="numeric" value="5121" />
+    <key type="numeric" value="5121" />0x1401
     <val type="list" id="140506054481320" >
       <item type="numeric" value="386" />
       <item type="numeric" value="254" />
@@ -131,7 +131,7 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="6144" />
+    <key type="numeric" value="6144" />0x1800
     <val type="list" id="140506054481392" >
       <item type="numeric" value="513" />
       <item type="numeric" value="254" />
@@ -142,19 +142,19 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="5633" />
+    <key type="numeric" value="5633" />0x1601
     <val type="list" id="140506054481464" >
       <item type="numeric" value="805371936" />
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="6656" />
+    <key type="numeric" value="6656" />0x1A00
     <val type="list" id="140506054481536" >
       <item type="numeric" value="536870928" />
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="6145" />
+    <key type="numeric" value="6145" />0x1801
     <val type="list" id="140506054481608" >
       <item type="numeric" value="514" />
       <item type="numeric" value="254" />
@@ -165,13 +165,13 @@
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="5634" />
+    <key type="numeric" value="5634" />0x1602
     <val type="list" id="140506054481680" >
       <item type="numeric" value="805503008" />
     </val>
   </entry>
   <entry>
-    <key type="numeric" value="6657" />
+    <key type="numeric" value="6657" />0x1A01
     <val type="list" id="140506054481752" >
       <item type="numeric" value="536936464" />
     </val>
@@ -184,7 +184,7 @@
 </attr>
 <attr name="UserMapping" type="dict" id="140506054489544" >
   <entry>
-    <key type="numeric" value="8192" />
+    <key type="numeric" value="8192" /> 0x2000
     <val type="dict" id="140506054489824" >
       <entry>
         <key type="string" value="need" />
