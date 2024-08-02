@@ -35,17 +35,17 @@ static char Run;
 
 void display_usage(char *prog)
 {
-	printf("usage: %s itf nodeid\n", prog); 
+    printf("usage: %s itf nodeid\n", prog); 
     printf("    itf is the can interface\n");
     printf("    nodeid is the canopen node id from 1 to 127\n");
     printf("Ex: %s can0 12\n", prog);
 }
 
 /* A callback called when position is written */
-UNS32 callback_on_position(CO_Data* d, const indextable *idxtab , UNS8 bSubindex)
+UNS32 callback_on_position(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
 {
     printf("position have been set to %d\n", position);
-	return 0;
+    return 0;
 }
 
 /* A callback called when node state changes */
@@ -73,20 +73,20 @@ void state_change(CO_Data* d)
 
 void Exit(CO_Data* d, UNS32 id)
 {
-	setState(&slavedic_Data, Stopped);
+    setState(&slavedic_Data, Stopped);
     printf("Program terminating\n");
 }
 
 /*--- handler on SIGINT (CTL-C) signal ---*/
 void sortie(int sig)
 {
-	Run = 0;
+    Run = 0;
 }
 
 int main(int argc,char **argv)
 {
-	struct sigaction act;
-	uint8_t nodeid = 2;
+    struct sigaction act;
+    uint8_t nodeid = 2;
 
     // register handler on SIGINT signal 
     act.sa_handler=sortie;
@@ -95,7 +95,8 @@ int main(int argc,char **argv)
     sigaction(SIGINT,&act,0);
 
     // Check that we have the right command line parameters
-    if(argc != 3){
+    if(argc != 3)
+    {
         display_usage(argv[0]);
         exit(1);
     }
@@ -112,36 +113,37 @@ int main(int argc,char **argv)
     slavedic_Data.operational=state_change;
     slavedic_Data.stopped=state_change;
 
-	// Init Canfestival
-	if (LoadCanDriver("./libcanfestival_can_socket.so") == NULL){
-	    printf("Unable to load driver library\n");
-        printf("please put file libcanfestival_can_socket.so in the current directory\n");
+    // Init Canfestival
+    // if (LoadCanDriver("./libcanfestival_can_socket.so") == NULL){
+    //     printf("Unable to load driver library\n");
+    //     printf("please put file libcanfestival_can_socket.so in the current directory\n");
+    //     exit(1);
+    // }
+    if(!canOpen(&SlaveBoard0,&slavedic_Data))
+    {
+        printf("Cannot open can interface %s\n",SlaveBoard0.busname);
         exit(1);
     }
-	if(!canOpen(&SlaveBoard0,&slavedic_Data)){
-		printf("Cannot open can interface %s\n",SlaveBoard0.busname);
-		exit(1);
-	}
 
     TimerInit();
-	setNodeId(&slavedic_Data, nodeid);
-	setState(&slavedic_Data, Initialisation);
+    setNodeId(&slavedic_Data, nodeid);
+    setState(&slavedic_Data, Initialisation);
 
     printf("Canfestival initialisation done\n");
-	Run = 1;
-	while(Run)
-	{
+    Run = 1;
+    while(Run)
+    {
         sleep(1);
         EnterMutex();
         counter += nodeid;
         LeaveMutex();
-	}
+    }
 
-	// Stop timer thread
-	StopTimerLoop(&Exit);
-	// Close CAN devices (and can threads)
-	canClose(&slavedic_Data);
-	return 0;
+    // Stop timer thread
+    StopTimerLoop(&Exit);
+    // Close CAN devices (and can threads)
+    canClose(&slavedic_Data);
+    return 0;
 
 }
 
