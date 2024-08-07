@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "data.h"
 #include "canfestival.h"
 #include "sysdep.h"
+#include "objaccessinternal.h"
 
 #ifdef CO_ENABLE_LSS
 
@@ -841,12 +842,12 @@ UNS8 proceedLSS_Slave(CO_Data* d, Message* m )
 			
 		/* Check if the data match the identity object. */
 		switch(msg_cs){
-		case LSS_IDENT_REMOTE_VENDOR:d->lss_transfer.addr_ident_match=(_SpecificNodeInfo == READ_UNS32(ptrTable, 0, 1)? d->lss_transfer.addr_ident_match|0x01:0;	break;
-		case LSS_IDENT_REMOTE_PRODUCT:d->lss_transfer.addr_ident_match=(_SpecificNodeInfo == READ_UNS32(ptrTable, 0, 2)? d->lss_transfer.addr_ident_match|0x02:0;	break;
-		case LSS_IDENT_REMOTE_REV_LOW:d->lss_transfer.addr_ident_match=(_SpecificNodeInfo <= READ_UNS32(ptrTable, 0, 3)? d->lss_transfer.addr_ident_match|0x04:0; break;
-		case LSS_IDENT_REMOTE_REV_HIGH:d->lss_transfer.addr_ident_match=(_SpecificNodeInfo >= READ_UNS32(ptrTable, 0, 3)? d->lss_transfer.addr_ident_match|0x08:0;	break;
-		case LSS_IDENT_REMOTE_SERIAL_LOW:d->lss_transfer.addr_ident_match=(_SpecificNodeInfo <= READ_UNS32(ptrTable, 0, 4)? d->lss_transfer.addr_ident_match|0x10:0;	break;
-		case LSS_IDENT_REMOTE_SERIAL_HIGH:d->lss_transfer.addr_ident_match=(_SpecificNodeInfo >= READ_UNS32(ptrTable, 0, 4)? d->lss_transfer.addr_ident_match|0x20:0;	break;
+		case LSS_IDENT_REMOTE_VENDOR: d->lss_transfer.addr_ident_match=((_SpecificNodeInfo == READ_UNS32(ptrTable, 0, 1))? d->lss_transfer.addr_ident_match|0x01:0);	break;
+		case LSS_IDENT_REMOTE_PRODUCT: d->lss_transfer.addr_ident_match=((_SpecificNodeInfo == READ_UNS32(ptrTable, 0, 2))? d->lss_transfer.addr_ident_match|0x02:0);	break;
+		case LSS_IDENT_REMOTE_REV_LOW: d->lss_transfer.addr_ident_match=((_SpecificNodeInfo <= READ_UNS32(ptrTable, 0, 3))? d->lss_transfer.addr_ident_match|0x04:0);   break;
+		case LSS_IDENT_REMOTE_REV_HIGH: d->lss_transfer.addr_ident_match=((_SpecificNodeInfo >= READ_UNS32(ptrTable, 0, 3))? d->lss_transfer.addr_ident_match|0x08:0);	break;
+		case LSS_IDENT_REMOTE_SERIAL_LOW: d->lss_transfer.addr_ident_match=((_SpecificNodeInfo <= READ_UNS32(ptrTable, 0, 4))? d->lss_transfer.addr_ident_match|0x10:0);	break;
+		case LSS_IDENT_REMOTE_SERIAL_HIGH: d->lss_transfer.addr_ident_match=((_SpecificNodeInfo >= READ_UNS32(ptrTable, 0, 4))? d->lss_transfer.addr_ident_match|0x20:0);	break;
 		}
 		/* If all the fields has been set.. */
 		if(d->lss_transfer.addr_ident_match==0x3F){

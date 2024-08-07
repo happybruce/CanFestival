@@ -81,6 +81,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "applicfg.h"
 #include "timer.h"
+#include "can.h"
 
 typedef struct struct_CO_Data CO_Data;
 

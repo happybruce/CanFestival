@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __timer_h__
 #define __timer_h__
 
-#include <timerscfg.h>
-#include <applicfg.h>
+#include "timerscfg.h"
+#include "applicfg.h"
 
 typedef struct struct_CO_Data CO_Data;
 #define TIMER_HANDLE INTEGER16
