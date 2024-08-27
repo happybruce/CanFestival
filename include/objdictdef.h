@@ -111,14 +111,18 @@ typedef struct td_indextable
     const UNS16   index;
 } indextable;
 
+/**
+ * @brief Index of specified entry in Object Dict (OD). Only valid if value is > 0
+ * 
+ */
 typedef struct s_quick_index{
-	UNS16 SDO_SVR;
-	UNS16 SDO_CLT;
-	UNS16 PDO_RCV;
-	UNS16 PDO_RCV_MAP;
-	UNS16 PDO_TRS;
-	UNS16 PDO_TRS_MAP;
-}quick_index;
+	UNS16 SDO_SVR;     /* index in OD for SDO Server */ 
+	UNS16 SDO_CLT;     /* index in OD for SDO Client */ 
+	UNS16 PDO_RCV;     /* index in OD for Recv PDO */ 
+	UNS16 PDO_RCV_MAP; /* index in OD for Recv PDO mapping */ 
+	UNS16 PDO_TRS;     /* index in OD for Trans PDO */ 
+	UNS16 PDO_TRS_MAP; /* index in OD for Trans PDO mapping */ 
+} quick_index;
 
 /************************** MACROS *********************************/
 
