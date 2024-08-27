@@ -72,7 +72,7 @@ UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
         return 0;
     /* Set the first SDO client as available */
     if(d->firstIndex->SDO_CLT)
-        WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 3, 0);
+        WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 3, nodeId);
     else
         return 3;
     if((init_consise_dcf(d, nodeId) == 0) || (read_consise_dcf_next_entry(d, nodeId) == 0)){
