@@ -1311,7 +1311,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
                 if (nbBytes == 0) {
                     MSG_WAR(0x3AA6, "SDO End download expedited. Response received. from nodeId", nodeId);
                     StopSDO_TIMER(line)
-                        d->transfers[line].state = SDO_FINISHED;
+                    d->transfers[line].state = SDO_FINISHED;
                     if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
                     return 0x00;
                 }
