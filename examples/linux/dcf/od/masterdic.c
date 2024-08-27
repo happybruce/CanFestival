@@ -12,6 +12,7 @@ INTEGER16 position_3 = 0x0;		/* Mapped at index 0x2002, subindex 0x00 */
 UNS32 counter_1 = 0x0;		/* Mapped at index 0x3000, subindex 0x00 */
 UNS32 counter_2 = 0x0;		/* Mapped at index 0x3001, subindex 0x00 */
 UNS32 counter_3 = 0x0;		/* Mapped at index 0x3003, subindex 0x00 */
+INTEGER16 hehe = 0x0;		/* Mapped at index 0x4003, subindex 0x00 */
 
 /**************************************************************************/
 /* Declaration of value range types                                       */
@@ -135,9 +136,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1280 :   b'Client SDO 1 Parameter'. */
                     UNS8 masterdic_highestSubIndex_obj1280 = 3; /* number of subindex - 1*/
-                    UNS32 masterdic_obj1280_COB_ID_Client_to_Server_Transmit_SDO = 0x0;	/* 0 */
-                    UNS32 masterdic_obj1280_COB_ID_Server_to_Client_Receive_SDO = 0x0;	/* 0 */
-                    UNS8 masterdic_obj1280_Node_ID_of_the_SDO_Server = 0x0;	/* 0 */
+                    UNS32 masterdic_obj1280_COB_ID_Client_to_Server_Transmit_SDO = 0x601;	/* 1537 */
+                    UNS32 masterdic_obj1280_COB_ID_Server_to_Client_Receive_SDO = 0x581;	/* 1409 */
+                    UNS8 masterdic_obj1280_Node_ID_of_the_SDO_Server = 0x1;	/* 1 */
                     const CONSTSTORE subindex masterdic_Index1280[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1280 },
@@ -521,6 +522,12 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), .pObject=&counter_3 }
                      };
 
+/* index 0x4003 :   Mapped variable b'hehe' */
+                    const CONSTSTORE subindex masterdic_Index4003[] = 
+                     {
+                       { RW, int16, sizeof (INTEGER16), .pObject=&hehe }
+                     };
+
 /**************************************************************************/
 /* Declaration of pointed variables                                       */
 /**************************************************************************/
@@ -559,6 +566,7 @@ const CONSTSTORE indextable masterdic_objdict[] =
   { (const CONSTSTORE subindex* const)masterdic_Index3000,sizeof(masterdic_Index3000)/sizeof(masterdic_Index3000[0]), 0x3000},
   { (const CONSTSTORE subindex* const)masterdic_Index3001,sizeof(masterdic_Index3001)/sizeof(masterdic_Index3001[0]), 0x3001},
   { (const CONSTSTORE subindex* const)masterdic_Index3003,sizeof(masterdic_Index3003)/sizeof(masterdic_Index3003[0]), 0x3003},
+  { (const CONSTSTORE subindex* const)masterdic_Index4003,sizeof(masterdic_Index4003)/sizeof(masterdic_Index4003[0]), 0x4003},
 };
 
 const CONSTSTORE indextable * masterdic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
@@ -598,6 +606,7 @@ const CONSTSTORE indextable * masterdic_scanIndexOD (UNS16 wIndex, UNS32 * error
 		case 0x3000: i = 29;*callbacks = counter_1_callbacks; break;
 		case 0x3001: i = 30;*callbacks = counter_2_callbacks; break;
 		case 0x3003: i = 31;*callbacks = counter_3_callbacks; break;
+		case 0x4003: i = 32;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;

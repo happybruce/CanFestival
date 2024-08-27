@@ -8,6 +8,7 @@
 /**************************************************************************/
 UNS32 counter = 0x0;		/* Mapped at index 0x2000, subindex 0x00 */
 INTEGER16 position = 0x0;		/* Mapped at index 0x2001, subindex 0x00 */
+INTEGER16 hehe = 0x0;		/* Mapped at index 0x4003, subindex 0x00 */
 
 /**************************************************************************/
 /* Declaration of value range types                                       */
@@ -552,6 +553,16 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, int16, sizeof (INTEGER16), .pObject=&position }
                      };
 
+/* index 0x4003 :   Mapped variable b'hehe' */
+                    ODCallback_t hehe_callbacks[] = 
+                     {
+                       NULL,
+                     };
+                    const CONSTSTORE subindex slavedic_Index4003[] = 
+                     {
+                       { RW, int16, sizeof (INTEGER16), .pObject=&hehe }
+                     };
+
 /**************************************************************************/
 /* Declaration of pointed variables                                       */
 /**************************************************************************/
@@ -581,6 +592,7 @@ const CONSTSTORE indextable slavedic_objdict[] =
   { (const CONSTSTORE subindex* const)slavedic_Index1A03,sizeof(slavedic_Index1A03)/sizeof(slavedic_Index1A03[0]), 0x1A03},
   { (const CONSTSTORE subindex* const)slavedic_Index2000,sizeof(slavedic_Index2000)/sizeof(slavedic_Index2000[0]), 0x2000},
   { (const CONSTSTORE subindex* const)slavedic_Index2001,sizeof(slavedic_Index2001)/sizeof(slavedic_Index2001[0]), 0x2001},
+  { (const CONSTSTORE subindex* const)slavedic_Index4003,sizeof(slavedic_Index4003)/sizeof(slavedic_Index4003[0]), 0x4003},
 };
 
 const CONSTSTORE indextable * slavedic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
@@ -611,6 +623,7 @@ const CONSTSTORE indextable * slavedic_scanIndexOD (UNS16 wIndex, UNS32 * errorC
 		case 0x1A03: i = 20;break;
 		case 0x2000: i = 21;*callbacks = counter_callbacks; break;
 		case 0x2001: i = 22;*callbacks = position_callbacks; break;
+		case 0x4003: i = 23;*callbacks = hehe_callbacks; break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;

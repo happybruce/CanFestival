@@ -18,5 +18,6 @@ extern INTEGER16 position_3;		/* Mapped at index 0x2002, subindex 0x00*/
 extern UNS32 counter_1;		/* Mapped at index 0x3000, subindex 0x00*/
 extern UNS32 counter_2;		/* Mapped at index 0x3001, subindex 0x00*/
 extern UNS32 counter_3;		/* Mapped at index 0x3003, subindex 0x00*/
+extern INTEGER16 hehe;		/* Mapped at index 0x4003, subindex 0x00*/
 
 #endif // MASTERDIC_H

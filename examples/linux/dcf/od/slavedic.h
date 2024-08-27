@@ -14,5 +14,6 @@ const CONSTSTORE indextable * slavedic_scanIndexOD (UNS16 wIndex, UNS32 * errorC
 extern CO_Data slavedic_Data;
 extern UNS32 counter;		/* Mapped at index 0x2000, subindex 0x00*/
 extern INTEGER16 position;		/* Mapped at index 0x2001, subindex 0x00*/
+extern INTEGER16 hehe;		/* Mapped at index 0x4003, subindex 0x00*/
 
 #endif // SLAVEDIC_H
