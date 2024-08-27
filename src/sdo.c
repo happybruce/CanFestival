@@ -785,46 +785,53 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
     offset = d->firstIndex->SDO_SVR;
     lastIndex = d->lastIndex->SDO_SVR;
     j = 0;
-    if(offset) while (offset <= lastIndex) {
-        if (d->objdict[offset].bSubCount <= 1) {
-            MSG_ERR(0x1A61, "Subindex 1  not found at index ", 0x1200 + j);
-            return 0xFF;
-        }
-        /* Looking for the cobid received. */
-        if (READ_UNS32(d->objdict, offset, 1) == UNS16_LE(m->cob_id) ) {
-            whoami = SDO_SERVER;
-            MSG_WAR(0x3A62, "proceedSDO. I am server. index : ", 0x1200 + j);
-            /* Defining Server number = index minus 0x1200 where the cobid received is defined. */
-            CliServNbr = j;
-            break;
-        }
-        j++;
-        offset++;
-    } /* end while */
-    if (whoami == SDO_UNKNOWN) {
-        /* Am-I client ? */
-        offset = d->firstIndex->SDO_CLT;
-        lastIndex = d->lastIndex->SDO_CLT;
-        j = 0;
-        if(offset) while (offset <= lastIndex) {
-            if (d->objdict[offset].bSubCount <= 3) {
-                MSG_ERR(0x1A63, "Subindex 3  not found at index ", 0x1280 + j);
+
+    if(offset) {
+        while (offset <= lastIndex) {
+            if (d->objdict[offset].bSubCount <= 1) {
+                MSG_ERR(0x1A61, "Subindex 1  not found at index ", 0x1200 + j);
                 return 0xFF;
             }
             /* Looking for the cobid received. */
-            if (READ_UNS32(d->objdict, offset, 2) == UNS16_LE(m->cob_id) ) {
-                whoami = SDO_CLIENT;
-                MSG_WAR(0x3A64, "proceedSDO. I am client index : ", 0x1280 + j);
-                /* Defining Client number = index minus 0x1280 where the cobid received is defined. */
+            if (READ_UNS32(d->objdict, offset, 1) == UNS16_LE(m->cob_id) ) {
+                whoami = SDO_SERVER;
+                MSG_WAR(0x3A62, "proceedSDO. I am server. index : ", 0x1200 + j);
+                /* Defining Server number = index minus 0x1200 where the cobid received is defined. */
                 CliServNbr = j;
-                /* Reading the server node ID, if client it is mandatory in the OD */
-                nodeId = READ_UNS8(d->objdict, offset, 3);
                 break;
             }
             j++;
             offset++;
         } /* end while */
     }
+
+    if (whoami == SDO_UNKNOWN) {
+        /* Am-I client ? */
+        offset = d->firstIndex->SDO_CLT;
+        lastIndex = d->lastIndex->SDO_CLT;
+        j = 0;
+        if(offset) {
+            while (offset <= lastIndex) {
+                if (d->objdict[offset].bSubCount <= 3) {
+                    MSG_ERR(0x1A63, "Subindex 3  not found at index ", 0x1280 + j);
+                    return 0xFF;
+                }
+                /* Looking for the cobid received. */
+                if (READ_UNS32(d->objdict, offset, 2) == UNS16_LE(m->cob_id) ) {
+                    whoami = SDO_CLIENT;
+                    MSG_WAR(0x3A64, "proceedSDO. I am client index : ", 0x1280 + j);
+                    /* Defining Client number = index minus 0x1280 where the cobid received is defined. */
+                    CliServNbr = j;
+                    /* Reading the server node ID, if client it is mandatory in the OD */
+                    nodeId = READ_UNS8(d->objdict, offset, 3);
+                    break;
+                }
+                j++;
+                offset++;
+            } /* end while */
+        } 
+    }
+    
     if (whoami == SDO_UNKNOWN) {
         return 0xFF;/* This SDO was not for us ! */
     }
