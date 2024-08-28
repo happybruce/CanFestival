@@ -2367,7 +2367,6 @@ UNS8 getReadResultNetworkDict (CO_Data* d, UNS8 nodeId, void* data, UNS32 *size,
     
     /* Give back actual size */
     *size = d->transfers[line].count;
-    printf("==>sss %d\n", *size);
 
     /* Copy payload to data pointer */
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
