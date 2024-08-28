@@ -1,3 +1,6 @@
+#ifndef __CM4_CANFESTIVAL_H__
+#define __CM4_CANFESTIVAL_H__
+
 #include "applicfg.h"
 
 struct CO_Data;
@@ -12,3 +15,6 @@ void canClose(void);
 
 void disable_it(void);
 void enable_it(void);
+
+
+#endif
