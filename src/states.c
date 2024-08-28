@@ -71,10 +71,17 @@ void canDispatch(CO_Data* d, Message *m)
             if(cob_id == 0x080)    /* SYNC */
             {
                 if(d->CurrentCommunicationState.csSYNC)
+                {
                     proceedSYNC(d);
-            } else         /* EMCY */
+                }
+            }
+            else         /* EMCY */
+            {
                 if(d->CurrentCommunicationState.csEmergency)
+                {
                     proceedEMCY(d,m);
+                }
+            }
             break;
         case TIME_STAMP:
         case PDO1tx:
@@ -86,16 +93,22 @@ void canDispatch(CO_Data* d, Message *m)
         case PDO4tx:
         case PDO4rx:
             if (d->CurrentCommunicationState.csPDO)
+            {
                 proceedPDO(d,m);
+            }
             break;
         case SDOtx:
         case SDOrx:
             if (d->CurrentCommunicationState.csSDO)
+            {
                 proceedSDO(d,m);
+            }
             break;
         case NODE_GUARD:
             if (d->CurrentCommunicationState.csLifeGuard)
+            {
                 proceedNODE_GUARD(d,m);
+            }
             break;
         case NMT:
             if (*(d->iam_a_slave))

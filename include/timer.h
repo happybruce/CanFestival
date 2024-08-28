@@ -40,12 +40,12 @@ typedef struct struct_CO_Data CO_Data;
 typedef void (*TimerCallback_t)(CO_Data* d, UNS32 id);
 
 struct struct_s_timer_entry {
-	UNS8 state;
-	CO_Data* d;
-	TimerCallback_t callback; /* The callback func. */
-	UNS32 id; /* The callback func. */
-	TIMEVAL val;
-	TIMEVAL interval; /* Periodicity */
+    UNS8 state;
+    CO_Data* d;
+    TimerCallback_t callback; /* The callback func. */
+    UNS32 id; /* The callback func. */
+    TIMEVAL val;
+    TIMEVAL interval; /* Periodicity */
 };
 
 typedef struct struct_s_timer_entry s_timer_entry;

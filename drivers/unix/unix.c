@@ -33,12 +33,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define FCT_PTR_INIT =NULL
 
 #define DLSYM(name)\
-	*(void **) (&name##_driver) = dlsym(handle, #name"_driver");\
-	if ((error = dlerror()) != NULL)  {\
-		fprintf (stderr, "%s\n", error);\
-		UnLoadCanDriver(handle);\
-		return NULL;\
-	}
+    *(void **) (&name##_driver) = dlsym(handle, #name"_driver");\
+    if ((error = dlerror()) != NULL)  {\
+        fprintf (stderr, "%s\n", error);\
+        UnLoadCanDriver(handle);\
+        return NULL;\
+    }
 
 #else /*NOT_USE_DYNAMIC_LOADING*/
 
@@ -69,7 +69,7 @@ CANPort canports[MAX_NB_CAN_PORTS] = {{0,},{0,},{0,},{0,},{0,},{0,},{0,},{0,},{0
 
 /*UnLoads the dll*/
 UNS8 UnLoadCanDriver(LIB_HANDLE handle)
-    {
+{
     if(handle!=NULL)
     {
         dlclose(handle);
@@ -97,9 +97,10 @@ LIB_HANDLE LoadCanDriver(const char* driver_name)
         handle = dlopen(driver_name, RTLD_LAZY);
     }
 
-    if (!handle) {
+    if (!handle) 
+    {
         fprintf (stderr, "%s\n", dlerror());
-            return NULL;
+        return NULL;
     }
 
     /*Get function ptr*/
@@ -122,9 +123,10 @@ LIB_HANDLE LoadCanDriver(const char* driver_name)
  */
 UNS8 canSend(CAN_PORT port, Message *m)
 {
-    if(port) {
+    if(port)
+    {
         UNS8 res;
-            //LeaveMutex();
+        //LeaveMutex();
         res = DLL_CALL(canSend)(((CANPort*)port)->fd, m);
         //EnterMutex();
         return res; // OK
@@ -140,7 +142,8 @@ void canReceiveLoop(CAN_PORT port)
 {
     Message m;
 
-    while (((CANPort*)port)->used) {
+    while (((CANPort*)port)->used)
+    {
         if (DLL_CALL(canReceive)(((CANPort*)port)->fd, &m) != 0)
             break;
 
@@ -171,14 +174,16 @@ CAN_PORT canOpen(s_BOARD *board, CO_Data * d)
         return NULL;
     }
 
-    #ifndef NOT_USE_DYNAMIC_LOADING
+#ifndef NOT_USE_DYNAMIC_LOADING
     if (&DLL_CALL(canOpen)==NULL) {
         fprintf(stderr,"CanOpen : Can Driver dll not loaded\n");
         return NULL;
     }
-    #endif
+#endif
+
     CAN_HANDLE fd0 = DLL_CALL(canOpen)(board);
-    if(fd0) {
+    if(fd0)
+    {
         canports[i].used = 1;
         canports[i].fd = fd0;
         canports[i].d = d;
@@ -186,7 +191,8 @@ CAN_PORT canOpen(s_BOARD *board, CO_Data * d)
         CreateReceiveTask(&(canports[i]), &canports[i].receiveTask, &canReceiveLoop);
         return (CAN_PORT)&canports[i];
     }
-    else {
+    else
+    {
         MSG("CanOpen : Cannot open board {busname='%s',baudrate='%s'}\n",board->busname, board->baudrate);
         return NULL;
     }
@@ -202,7 +208,8 @@ int canClose(CO_Data * d)
     int res = 0;
 
     CANPort* port = (CANPort*)d->canHandle;
-    if(port){
+    if(port)
+    {
         ((CANPort*)d->canHandle)->used = 0;
 
         res = DLL_CALL(canClose)(port->fd);
@@ -224,7 +231,8 @@ int canClose(CO_Data * d)
  */
 UNS8 canChangeBaudRate(CAN_PORT port, char* baud)
 {
-    if(port) {
+    if(port)
+    {
         UNS8 res;
         //LeaveMutex();
         res = DLL_CALL(canChangeBaudRate)(((CANPort*)port)->fd, baud);

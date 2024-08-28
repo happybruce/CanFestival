@@ -69,7 +69,7 @@ UNS32 _storeODSubIndex (CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
  * @return
  */ 
 UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex, 
-			   UNS32 sizeDataDict, UNS32 sizeDataGiven, UNS32 code);
+               UNS32 sizeDataDict, UNS32 sizeDataGiven, UNS32 code);
 
 
 /* _getODentry() Reads an entry from the object dictionary.\n
@@ -142,9 +142,9 @@ UNS32 _getODentry( CO_Data* d,
  */
 #ifndef getODEntry
 #define getODentry( OD, wIndex, bSubindex, pDestData, pExpectedSize, \
-		          pDataType,  checkAccess)                         \
+                     pDataType,  checkAccess)                         \
        _getODentry( OD, wIndex, bSubindex, pDestData, pExpectedSize, \
-		          pDataType,  checkAccess, 1)            
+                     pDataType,  checkAccess, 1)            
 #endif
 
 /** 
@@ -172,9 +172,9 @@ UNS32 _getODentry( CO_Data* d,
  */
 #ifndef readLocalDict
 #define readLocalDict( OD, wIndex, bSubindex, pDestData, pExpectedSize, \
-		          pDataType,  checkAccess)                         \
+                     pDataType,  checkAccess)                         \
        _getODentry( OD, wIndex, bSubindex, pDestData, pExpectedSize, \
-		          pDataType,  checkAccess, 0)
+                     pDataType,  checkAccess, 0)
 #endif
 
 /* By this function you can write an entry into the object dictionary

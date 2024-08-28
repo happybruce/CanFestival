@@ -22,23 +22,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /** @defgroup heartbeato Heartbeat Object
  *  The heartbeat mechanism for a device is established through cyclically transmitting a message by a
- *	heartbeat producer. One or more devices in the network are aware of this heartbeat message. If the
- *	heartbeat cycle fails for the heartbeat producer the local application on the heartbeat consumer will be
- *	informed about that event.
+ *  heartbeat producer. One or more devices in the network are aware of this heartbeat message. If the
+ *  heartbeat cycle fails for the heartbeat producer the local application on the heartbeat consumer will be
+ *  informed about that event.
  *  @ingroup comobj
  */
 
 /** @defgroup nodeguardo Node-guarding Object
  *  The node-guarding mechanism for a device is established through cyclically polling all slaves by the NMT
- *    	master. If one polled slave does not respond during a specified time (LifeTime), the local application
- * 	will be informed about that event.<br>
- *	It is also possible for the slaves to monitor the node-guarding requests coming from the master to
- * 	determine, if the master operates in a right way
+ *  master. If one polled slave does not respond during a specified time (LifeTime), the local application
+ *  will be informed about that event.<br>
+ *  It is also possible for the slaves to monitor the node-guarding requests coming from the master to
+ *  determine, if the master operates in a right way
  *  @ingroup comobj
  *
  * @todo The implementation is very basic. The toggle bit of the nodes confirmation is not checked at the moment
  */
-	
+
 /**
 ** @file   lifegrd.h
 ** @author Markus WILDBOLZ
@@ -48,7 +48,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 **
 **
 */
-				 
+                 
 #ifndef __lifegrd_h__
 #define __lifegrd_h__
 
