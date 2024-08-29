@@ -5,7 +5,6 @@ project(canfestival)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/default/
     ${CMAKE_CURRENT_SOURCE_DIR}/include/unix/
     ${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix/
     ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od/
