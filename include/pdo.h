@@ -47,10 +47,10 @@ void _RxPDO_EventTimers_Handler(CO_Data *d, UNS32 pdoNum);
 
 /** The PDO structure */
 struct struct_s_PDO_status {
-  UNS8 transmit_type_parameter;
-  TIMER_HANDLE event_timer;
-  TIMER_HANDLE inhibit_timer;
-  Message last_message;
+    UNS8 transmit_type_parameter;
+    TIMER_HANDLE event_timer;
+    TIMER_HANDLE inhibit_timer;
+    Message last_message;
 };
 
 #define s_PDO_status_Initializer {0, TIMER_NONE, TIMER_NONE, Message_Initializer}

@@ -72,10 +72,11 @@ UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
         return 0;
     /* Set the first SDO client as available */
     if(d->firstIndex->SDO_CLT)
-        WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 3, 0);
+        WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 3, nodeId);
     else
         return 3;
-    if((init_consise_dcf(d, nodeId) == 0) || (read_consise_dcf_next_entry(d, nodeId) == 0)){
+    if((init_consise_dcf(d, nodeId) == 0) || (read_consise_dcf_next_entry(d, nodeId) == 0))
+    {
         start_node(d, nodeId);
         return 1;
     }
@@ -94,7 +95,8 @@ void start_and_seek_node(CO_Data* d, UNS8 nodeId)
    UNS8 node;
    if(nodeId)
        start_node(d,nodeId);
-   for(node = 0 ; node<NMT_MAX_NODE_ID ; node++){
+   for(node = 0 ; node<NMT_MAX_NODE_ID ; node++)
+   {
        if(d->NMTable[node] != Initialisation)
            continue;
        if(check_and_start_node(d, node) == 2)
@@ -114,31 +116,39 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
     UNS32 abortCode = 0;
     UNS8 buf[4], match = 0;
     UNS32 size=4;
-    if(d->dcf_status == DCF_STATUS_READ_CHECK){
+    if(d->dcf_status == DCF_STATUS_READ_CHECK)
+    {
         if(getReadResultNetworkDict (d, nodeId, buf, &size, &abortCode) != SDO_FINISHED)
             goto dcferror;
         /* Check if data received match the DCF */
-        if(size == d->dcf_size){
+        if(size == d->dcf_size)
+        {
             match = 1;
             while(size--)
                 if(buf[size] != d->dcf_data[size])
                     match = 0;
         }
-        if(match) {
-            if(read_consise_dcf_next_entry(d, nodeId) == 0){
+
+        if(match)
+        {
+            if(read_consise_dcf_next_entry(d, nodeId) == 0)
+            {
                 start_and_seek_node(d, nodeId);
             }
         }
-        else { /* Data received does not match : start rewriting all */
+        else
+        { /* Data received does not match : start rewriting all */
             if((init_consise_dcf(d, nodeId) == 0) || (write_consise_dcf_next_entry(d, nodeId) == 0))
                 goto dcferror;                
             d->dcf_status = DCF_STATUS_WRITE;
         }
     }
-    else if(d->dcf_status == DCF_STATUS_WRITE){
+    else if(d->dcf_status == DCF_STATUS_WRITE)
+    {
         if(getWriteResultNetworkDict (d, nodeId, &abortCode) != SDO_FINISHED)
             goto dcferror;
-        if(write_consise_dcf_next_entry(d, nodeId) == 0){
+        if(write_consise_dcf_next_entry(d, nodeId) == 0)
+        {
 #ifdef DCF_SAVE_NODE
             SaveNode(d, nodeId);
             d->dcf_status = DCF_STATUS_SAVED;
@@ -148,7 +158,8 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
 #endif //DCF_SAVE_NODE
         }
     }
-    else if(d->dcf_status == DCF_STATUS_SAVED){
+    else if(d->dcf_status == DCF_STATUS_SAVED)
+    {
         if(getWriteResultNetworkDict (d, nodeId, &abortCode) != SDO_FINISHED)
             goto dcferror;
         masterSendNMTstateChange (d, nodeId, NMT_Reset_Node);
@@ -159,7 +170,7 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
 dcferror:
     MSG_ERR(0x1A01, "SDO error in consise DCF", abortCode);
     MSG_WAR(0x2A02, "slave node : ", nodeId);
-	resetClientSDOLineFromNodeId(d, nodeId);
+    resetClientSDOLineFromNodeId(d, nodeId);
     d->NMTable[nodeId] = Unknown_state;
     d->dcf_status = DCF_STATUS_INIT;
     start_and_seek_node(d,0);
@@ -189,53 +200,62 @@ UNS8 init_consise_dcf(CO_Data* d,UNS8 nodeId)
     d->dcf_entries_count = 0;
     d->dcf_status = DCF_STATUS_INIT;
     return 1;
-    DCF_finish:
+
+DCF_finish:
     return 0;
 }
 
 UNS8 get_next_DCF_data(CO_Data* d, dcf_entry_t *dcf_entry, UNS8 nodeId)
 {
-  UNS8* dcfend;
-  UNS32 nb_entries;
-  UNS32 szData;
-  UNS8* dcf;
-  if(!d->dcf_odentry)
-     return 0;
-  if(nodeId > d->dcf_odentry->bSubCount)
-     return 0;
-  szData = d->dcf_odentry->pSubindex[nodeId].size;
-  dcf = (UNS8*)d->dcf_odentry->pSubindex[nodeId].pObject;
-  nb_entries = UNS32_LE(*((UNS32*)dcf));
-  dcfend = dcf + szData;
-  if((UNS8*)d->dcf_cursor + 7 < (UNS8*)dcfend && d->dcf_entries_count < nb_entries){
+    UNS8* dcfend;
+    UNS32 nb_entries;
+    UNS32 szData;
+    UNS8* dcf;
+
+    if(!d->dcf_odentry)
+    {
+        return 0;
+    }
+        
+    if(nodeId > d->dcf_odentry->bSubCount)
+    {
+        return 0;
+    }
+        
+    szData = d->dcf_odentry->pSubindex[nodeId].size;
+    dcf = (UNS8*)d->dcf_odentry->pSubindex[nodeId].pObject;
+    nb_entries = UNS32_LE(*((UNS32*)dcf));
+    dcfend = dcf + szData;
+    if((UNS8*)d->dcf_cursor + 7 < (UNS8*)dcfend && d->dcf_entries_count < nb_entries)
+    {
     /* DCF data may not be 32/16b aligned, 
     * we cannot directly dereference d->dcf_cursor 
     * as UNS16 or UNS32 
     * Do it byte per byte taking care on endianess*/
 #ifdef CANOPEN_BIG_ENDIAN
-    dcf_entry->Index = *(d->dcf_cursor++) << 8 | 
-     	               *(d->dcf_cursor++);
+        dcf_entry->Index = *(d->dcf_cursor++) << 8 | 
+     	                   *(d->dcf_cursor++);
 #else
-    memcpy(&dcf_entry->Index, d->dcf_cursor,2);
-       	d->dcf_cursor+=2;
+        memcpy(&dcf_entry->Index, d->dcf_cursor,2);
+            d->dcf_cursor+=2;
 #endif
-    dcf_entry->Subindex = *(d->dcf_cursor++);
+        dcf_entry->Subindex = *(d->dcf_cursor++);
 #ifdef CANOPEN_BIG_ENDIAN
-    dcf_entry->Size = *(d->dcf_cursor++) << 24 | 
-     	              *(d->dcf_cursor++) << 16 | 
-        	          *(d->dcf_cursor++) << 8 | 
-        	          *(d->dcf_cursor++);
+        dcf_entry->Size = *(d->dcf_cursor++) << 24 | 
+                          *(d->dcf_cursor++) << 16 | 
+                          *(d->dcf_cursor++) << 8 | 
+                          *(d->dcf_cursor++);
 #else
-    memcpy(&dcf_entry->Size, d->dcf_cursor,4);
-    d->dcf_cursor+=4;
+        memcpy(&dcf_entry->Size, d->dcf_cursor,4);
+        d->dcf_cursor+=4;
 #endif
-    d->dcf_data = dcf_entry->Data = d->dcf_cursor;
-    d->dcf_size = dcf_entry->Size;
-    d->dcf_cursor += dcf_entry->Size;
-    d->dcf_entries_count++;
-    return 1;
-  }
-  return 0;
+        d->dcf_data = dcf_entry->Data = d->dcf_cursor;
+        d->dcf_size = dcf_entry->Size;
+        d->dcf_cursor += dcf_entry->Size;
+        d->dcf_entries_count++;
+        return 1;
+    }
+    return 0;
 }
 
 static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
@@ -243,7 +263,10 @@ static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
     UNS8 Ret;
     dcf_entry_t dcf_entry;
     if(!get_next_DCF_data(d, &dcf_entry, nodeId))
+    {
         return 0;
+    }
+        
     Ret = writeNetworkDictCallBackAI(d, /* CO_Data* d*/
                     nodeId, /* UNS8 nodeId*/
                     dcf_entry.Index, /* UNS16 index*/
@@ -254,7 +277,8 @@ static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
                     CheckSDOAndContinue,/* Callback*/
                     0,   /* no endianize*/
                     0); /* no block mode */
-    if(Ret) {
+    if(Ret)
+    {
         MSG_ERR(0x1A02,"Error writeNetworkDictCallBackAI",Ret);
     }
     return 1;
@@ -273,7 +297,8 @@ static UNS8 read_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
                    0, /* UNS8 dataType*/
                    CheckSDOAndContinue,/* Callback*/
                    0); /* no block mode */
-    if(Ret) {
+    if(Ret)
+    {
         MSG_ERR(0x1A03,"Error readNetworkDictCallbackAI",Ret);
     }
     return 1;
@@ -293,7 +318,8 @@ void SaveNode(CO_Data* d, UNS8 nodeId)
                     CheckSDOAndContinue,/* Callback*/
                     0,   /* no endianize*/
                     0); /* no block mode */
-    if(Ret) {
+    if(Ret)
+    {
         MSG_ERR(0x1A04,"Error writeNetworkDictCallBackAI",Ret);
     }
 }

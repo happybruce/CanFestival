@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
+#include <stdbool.h>
 
 #include "masterdic.h"
 #include "canfestival.h"
@@ -39,6 +40,8 @@ UNS8 dcfdatas[DCF_MAX_NODE_ID][DCF_MAX_SIZE];
 s_BOARD MasterBoard0 = {"0", ""};
 
 static char Run;
+
+e_nodeState gNewNodeState = Initialisation;
 
 void setup_dcf(void)
 {
@@ -93,6 +96,8 @@ void slave_state_change_callback(CO_Data* d, UNS8 nodeId, e_nodeState newNodeSta
         printf("Node %u state is now  : Unknown_state\n", nodeId);
     else
         printf("Error : node %u unexpected state\n", nodeId);
+
+    gNewNodeState = newNodeState;
 }
 
 void heartbeatTimeOut(CO_Data* d, UNS8 nodeid)
@@ -129,7 +134,8 @@ int main(int argc,char **argv)
     printf("Starting on %s with node id = 100\n", MasterBoard0.busname);
 
     // Set the master node id, we do not call setNodeId() because we do not need all the predefined connexion set
-    *masterdic_Data.bDeviceNodeId = 100;
+    // *masterdic_Data.bDeviceNodeId = 100;
+    setNodeId(&masterdic_Data, 100);
 
     // register the callbacks we use
     masterdic_Data.post_SlaveBootup = slave_bootup_callback;
@@ -157,8 +163,12 @@ int main(int argc,char **argv)
     
     printf("Master starting on %s\n", MasterBoard0.busname);
     Run = 1;
+    int16_t expectedData = 1000;
     while(Run)
     {
+        bool fReadDone = FALSE;
+        bool fWRDone = FALSE;
+        
         EnterMutex();
         printf("Slaves : counter 1 = %u, counter 2 = %u, counter 3 = %u\n",counter_1, counter_2, counter_3);
         position_1 += 1;
@@ -168,7 +178,76 @@ int main(int argc,char **argv)
         sendOnePDOevent(&masterdic_Data, 1);
         sendOnePDOevent(&masterdic_Data, 2);
         LeaveMutex();
-        sleep(5);
+
+        sleep(3);
+        
+        if (gNewNodeState == Operational || gNewNodeState == Pre_operational)
+        {
+            uint8_t ret = writeNetworkDict(&masterdic_Data, 1, 0x4003, 0, 2, int16, &expectedData, 0);
+
+            if (ret == 0)
+            {
+                expectedData++;
+                fWRDone = TRUE;
+            }
+            else
+            {
+                printf("==>Write Error: 0x%x\n", ret);
+            }
+        }
+
+        if (fWRDone)
+        {
+            while (TRUE && Run)
+            {
+                UNS32 abort_code;
+                uint8_t ret = getWriteResultNetworkDict(&masterdic_Data, 1, &abort_code);
+                if (ret == SDO_FINISHED)
+                {
+                    break;
+                }
+                else
+                {
+                    printf("==> Write not finished, wait 1s\n");
+                    sleep(1);
+                }
+            }
+
+        
+            uint8_t ret = readNetworkDict(&masterdic_Data, 1, 0x4003, 0, int16, 0);
+
+            if (ret == 0)
+            {
+                fReadDone = TRUE;
+            }
+            else
+            {
+                printf("==> Read Error: 0x%x\n", ret);
+            }
+            
+        }
+
+        if (fReadDone)
+        {
+            while (TRUE && Run)
+            {
+                int16_t readData = 0;
+                UNS32 size = 2;
+                UNS32 abortCode = 0;
+                uint8_t ret = getReadResultNetworkDict(&masterdic_Data, 1, &readData, &size, &abortCode);
+                if (ret == SDO_FINISHED)
+                {
+                    printf("==> recv data: %d, size: %d\n", readData, size);
+                    break;
+                }
+                else
+                {
+                    printf("==> Read not finished, wait 1s\n");
+                    sleep(1);
+                }
+            }
+
+        }
     }
 
     // Stop timer thread

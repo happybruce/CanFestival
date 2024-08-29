@@ -26,8 +26,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  
 /** @defgroup sdo Service Data Object (SDO)
  *  SDOs provide the access to entries in the CANopen Object Dictionary.
- * 	An SDO is made up of at least two CAN messages with different identifiers.
- * 	SDO s are always confirmed point-to-point communications services. 
+ *  An SDO is made up of at least two CAN messages with different identifiers.
+ *  SDO s are always confirmed point-to-point communications services. 
  *  @ingroup comobj
  */
  
@@ -62,7 +62,7 @@ struct struct_s_transfer {
 
   UNS8           whoami;     /**< Takes the values SDO_CLIENT or SDO_SERVER */
   UNS8           state;      /**< state of the transmission : Takes the values SDO_... */
-  UNS8           toggle;	
+  UNS8           toggle;    
   UNS32          abortCode;  /**< Sent or received */
   /**< index and subindex of the dictionary where to store */
   /**< (for a received SDO) or to read (for a transmit SDO) */
@@ -288,7 +288,7 @@ UNS8 sendSDOabort (CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 s
  * @param *d Pointer on a CAN object data structure
  * @param *m Pointer on a CAN message structure 
  * @return code : 
- * 		   - 0xFF if error
+ *         - 0xFF if error
  *         - 0x80 if transfer aborted by the server
  *         - 0x0  ok
  */
@@ -297,7 +297,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m);
 /**
  * @ingroup sdo
  * @brief Reset the SDO client line used to communicate with the server nodeId
- *		  Mustbe called after getRead/WriteResultNetworkDict in case of error
+ *        Mustbe called after getRead/WriteResultNetworkDict in case of error
  * @param d
  * @param nodeId
  */
@@ -319,7 +319,7 @@ void resetClientSDOLineFromNodeId(CO_Data* d, UNS8 nodeId);
  * - 0xFF is returned when error occurs.
  */
 UNS8 writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
-		       UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, UNS8 useBlockMode);
+               UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, UNS8 useBlockMode);
 
 /** 
  * @ingroup sdo
@@ -340,7 +340,7 @@ UNS8 writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
  * - 0xFF is returned when error occurs.
  */
 UNS8 writeNetworkDictCallBack (CO_Data* d, UNS8 nodeId, UNS16 index,
-		       UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, SDOCallback_t Callback, UNS8 useBlockMode);
+               UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, SDOCallback_t Callback, UNS8 useBlockMode);
 
 /**
  * @ingroup sdo 
@@ -365,7 +365,7 @@ UNS8 writeNetworkDictCallBack (CO_Data* d, UNS8 nodeId, UNS16 index,
  * - 0xFF is returned when error occurs.
  */
 UNS8 writeNetworkDictCallBackAI (CO_Data* d, UNS8 nodeId, UNS16 index,
-		       UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, SDOCallback_t Callback, UNS8 endianize, UNS8 useBlockMode);
+               UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, SDOCallback_t Callback, UNS8 endianize, UNS8 useBlockMode);
 
 /**
  * @ingroup sdo 

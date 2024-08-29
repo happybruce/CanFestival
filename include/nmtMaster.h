@@ -45,10 +45,10 @@ typedef struct struct_CO_Data CO_Data;
  * 
  * Allowed states :
  *  - cs =  NMT_Start_Node               // Put the node in operational mode             
- *  - cs =	NMT_Stop_Node		         // Put the node in stopped mode
- *  - cs =	NMT_Enter_PreOperational     // Put the node in pre_operational mode  
- *  - cs =  NMT_Reset_Node		         // Put the node in initialization mode 
- *  - cs =  NMT_Reset_Comunication	     // Put the node in initialization mode
+ *  - cs =  NMT_Stop_Node                 // Put the node in stopped mode
+ *  - cs =  NMT_Enter_PreOperational     // Put the node in pre_operational mode  
+ *  - cs =  NMT_Reset_Node                 // Put the node in initialization mode 
+ *  - cs =  NMT_Reset_Comunication         // Put the node in initialization mode
  *  
  * The mode is changed according to the slave state machine mode :
  *  - initialisation  ---> pre-operational (Automatic transition)

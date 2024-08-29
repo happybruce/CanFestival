@@ -14,15 +14,17 @@ include_directories(
 # add_compile_options(-fPIC -Wall -g -Wmissing-prototypes -fno-strict-aliasing)
 add_compile_options(-fPIC -Wall -g -fno-strict-aliasing)
 
-add_compile_definitions(NOT_USE_DYNAMIC_LOADING)
+add_compile_definitions(NOT_USE_DYNAMIC_LOADING CO_ENABLE_LSS CO_ENABLE_LSS_FS)
 
+add_compile_definitions(DEBUG_ERR_CONSOLE_ON)
+# add_compile_definitions(DEBUG_WAR_CONSOLE_ON)
 
 set(CANFESTIVAL_SRC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dcf.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/emcy.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lifegrd.c
 
-    # ${CMAKE_CURRENT_SOURCE_DIR}/src/lss.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lss.c
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nmtMaster.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nmtSlave.c

@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  Emergency Object is used to communicate device and application failures.
  *  @ingroup comobj
  */
-					 
+                     
 #ifndef __emcy_h__
 #define __emcy_h__
 
@@ -46,14 +46,14 @@ typedef struct Message Message;
 /* The error states 
  * ----------------- */
 typedef enum enum_errorState {
-  Error_free		= 0x00, 
-  Error_occurred	= 0x01
+  Error_free        = 0x00, 
+  Error_occurred    = 0x01
 } e_errorState;
 
 typedef struct {
-	UNS16 errCode;
-	UNS8 errRegMask;
-	UNS8 active;
+    UNS16 errCode;
+    UNS8 errRegMask;
+    UNS8 active;
 } s_errors;
 
 typedef void (*post_emcy_t)(CO_Data* d, UNS8 nodeID, UNS16 errCode, UNS8 errReg, const UNS8 errSpec[5]);

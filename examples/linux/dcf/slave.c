@@ -48,6 +48,12 @@ UNS32 callback_on_position(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
     return 0;
 }
 
+UNS32 callback_on_4003h(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
+{
+    printf("Set value to 4003h :  %d\n", hehe);
+    return 0;
+}
+
 /* A callback called when node state changes */
 void state_change(CO_Data* d)
 {
@@ -108,6 +114,7 @@ int main(int argc,char **argv)
 
     // register the callbacks we use
     RegisterSetODentryCallBack(&slavedic_Data, 0x2001, 0, callback_on_position);
+    RegisterSetODentryCallBack(&slavedic_Data, 0x4003, 0, callback_on_4003h);
     slavedic_Data.initialisation=state_change;
     slavedic_Data.preOperational=state_change;
     slavedic_Data.operational=state_change;
