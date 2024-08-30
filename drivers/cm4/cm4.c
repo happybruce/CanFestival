@@ -18,18 +18,18 @@ void initTimer(void)
 //Set the timer for the next alarm.
 void setTimer(TIMEVAL value)
 {
-    uint32_t timer = __HAL_TIM_GET_COUNTER(&htim3); // Copy the value of the running timer
+    uint32_t timer = __HAL_TIM_GET_COUNTER(TimerPtr); // Copy the value of the running timer
     elapsed_time += timer - last_counter_val;
     last_counter_val = TIMEVAL_MAX - value;
-    __HAL_TIM_SET_COUNTER(&htim3, TIMEVAL_MAX-value);
+    __HAL_TIM_SET_COUNTER(TimerPtr, TIMEVAL_MAX-value);
 
-    __HAL_TIM_ENABLE(&htim3);
+    __HAL_TIM_ENABLE(TimerPtr);
 }
 
 //Return the elapsed time to tell the Stack how much time is spent since last call.
 TIMEVAL getElapsedTime(void)
 {
-    uint32_t timer = __HAL_TIM_GET_COUNTER(&htim3);
+    uint32_t timer = __HAL_TIM_GET_COUNTER(TimerPtr);
     if(timer < last_counter_val)
     {
         timer += TIMEVAL_MAX;
@@ -76,8 +76,8 @@ unsigned char canSend(CAN_PORT notused, Message *m)
     uint32_t TxMailbox;
     CAN_TxHeaderTypeDef TxMessage;
     uint8_t data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    TxMessage.IDE = CAN_ID_STD;     //设置ID类型
-    TxMessage.StdId = m->cob_id;;   //设置ID�???
+    TxMessage.IDE = CAN_ID_STD;     // set type of cobid
+    TxMessage.StdId = m->cob_id;;   // copy cobid
     if(m->rtr)
     {
         TxMessage.RTR = CAN_RTR_REMOTE; // remote frame
@@ -93,7 +93,7 @@ unsigned char canSend(CAN_PORT notused, Message *m)
         data[i] = m->data[i];
     }
 
-    if (HAL_CAN_AddTxMessage(&hcan1, &TxMessage, data, &TxMailbox) != HAL_OK)
+    if (HAL_CAN_AddTxMessage(CanPtr, &TxMessage, data, &TxMailbox) != HAL_OK)
     {
         // __disable_irq();
         // while (1)
@@ -135,12 +135,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     uint8_t  data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     HAL_StatusTypeDef  status;
     
-    if (hcan == &hcan1)
+    if (hcan == CanPtr)
     {
         Message rxm = {0};
         CAN_RxHeaderTypeDef RxMessage;
         
-        status = HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxMessage, data);
+        status = HAL_CAN_GetRxMessage(CanPtr, CAN_RX_FIFO0, &RxMessage, data);
         if (HAL_OK == status)
         {
 
@@ -169,12 +169,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == &htim3)
+    if (htim == TimerPtr)
     {
         last_counter_val = 0;
         elapsed_time = 0;
 
-        __HAL_TIM_CLEAR_FLAG(&htim3, TIM_SR_UIF);
+        __HAL_TIM_CLEAR_FLAG(TimerPtr, TIM_SR_UIF);
 
         TimeDispatch();
     }

@@ -41,8 +41,8 @@ typedef struct struct_s_BOARD s_BOARD;
 //};
 
 struct struct_s_BOARD {
-  char * busname;  /**< The bus name on which the CAN board is connected */
-  char * baudrate; /**< The board baudrate */
+    char * busname;  /**< The bus name on which the CAN board is connected */
+    char * baudrate; /**< The board baudrate */
 };
 
 #ifndef DLL_CALL
@@ -90,7 +90,7 @@ static inline void print_message(Message const *m)
         break;
 #ifdef CO_ENABLE_LSS
         case LSS:
-        	if(m->cob_id == 0x7E5)
+            if(m->cob_id == 0x7E5)
                 MSG("MLSS ");
             else
                 MSG("SLSS ");
