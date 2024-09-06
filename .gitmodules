@@ -1,3 +1,4 @@
 [submodule "objdictgen"]
 	path = objdictgen
 	url = https://github.com/happybruce/objdictgen.git
+	branch = main
