@@ -42,8 +42,8 @@ typedef struct struct_s_BOARD s_BOARD;
 //};
 
 struct struct_s_BOARD {
-    char * busname;  /**< The bus name on which the CAN board is connected */
-    char * baudrate; /**< The board baudrate */
+    const char * busname;  /**< The bus name on which the CAN board is connected */
+    const char * baudrate; /**< The board baudrate */
 };
 
 #ifndef DLL_CALL
