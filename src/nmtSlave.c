@@ -76,52 +76,52 @@ void proceedNMTstateChange(CO_Data* d, Message *m)
                     
             break;
 
-        case NMT_Enter_PreOperational:
-            if ( d->nodeState == Operational ||
-                 d->nodeState == Stopped )
+            case NMT_Enter_PreOperational:
+                if ( d->nodeState == Operational ||
+                    d->nodeState == Stopped )
+                    {
+                        setState(d,Pre_operational);
+                    }
+            break;
+
+            case NMT_Reset_Node:
+                if(d->NMT_Slave_Node_Reset_Callback != NULL)
                 {
-                    setState(d,Pre_operational);
+                    d->NMT_Slave_Node_Reset_Callback(d);
                 }
-        break;
+                
+                setState(d,Initialisation);
+            break;
 
-        case NMT_Reset_Node:
-            if(d->NMT_Slave_Node_Reset_Callback != NULL)
+            case NMT_Reset_Comunication:
             {
-                d->NMT_Slave_Node_Reset_Callback(d);
-            }
+                UNS8 currentNodeId = getNodeId(d);
             
-            setState(d,Initialisation);
-        break;
-
-        case NMT_Reset_Comunication:
-        {
-            UNS8 currentNodeId = getNodeId(d);
-         
-            if(d->NMT_Slave_Communications_Reset_Callback != NULL)
-            {
-                d->NMT_Slave_Communications_Reset_Callback(d);
-            }
+                if(d->NMT_Slave_Communications_Reset_Callback != NULL)
+                {
+                    d->NMT_Slave_Communications_Reset_Callback(d);
+                }
                
 #ifdef CO_ENABLE_LSS
-            // LSS changes NodeId here in case lss_transfer.nodeID doesn't 
-            // match current getNodeId()
-            if(currentNodeId!=d->lss_transfer.nodeID)
-            {
-                currentNodeId = d->lss_transfer.nodeID;
-            }
+                // LSS changes NodeId here in case lss_transfer.nodeID doesn't 
+                // match current getNodeId()
+                if(currentNodeId!=d->lss_transfer.nodeID)
+                {
+                    currentNodeId = d->lss_transfer.nodeID;
+                }
 #endif
 
-            // clear old NodeId to make SetNodeId reinitializing
-            // SDO, EMCY and other COB Ids
-            *d->bDeviceNodeId = 0xFF; 
-         
-            setNodeId(d, currentNodeId);
+                // clear old NodeId to make SetNodeId reinitializing
+                // SDO, EMCY and other COB Ids
+                *d->bDeviceNodeId = 0xFF; 
+            
+                setNodeId(d, currentNodeId);
 
-            setState(d, Initialisation);
-        }
-        break;
+                setState(d, Initialisation);
+            }
+            break;
 
-      }/* end switch */
+        }/* end switch */
 
     }/* end if( ( (*m).data[1] == 0 ) || ( (*m).data[1] ==
         bDeviceNodeId ) ) */
