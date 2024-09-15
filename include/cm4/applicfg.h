@@ -96,4 +96,4 @@ typedef void* CAN_HANDLE;
 
 typedef void* CAN_PORT;
 
-#endif
+#endif /* __APPLICFG_STM32__ */

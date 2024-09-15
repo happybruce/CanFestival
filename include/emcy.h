@@ -35,8 +35,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup comobj
  */
                      
-#ifndef __emcy_h__
-#define __emcy_h__
+#ifndef __CANFESTIVAL_EMCY_H__
+#define __CANFESTIVAL_EMCY_H__
 
 #include "applicfg.h"
 #include "declaration.h"
@@ -104,4 +104,4 @@ void emergencyStop(CO_Data* d);
  */
 void proceedEMCY(CO_Data* d, Message* m);
 
-#endif /*__emcy_h__ */
+#endif /*__CANFESTIVAL_EMCY_H__ */

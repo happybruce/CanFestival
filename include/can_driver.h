@@ -141,6 +141,6 @@ static inline void print_message(Message const *m)
     MSG("\n");
 }
 
-#endif
+#endif // #if defined DEBUG_MSG_CONSOLE_ON || defined NEED_PRINT_MESSAGE
 
-#endif
+#endif /* __can_driver_h__ */

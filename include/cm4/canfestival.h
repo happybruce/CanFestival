@@ -19,4 +19,4 @@ void canClose(void);
 // void enable_it(void);
 
 
-#endif
+#endif /* __CM4_CANFESTIVAL_H__ */

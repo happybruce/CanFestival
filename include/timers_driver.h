@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup userapi
  */
 
-#ifndef __timer_driver_h__
-#define __timer_driver_h__
+#ifndef __CANFESTIVAL_TIMER_DRIVER_H__
+#define __CANFESTIVAL_TIMER_DRIVER_H__
 
 #include "timerscfg.h"
 #include "timer.h"
@@ -81,4 +81,4 @@ void StopTimerLoop(TimerCallback_t Callback);
  */
 void CreateReceiveTask(CAN_PORT port, TASK_HANDLE* handle, void* ReceiveLoopPtr);
 
-#endif
+#endif /* __CANFESTIVAL_TIMER_DRIVER_H__ */

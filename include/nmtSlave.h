@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup networkmanagement
  */
  
-#ifndef __nmtSlave_h__
-#define __nmtSlave_h__
+#ifndef __NMT_SLAVE_H__
+#define __NMT_SLAVE_H__
 
 #include "applicfg.h"
 #include "declaration.h"
@@ -51,4 +51,4 @@ void proceedNMTstateChange (CO_Data* d, Message * m);
 UNS8 slaveSendBootUp (CO_Data* d);
 
 
-#endif /* __nmtSlave_h__ */
+#endif /* __NMT_SLAVE_H__ */

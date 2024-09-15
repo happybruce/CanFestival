@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup userapi
  */
  
-#ifndef __states_h__
-#define __states_h__
+#ifndef __CANFESTIVAL_STATES_H__
+#define __CANFESTIVAL_STATES_H__
 
 #include "applicfg.h"
 #include "declaration.h"
@@ -148,4 +148,4 @@ void setNodeId (CO_Data* d, UNS8 nodeId);
  */
 void initPreOperationalMode (CO_Data* d);
 
-#endif
+#endif /* __CANFESTIVAL_STATES_H__ */

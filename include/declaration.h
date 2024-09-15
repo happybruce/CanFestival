@@ -6,4 +6,4 @@ typedef struct struct_CO_Data CO_Data;
 typedef struct Message Message;
 
 
-#endif
+#endif /* __DECLARATION_H__ */

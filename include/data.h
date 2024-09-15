@@ -20,8 +20,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __data_h__
-#define __data_h__
+#ifndef __CANFESTIVAL_DATA_H__
+#define __CANFESTIVAL_DATA_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -342,6 +342,6 @@ struct struct_CO_Data {
 };
 #endif
 
-#endif /* __data_h__ */
+#endif /* __CANFESTIVAL_DATA_H__ */
 
 

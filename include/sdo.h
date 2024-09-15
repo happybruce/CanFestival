@@ -31,10 +31,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup comobj
  */
  
-#ifndef __sdo_h__
-#define __sdo_h__
+#ifndef __CANFESTIVAL_SDO_H__
+#define __CANFESTIVAL_SDO_H__
 
-//struct struct_s_transfer;
 
 #include "config.h"
 #include "timer.h"
@@ -477,4 +476,4 @@ UNS8 getReadResultNetworkDict (CO_Data* d, UNS8 nodeId, void* data, UNS32 *size,
 */
 UNS8 getWriteResultNetworkDict (CO_Data* d, UNS8 nodeId, UNS32 * abortCode);
 
-#endif
+#endif /* __CANFESTIVAL_SDO_H__ */

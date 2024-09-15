@@ -20,6 +20,9 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifndef __CANFESTIVAL_DCF_H__
+#define __CANFESTIVAL_DCF_H__
+
 #include "applicfg.h"
 #include "declaration.h"
 
@@ -51,4 +54,6 @@ UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId);
  *         2: dcf check started
 */
 UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId);
+
+#endif /* __CANFESTIVAL_DCF_H__ */
 
