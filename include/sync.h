@@ -30,8 +30,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define __SYNC_h__
 
 #include "applicfg.h"
+#include "declaration.h"
 
-typedef struct struct_CO_Data CO_Data;
+
 
 void startSYNC(CO_Data* d);
 

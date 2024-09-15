@@ -29,14 +29,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __pdo_h__
 #define __pdo_h__
 
-#include <applicfg.h>
-#include <def.h>
+#include "applicfg.h"
+#include "def.h"
 
 #include "can.h"
 #include "timer.h"
 
+#include "declaration.h"
+
+
 typedef struct struct_s_PDO_status s_PDO_status;
-typedef struct struct_CO_Data CO_Data;
+
 
 /* Handler for RxPDO event timers : empty function that user can overload */
 void _RxPDO_EventTimers_Handler(CO_Data *d, UNS32 pdoNum);

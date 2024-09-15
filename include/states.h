@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define __states_h__
 
 #include "applicfg.h"
+#include "declaration.h"
 
 /* The nodes states 
  * -----------------
@@ -60,8 +61,7 @@ typedef struct
     INTEGER8 csLSS;
 } s_state_communication;
 
-typedef struct struct_CO_Data CO_Data;
-typedef struct Message Message;
+
 
 /** 
  * @brief Function that user app can overload

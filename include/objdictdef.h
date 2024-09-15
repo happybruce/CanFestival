@@ -130,7 +130,8 @@ typedef struct s_quick_index{
 
 /************************** MACROS *********************************/
 
-typedef struct struct_CO_Data CO_Data;
+
+#include "declaration.h"
 typedef UNS32 (*ODCallback_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
 typedef const CONSTSTORE indextable * (*scanIndexOD_t)(UNS16 wIndex, UNS32 * errorCode, ODCallback_t **Callback);
 

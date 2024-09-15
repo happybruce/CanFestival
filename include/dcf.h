@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include "applicfg.h"
+#include "declaration.h"
 
 #define DCF_STATUS_INIT         0
 #define DCF_STATUS_READ_CHECK   1
@@ -28,7 +29,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define DCF_STATUS_SAVED        3
 #define DCF_STATUS_VERIF_OK     4
 
-typedef struct struct_CO_Data CO_Data;
 
 /** 
  * @brief Init the consise dcf in CO_Data for nodeId

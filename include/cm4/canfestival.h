@@ -5,6 +5,7 @@
 #include "can_driver.h"
 #include "timerscfg.h"
 #include "timer.h"
+#include "declaration.h"
 
 
 void initTimer(void);

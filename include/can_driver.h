@@ -29,6 +29,7 @@ typedef struct struct_s_BOARD s_BOARD;
 
 #include "applicfg.h"
 #include "can.h"
+#include "declaration.h"
 
 /**
  * @brief The CAN board configuration

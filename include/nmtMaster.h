@@ -31,9 +31,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __nmtMaster_h__
 #define __nmtMaster_h__
 
-#include <applicfg.h>
+#include "applicfg.h"
+#include "declaration.h"
 
-typedef struct struct_CO_Data CO_Data;
+
 
 /** 
  * @ingroup nmtmaster

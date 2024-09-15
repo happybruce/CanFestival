@@ -38,9 +38,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "config.h"
 #include "timer.h"
+#include "declaration.h"
 
-typedef struct struct_CO_Data CO_Data;
-typedef struct Message Message;
+
 
 /* Block mode : Data consumer receive step 
  * - set to RXSTEP_STARTED when client receive initiate upload response 
@@ -101,7 +101,7 @@ struct struct_s_transfer {
                               * SDO_UPLOAD_IN_PROGRESS, and reseted to 0
                               * when the response SDO have been received.
                               */
-  SDOCallback_t Callback;   /**< The user callback func to be called at SDO transaction end */
+  SDOCallback_t  Callback;   /**< The user callback func to be called at SDO transaction end */
 };
 typedef struct struct_s_transfer s_transfer;
 
