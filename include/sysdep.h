@@ -21,7 +21,7 @@
 
 #define UNS32_LE(v)  (v)
 
-#endif
+#endif /* CANOPEN_BIG_ENDIAN */
 
 #endif /* __CANFESTIVAL_SYSDEP_H__ */
 

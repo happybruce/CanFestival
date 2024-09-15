@@ -27,6 +27,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __CANFESTIVAL_STATES_H__
 #define __CANFESTIVAL_STATES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "applicfg.h"
 #include "declaration.h"
 
@@ -147,5 +151,9 @@ void setNodeId (CO_Data* d, UNS8 nodeId);
  * @param *d Pointer on a CAN object data structure
  */
 void initPreOperationalMode (CO_Data* d);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __CANFESTIVAL_STATES_H__ */

@@ -34,6 +34,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __CANFESTIVAL_LSS_h__
 #define __CANFESTIVAL_LSS_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SLSS_ADRESS    0x7E4
 #define MLSS_ADRESS    0x7E5
 
@@ -249,5 +253,9 @@ UNS8 configNetworkNode (CO_Data* d, UNS8 command, void *dat1, void* dat2, LSSCal
  * @endcode
 */
 UNS8 getConfigResultNetworkNode (CO_Data* d, UNS8 command, UNS32* dat1, UNS8* dat2);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __CANFESTIVAL_LSS_h__ */

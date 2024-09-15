@@ -29,6 +29,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __CANFESTIVAL_SYNC_H__
 #define __CANFESTIVAL_SYNC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "applicfg.h"
 #include "declaration.h"
 
@@ -67,5 +71,9 @@ UNS8 sendSYNCMessage(CO_Data* d);
  * @return 0 if OK, 0xFF if error 
  */
 UNS8 proceedSYNC (CO_Data* d);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __CANFESTIVAL_SYNC_H__ */

@@ -41,7 +41,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "applicfg.h"
 #include "declaration.h"
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* The error states 
  * ----------------- */
@@ -103,5 +105,9 @@ void emergencyStop(CO_Data* d);
  * @param *m Pointer on the CAN-message which has to be analysed.
  */
 void proceedEMCY(CO_Data* d, Message* m);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*__CANFESTIVAL_EMCY_H__ */

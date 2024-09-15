@@ -23,6 +23,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __CANFESTIVAL_TIMER_H__
 #define __CANFESTIVAL_TIMER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "timerscfg.h"
 #include "applicfg.h"
 #include "declaration.h"
@@ -88,5 +92,9 @@ void setTimer(TIMEVAL value);
  * @return time elapsed since latest timer occurence
  */
 TIMEVAL getElapsedTime(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __CANFESTIVAL_TIMER_H__ */

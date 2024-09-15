@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __NMT_SLAVE_H__
 #define __NMT_SLAVE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "applicfg.h"
 #include "declaration.h"
 
@@ -50,5 +54,8 @@ void proceedNMTstateChange (CO_Data* d, Message * m);
  */
 UNS8 slaveSendBootUp (CO_Data* d);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __NMT_SLAVE_H__ */
