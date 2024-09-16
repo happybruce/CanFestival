@@ -150,17 +150,17 @@ void canDispatch(CO_Data* d, Message *m)
 ** @param d                                                                                        
 ** @param newCommunicationState                                                                    
 **/      
-void switchCommunicationState(CO_Data* d, s_state_communication *newCommunicationState)
+void switchCommunicationState(CO_Data * d, s_state_communication * newCommunicationState)
 {
 #ifdef CO_ENABLE_LSS
-    StartOrStop(csLSS,    startLSS(d),    stopLSS(d))
+    StartOrStop(csLSS,        startLSS(d),      stopLSS(d))
 #endif
-    StartOrStop(csSDO,    None,        resetSDO(d))
-    StartOrStop(csSYNC,    startSYNC(d),        stopSYNC(d))
-    StartOrStop(csLifeGuard,    lifeGuardInit(d),    lifeGuardStop(d))
-    StartOrStop(csEmergency,    emergencyInit(d),    emergencyStop(d)) 
-    StartOrStop(csPDO,    PDOInit(d),    PDOStop(d))
-    StartOrStop(csBoot_Up,    None,    slaveSendBootUp(d))
+    StartOrStop(csSDO,        None,              resetSDO(d))
+    StartOrStop(csSYNC,       startSYNC(d),      stopSYNC(d))
+    StartOrStop(csLifeGuard,  lifeGuardInit(d),  lifeGuardStop(d))
+    StartOrStop(csEmergency,  emergencyInit(d),  emergencyStop(d)) 
+    StartOrStop(csPDO,        PDOInit(d),        PDOStop(d))
+    StartOrStop(csBoot_Up,    None,              slaveSendBootUp(d))
 }
 
 /*!                                                                                                
