@@ -1,5 +1,6 @@
 This is a copy of https://github.com/ljessendk/CanFestival 
 
+Now it works on Linux and STM32 F4, please use develop branch.
 
 My purpose is:
  1. Make it work on linux (Using CMake)
