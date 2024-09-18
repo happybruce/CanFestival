@@ -20,8 +20,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __can_h__
-#define __can_h__
+#ifndef __CANFESTIVAL_CAN_H__
+#define __CANFESTIVAL_CAN_H__
 
 #include "applicfg.h"
 
@@ -30,16 +30,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * @ingroup can
  */
 struct Message {
-  UNS16 cob_id;	/**< message's ID */
-  UNS8 rtr;		/**< remote transmission request. (0 if not rtr message, 1 if rtr message) */
-  UNS8 len;		/**< message's length (0 to 8) */
-  UNS8 data[8]; /**< message's datas */
+    UNS16 cob_id;   /**< message's ID */
+    UNS8  rtr;      /**< remote transmission request. (0 if not rtr message, 1 if rtr message) */
+    UNS8  len;      /**< message's length (0 to 8) */
+    UNS8  data[8];  /**< message's datas */
 };
 
-typedef struct Message Message;
+
+#include "declaration.h"
 
 #define Message_Initializer {0,0,0,{0,0,0,0,0,0,0,0}}
 
 typedef UNS8 (*canSend_t)(Message *);
 
-#endif /* __can_h__ */
+#endif /* __CANFESTIVAL_CAN_H__ */

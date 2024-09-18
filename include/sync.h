@@ -26,12 +26,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup comobj
  */
                      
-#ifndef __SYNC_h__
-#define __SYNC_h__
+#ifndef __CANFESTIVAL_SYNC_H__
+#define __CANFESTIVAL_SYNC_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "applicfg.h"
+#include "declaration.h"
 
-typedef struct struct_CO_Data CO_Data;
+
 
 void startSYNC(CO_Data* d);
 
@@ -67,4 +72,8 @@ UNS8 sendSYNCMessage(CO_Data* d);
  */
 UNS8 proceedSYNC (CO_Data* d);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* __CANFESTIVAL_SYNC_H__ */

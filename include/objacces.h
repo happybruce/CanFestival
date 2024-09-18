@@ -39,16 +39,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __objacces_h__
 #define __objacces_h__
 
-#include <applicfg.h>
+#include "applicfg.h"
+#include "declaration.h"
+#include "objdictdef.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct struct_CO_Data CO_Data;
 
 typedef UNS32 (*valueRangeTest_t)(UNS8 typeValue, void *Value);
-typedef UNS32 (* storeODSubIndex_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
+typedef UNS32 (*storeODSubIndex_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
 UNS32 _storeODSubIndex (CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
 
 /**
@@ -266,7 +267,6 @@ UNS32 _setODentry( CO_Data* d,
        _setODentry( d, wIndex, bSubindex, pSourceData, pExpectedSize, checkAccess, 0)
 #endif
 
-typedef UNS32 (*ODCallback_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
 
 UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCallback_t Callback);
 

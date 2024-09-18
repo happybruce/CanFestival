@@ -71,7 +71,7 @@ UNS32 OnNumberOfErrorsUpdate(CO_Data* d, UNS16 unsused_indextable, UNS8 unsused_
     {
         ;// abort message
     }
-  return 0;
+    return 0;
 }
 
 /*! start the EMCY mangagement.

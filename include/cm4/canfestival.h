@@ -5,6 +5,7 @@
 #include "can_driver.h"
 #include "timerscfg.h"
 #include "timer.h"
+#include "declaration.h"
 
 
 void initTimer(void);
@@ -18,4 +19,4 @@ void canClose(void);
 // void enable_it(void);
 
 
-#endif
+#endif /* __CM4_CANFESTIVAL_H__ */
