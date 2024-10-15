@@ -174,12 +174,12 @@ proceedPDO (CO_Data * d, Message * m)
         mapping entry */
     UNS8 Size;
     UNS8 offset;
-    UNS8 status;
+    // UNS8 status;
     UNS32 objDict;
     UNS16 offsetObjdict;
     UNS16 lastIndex;
 
-    status = state2;
+    // status = state2;
 
     MSG_WAR (0x3935, "proceedPDO, cobID : ", (UNS16_LE(m->cob_id) & 0x7ff));
     offset = 0x00;
@@ -193,7 +193,7 @@ proceedPDO (CO_Data * d, Message * m)
 
         if (offsetObjdict)
         {
-            for (uint16_t i = offsetObjdict; i <= lastIndex; ++i)
+            for (UNS16 i = offsetObjdict; i <= lastIndex; ++i)
             {
                 if (READ_UNS32(d->objdict, offsetObjdict, 1) == UNS16_LE(m->cob_id))
                 {
@@ -285,7 +285,7 @@ proceedPDO (CO_Data * d, Message * m)
                     /* received cobId does not match */
                     numPdo++;
                     offsetObjdict++;
-                    status = state2;
+                    // status = state2;
                     break;
                 }
             }
@@ -410,7 +410,7 @@ proceedPDO (CO_Data * d, Message * m)
         if (offsetObjdict)
         {
             /* populate of all PDO stored in the objects dictionary */
-            for (uint16_t i = offsetObjdict; i <= lastIndex; ++i)
+            for (UNS16 i = offsetObjdict; i <= lastIndex; ++i)
             {
                 if (READ_UNS32(d->objdict, offsetObjdict, 1) == UNS16_LE(m->cob_id))
                 {
