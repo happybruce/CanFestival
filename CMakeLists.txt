@@ -41,7 +41,7 @@ set(CANFESTIVAL_SRC
 
 set(CANFESTIVAL_DRV_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/can_socket/can_socket.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/timers_unix/timers_unix.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/timers_unix/timers_linux.c
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/unix/unix.c
 )
 
