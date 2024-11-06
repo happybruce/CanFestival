@@ -49,14 +49,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 **
 */
                  
-#ifndef __lifegrd_h__
-#define __lifegrd_h__
+#ifndef __CANFESTIVAL_LIFEGRD_H__
+#define __CANFESTIVAL_LIFEGRD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "applicfg.h"
 #include "states.h"
+#include "declaration.h"
 
-typedef struct struct_CO_Data CO_Data;
+
 
 typedef void (*heartbeatError_t)(CO_Data*, UNS8);
 void _heartbeatError(CO_Data* d, UNS8 heartbeatID);
@@ -144,5 +148,8 @@ void heartbeatStop(CO_Data* d);
  */
 void proceedNODE_GUARD (CO_Data* d, Message* m);
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif /*__lifegrd_h__ */
+#endif /*__CANFESTIVAL_LIFEGRD_H__ */

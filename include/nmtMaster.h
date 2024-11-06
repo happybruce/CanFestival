@@ -28,12 +28,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup networkmanagement
  */
  
-#ifndef __nmtMaster_h__
-#define __nmtMaster_h__
+#ifndef __NMT_MASTER_H__
+#define __NMT_MASTER_H__
 
-#include <applicfg.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef struct struct_CO_Data CO_Data;
+#include "applicfg.h"
+#include "declaration.h"
+
+
 
 /** 
  * @ingroup nmtmaster
@@ -84,5 +89,8 @@ UNS8 masterSendNMTnodeguard (CO_Data* d, UNS8 nodeId);
  */
 UNS8 masterRequestNodeState (CO_Data* d, UNS8 nodeId);
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* __nmtMaster_h__ */
+#endif /* __NMT_MASTER_H__ */

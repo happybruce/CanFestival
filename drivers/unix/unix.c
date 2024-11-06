@@ -162,13 +162,13 @@ void canReceiveLoop(CAN_PORT port)
 CAN_PORT canOpen(s_BOARD *board, CO_Data * d)
 {
     int i;
-    for(i=0; i < MAX_NB_CAN_PORTS; i++)
+    for(i = 0; i < MAX_NB_CAN_PORTS; i++)
     {
         if(!canports[i].used)
             break;
     }
 
-    if(i==MAX_NB_CAN_PORTS)
+    if(i == MAX_NB_CAN_PORTS)
     {
         fprintf(stderr,"CanOpen : Can Driver no free can ports\n");
         return NULL;

@@ -57,38 +57,38 @@ TIMER_HANDLE last_timer_raw = -1;
 **/
 TIMER_HANDLE SetAlarm(CO_Data* d, UNS32 id, TimerCallback_t callback, TIMEVAL value, TIMEVAL period)
 {
-    TIMER_HANDLE row_number;
-    s_timer_entry *row;
+    TIMER_HANDLE row_number = 0;
+    s_timer_entry *row = timers;
 
     /* in order to decide new timer setting we have to run over all timer rows */
-    for(row_number=0, row=timers; row_number <= last_timer_raw + 1 && row_number < MAX_NB_TIMER; row_number++, row++)
+    for(row_number = 0; row_number <= (last_timer_raw + 1) && row_number < MAX_NB_TIMER; ++row_number)
     {
         if (callback &&     /* if something to store */
            row->state == TIMER_FREE) /* and empty row */
         {    /* just store */
-            TIMEVAL real_timer_value;
-            TIMEVAL elapsed_time;
+            TIMEVAL real_timer_value = min_val(value, TIMEVAL_MAX);
+            TIMEVAL elapsed_time = getElapsedTime();
 
-            if (row_number == last_timer_raw + 1) last_timer_raw++;
+            if (row_number == (last_timer_raw + 1)) { ++last_timer_raw; }
 
-            elapsed_time = getElapsedTime();
             /* set next wakeup alarm if new entry is sooner than others, or if it is alone */
-            real_timer_value = value;
-            real_timer_value = min_val(real_timer_value, TIMEVAL_MAX);
-
-            if (total_sleep_time > elapsed_time && total_sleep_time - elapsed_time > real_timer_value)
+            if ( (total_sleep_time > elapsed_time) && (total_sleep_time - elapsed_time > real_timer_value) )
             {
                 total_sleep_time = elapsed_time + real_timer_value;
                 setTimer(real_timer_value);
             }
+
             row->callback = callback;
             row->d = d;
             row->id = id;
             row->val = value + elapsed_time;
             row->interval = period;
             row->state = TIMER_ARMED;
+
             return row_number;
         }
+
+        ++row;
     }
 
     return TIMER_NONE;
@@ -132,9 +132,9 @@ void TimeDispatch(void)
 
     TIMEVAL real_total_sleep_time = total_sleep_time + overrun;
 
-    s_timer_entry *row;
+    s_timer_entry *row = timers;
 
-    for(i=0, row = timers; i <= last_timer_raw; i++, row++)
+    for(i = 0; i <= last_timer_raw; i++)
     {
         if (row->state & TIMER_ARMED) /* if row is active */
         {
@@ -169,6 +169,8 @@ void TimeDispatch(void)
                 }
             }
         }
+
+        row++;
     }
 
     /* Remember how much time we should sleep. */
@@ -178,7 +180,8 @@ void TimeDispatch(void)
     setTimer(next_wakeup);
 
     /* Then trig them or not. */
-    for(i=0, row = timers; i<=last_timer_raw; i++, row++)
+    row = timers;
+    for(i = 0; i <= last_timer_raw; ++i)
     {
         if (row->state & TIMER_TRIG)
         {
@@ -188,5 +191,7 @@ void TimeDispatch(void)
                 (*row->callback)(row->d, row->id); /* trig ! */
             }
         }
+
+        ++row;
     }
 }

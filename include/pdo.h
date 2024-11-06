@@ -26,17 +26,24 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup comobj
  */
  
-#ifndef __pdo_h__
-#define __pdo_h__
+#ifndef __CANFESTIVAL_PDO_H__
+#define __CANFESTIVAL_PDO_H__
 
-#include <applicfg.h>
-#include <def.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "applicfg.h"
+#include "def.h"
 
 #include "can.h"
 #include "timer.h"
 
+#include "declaration.h"
+
+
 typedef struct struct_s_PDO_status s_PDO_status;
-typedef struct struct_CO_Data CO_Data;
+
 
 /* Handler for RxPDO event timers : empty function that user can overload */
 void _RxPDO_EventTimers_Handler(CO_Data *d, UNS32 pdoNum);
@@ -165,4 +172,9 @@ void PDOInhibitTimerAlarm(CO_Data* d, UNS32 pdoNum);
 
 /* copy bit per bit in little endian */
 void CopyBits(UNS8 NbBits, UNS8* SrcByteIndex, UNS8 SrcBitIndex, UNS8 SrcBigEndian, UNS8* DestByteIndex, UNS8 DestBitIndex, UNS8 DestBigEndian);
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* __CANFESTIVAL_PDO_H__ */

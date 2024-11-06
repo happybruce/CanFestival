@@ -23,6 +23,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __objdictdef_h__
 #define __objdictdef_h__
 
+#if defined ( __CC_ARM   )
+#pragma anon_unions
+#endif
+
 /************************* CONSTANTES **********************************/
 /** this are static defined datatypes taken fCODE the canopen standard. They
  *  are located at index 0x0001 to 0x001B. As described in the standard, they
@@ -126,7 +130,8 @@ typedef struct s_quick_index{
 
 /************************** MACROS *********************************/
 
-typedef struct struct_CO_Data CO_Data;
+
+#include "declaration.h"
 typedef UNS32 (*ODCallback_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
 typedef const CONSTSTORE indextable * (*scanIndexOD_t)(UNS16 wIndex, UNS32 * errorCode, ODCallback_t **Callback);
 

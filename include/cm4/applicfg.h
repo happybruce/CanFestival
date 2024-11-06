@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef __APPLICFG_STM32__
 #define __APPLICFG_STM32__
 
-#include <stdio.h>
+// #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /* Integers */
-#define INTEGER8 int8_t
+#define INTEGER8  int8_t
 #define INTEGER16 int16_t
 #define INTEGER24 int32_t
 #define INTEGER32 int32_t
@@ -67,12 +67,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define UNS64  uint64_t
 
 /* Reals */
-#define REAL32	float
-#define REAL64 double
+#define REAL32  float
+#define REAL64  double
 
 /* Definition of error and warning macros */
 /* -------------------------------------- */
-#	define MSG(...) printf (__VA_ARGS__)
+#  define MSG(...) //printf (__VA_ARGS__)
 
 /* Definition of MSG_ERR */
 /* --------------------- */
@@ -96,4 +96,4 @@ typedef void* CAN_HANDLE;
 
 typedef void* CAN_PORT;
 
-#endif
+#endif /* __APPLICFG_STM32__ */

@@ -31,16 +31,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup comobj
  */
  
-#ifndef __sdo_h__
-#define __sdo_h__
+#ifndef __CANFESTIVAL_SDO_H__
+#define __CANFESTIVAL_SDO_H__
 
-//struct struct_s_transfer;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "config.h"
 #include "timer.h"
+#include "declaration.h"
 
-typedef struct struct_CO_Data CO_Data;
-typedef struct Message Message;
+
 
 /* Block mode : Data consumer receive step 
  * - set to RXSTEP_STARTED when client receive initiate upload response 
@@ -101,7 +103,7 @@ struct struct_s_transfer {
                               * SDO_UPLOAD_IN_PROGRESS, and reseted to 0
                               * when the response SDO have been received.
                               */
-  SDOCallback_t Callback;   /**< The user callback func to be called at SDO transaction end */
+  SDOCallback_t  Callback;   /**< The user callback func to be called at SDO transaction end */
 };
 typedef struct struct_s_transfer s_transfer;
 
@@ -323,7 +325,7 @@ UNS8 writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
 
 /** 
  * @ingroup sdo
- * @brief Used to send a SDO request frame to write in a distant node dictionnary.
+ * @brief Used to send a SDO request frame to write into a remote node dictionnary.
  * @details The function Callback which must be defined in the user code is called at the
  * end of the exchange. (on succes or abort).
  * @param *d Pointer to a CAN object data structure
@@ -344,7 +346,7 @@ UNS8 writeNetworkDictCallBack (CO_Data* d, UNS8 nodeId, UNS16 index,
 
 /**
  * @ingroup sdo 
- * @brief Used to send a SDO request frame to write in a distant node dictionnary.
+ * @brief Used to send a SDO request frame to write into a remote node dictionnary.
  * @details The function Callback which must be defined in the user code is called at the
  * end of the exchange. (on succes or abort). First free SDO client parameter is
  * automatically initialized for specific node if not already defined.
@@ -384,7 +386,7 @@ UNS8 readNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 
 
 /** 
  * @ingroup sdo
- * @brief Used to send a SDO request frame to read in a distant node dictionnary.
+ * @brief Used to send a SDO request frame to read from a remote node dictionnary.
  * @details The function Callback which must be defined in the user code is called at the
  * end of the exchange. (on succes or abort).
  * @param *d Pointer on a CAN object data structure
@@ -402,7 +404,7 @@ UNS8 readNetworkDictCallback (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subInde
 
 /** 
  * @ingroup sdo
- * @brief Used to send a SDO request frame to read in a distant node dictionnary.
+ * @brief Used to send a SDO request frame to read from a remote node dictionnary.
  * @details The function Callback which must be defined in the user code is called at the
  * end of the exchange. (on succes or abort). First free SDO client parameter is
  * automatically initialized for specific node if not already defined.
@@ -477,4 +479,9 @@ UNS8 getReadResultNetworkDict (CO_Data* d, UNS8 nodeId, void* data, UNS32 *size,
 */
 UNS8 getWriteResultNetworkDict (CO_Data* d, UNS8 nodeId, UNS32 * abortCode);
 
+#ifdef __cplusplus
+}
 #endif
+
+
+#endif /* __CANFESTIVAL_SDO_H__ */

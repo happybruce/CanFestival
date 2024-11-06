@@ -29,6 +29,7 @@ typedef struct struct_s_BOARD s_BOARD;
 
 #include "applicfg.h"
 #include "can.h"
+#include "declaration.h"
 
 /**
  * @brief The CAN board configuration
@@ -41,8 +42,8 @@ typedef struct struct_s_BOARD s_BOARD;
 //};
 
 struct struct_s_BOARD {
-  char * busname;  /**< The bus name on which the CAN board is connected */
-  char * baudrate; /**< The board baudrate */
+    const char * busname;  /**< The bus name on which the CAN board is connected */
+    const char * baudrate; /**< The board baudrate */
 };
 
 #ifndef DLL_CALL
@@ -90,7 +91,7 @@ static inline void print_message(Message const *m)
         break;
 #ifdef CO_ENABLE_LSS
         case LSS:
-        	if(m->cob_id == 0x7E5)
+            if(m->cob_id == 0x7E5)
                 MSG("MLSS ");
             else
                 MSG("SLSS ");
@@ -140,6 +141,6 @@ static inline void print_message(Message const *m)
     MSG("\n");
 }
 
-#endif
+#endif // #if defined DEBUG_MSG_CONSOLE_ON || defined NEED_PRINT_MESSAGE
 
-#endif
+#endif /* __can_driver_h__ */

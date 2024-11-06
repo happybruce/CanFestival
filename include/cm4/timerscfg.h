@@ -35,4 +35,4 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define MS_TO_TIMEVAL(ms) ((ms) * 100)
 #define US_TO_TIMEVAL(us) ((us) / 10)
 
-#endif
+#endif /* __TIMERSCFG_H__ */

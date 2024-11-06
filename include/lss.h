@@ -31,8 +31,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup comobj
  */
                      
-#ifndef __LSS_h__
-#define __LSS_h__
+#ifndef __CANFESTIVAL_LSS_h__
+#define __CANFESTIVAL_LSS_h__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SLSS_ADRESS    0x7E4
 #define MLSS_ADRESS    0x7E5
@@ -85,8 +89,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "applicfg.h"
 #include "timer.h"
 #include "can.h"
+#include "declaration.h"
 
-typedef struct struct_CO_Data CO_Data;
+
 
 typedef void (*LSSCallback_t)(CO_Data* d, UNS8 command); 
 
@@ -249,4 +254,8 @@ UNS8 configNetworkNode (CO_Data* d, UNS8 command, void *dat1, void* dat2, LSSCal
 */
 UNS8 getConfigResultNetworkNode (CO_Data* d, UNS8 command, UNS32* dat1, UNS8* dat2);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* __CANFESTIVAL_LSS_h__ */

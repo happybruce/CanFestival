@@ -20,20 +20,25 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __timer_h__
-#define __timer_h__
+#ifndef __CANFESTIVAL_TIMER_H__
+#define __CANFESTIVAL_TIMER_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "timerscfg.h"
 #include "applicfg.h"
+#include "declaration.h"
 
-typedef struct struct_CO_Data CO_Data;
+
 #define TIMER_HANDLE INTEGER16
 
 /* --------- types and constants definitions --------- */
-#define TIMER_FREE 0
-#define TIMER_ARMED 1
-#define TIMER_TRIG 2
-#define TIMER_TRIG_PERIOD 3
+#define TIMER_FREE   0
+#define TIMER_ARMED  1
+#define TIMER_TRIG   2
+#define TIMER_TRIG_PERIOD  3
 
 #define TIMER_NONE -1
 
@@ -88,4 +93,8 @@ void setTimer(TIMEVAL value);
  */
 TIMEVAL getElapsedTime(void);
 
-#endif /* #define __timer_h__ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __CANFESTIVAL_TIMER_H__ */

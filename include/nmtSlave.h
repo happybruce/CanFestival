@@ -25,12 +25,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup networkmanagement
  */
  
-#ifndef __nmtSlave_h__
-#define __nmtSlave_h__
+#ifndef __NMT_SLAVE_H__
+#define __NMT_SLAVE_H__
 
-#include <applicfg.h>
-typedef struct struct_CO_Data CO_Data;
-typedef struct Message Message;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "applicfg.h"
+#include "declaration.h"
+
 
 /** 
  * @brief Threat the reception of a NMT message from the master.
@@ -50,5 +54,8 @@ void proceedNMTstateChange (CO_Data* d, Message * m);
  */
 UNS8 slaveSendBootUp (CO_Data* d);
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* __nmtSlave_h__ */
+#endif /* __NMT_SLAVE_H__ */
