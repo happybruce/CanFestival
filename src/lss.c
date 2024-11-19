@@ -716,7 +716,7 @@ ErrorProcessMaster:
 UNS8 proceedLSS_Slave(CO_Data* d, Message* m )
 {  
     MSG_WAR(0x3D21, "SlaveLSS proceedLSS; command ", m->data[0]);
-    UNS8 msg_cs = m->data[0]
+    UNS8 msg_cs = m->data[0];
     switch(msg_cs)
     {
     case LSS_SM_GLOBAL:        /* Switch Mode Global */
