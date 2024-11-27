@@ -221,7 +221,7 @@ dcferror:
 **
 ** @return
 */
-UNS8 init_consise_dcf(CO_Data* d,UNS8 nodeId)
+UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId)
 {
     /* Fetch DCF OD entry */
     UNS32 errorCode;

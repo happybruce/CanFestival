@@ -708,9 +708,9 @@ UNS8 sendSDO (CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8 *pData)
     /* the length of SDO must be 8 */
     m.len = 8;
     for (i = 0 ; i < 8 ; i++) {
-        m.data[i] =  pData[i];
+        m.data[i] = pData[i];
     }
-    return canSend(d->canHandle,&m);
+    return canSend(d->canHandle, &m);
 }
 
 /*!
@@ -1944,7 +1944,7 @@ INLINE UNS8 _writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
 
     /* Check that the data can fit in the transfer buffer */
 #ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
-    if(count > SDO_MAX_LENGTH_TRANSFER){
+    if(count > SDO_MAX_LENGTH_TRANSFER) {
         MSG_ERR(0x1AC3, "SDO error : request for more than SDO_MAX_LENGTH_TRANSFER bytes to transfer to node : ", nodeId);
         return 0xFF;
     }
