@@ -1,0 +1,6 @@
+@PACKAGE_INIT@
+
+# 可选: 暴露一个包含目录变量
+set(CANFESTIVAL_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/include")
+
+include("${CMAKE_CURRENT_LIST_DIR}/CanFestivalTargets.cmake")
