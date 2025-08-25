@@ -94,12 +94,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 typedef struct td_subindex
 {
-    const UNS8              bAccessType;
-    const UNS8              bDataType; /* Defines of what datatype the entry is */
+    UNS8              bAccessType;
+    UNS8              bDataType; /* Defines of what datatype the entry is */
     UNS32             size;      /* The size (in Byte) of the variable */
     union {
         void*          pObject;   /* This is the pointer of the Variable */
-        const CONSTSTORE void* const pObjectConst;
+        const CONSTSTORE void* pObjectConst;
     };
 } subindex;
 
@@ -107,12 +107,12 @@ typedef struct td_subindex
  */
 typedef struct td_indextable
 {
-    const CONSTSTORE subindex* const  pSubindex;   /* Pointer to the subindex */
-    const UNS8   bSubCount;   /* the count of valid entries for this subindex
+    const CONSTSTORE subindex*  pSubindex;   /* Pointer to the subindex */
+    UNS8   bSubCount;   /* the count of valid entries for this subindex
                          * This count here defines how many memory has been
                          * allocated. this memory does not have to be used.
                          */
-    const UNS16   index;
+    UNS16   index;
 } indextable;
 
 /**
