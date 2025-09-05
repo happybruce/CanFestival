@@ -78,6 +78,12 @@ target_link_libraries(slave_cpp ${LINK_LIBS})
 add_executable(master_cpp ${MASTER_APP_CPP_SRC})
 target_link_libraries(master_cpp ${LINK_LIBS})
 
+add_executable(sdo_read ${CMAKE_CURRENT_SOURCE_DIR}/examples/tools/sdo_read.c ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/gendcf.c ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od/masterdic.c)
+target_link_libraries(sdo_read ${LINK_LIBS})
+
+add_executable(sdo_write ${CMAKE_CURRENT_SOURCE_DIR}/examples/tools/sdo_write.c ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/gendcf.c ${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od/masterdic.c)
+target_link_libraries(sdo_write ${LINK_LIBS})
+
 
 # ----------------------------------------------------------------------------
 # Install settings (use -DCMAKE_INSTALL_PREFIX=/your/prefix when configuring)
@@ -92,6 +98,8 @@ install(TARGETS
     slave
     master_cpp
     slave_cpp
+  sdo_read
+  sdo_write
     EXPORT CanFestivalTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}      # 静态库 (.a)
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}      # 共享库 (若改成 SHARED)
