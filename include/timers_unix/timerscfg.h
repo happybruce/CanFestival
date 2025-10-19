@@ -24,11 +24,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define __TIMERSCFG_H__
 
 #include <pthread.h>
+#include <stdint.h>
 
 /* Time unit : us */
 /* Time resolution : 64bit (~584942 years) */
-#define TIMEVAL unsigned long long
-#define TIMEVAL_MAX ~(TIMEVAL)0
+typedef uint64_t TIMEVAL;
+#define TIMEVAL_MAX UINT64_MAX
 #define MS_TO_TIMEVAL(ms) ms*1000L
 #define US_TO_TIMEVAL(us) us
 

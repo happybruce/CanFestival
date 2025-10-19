@@ -154,8 +154,8 @@ UNS8 sendSYNC(CO_Data* d)
 {
     UNS8 res;
     res = sendSYNCMessage(d);
-    proceedSYNC(d) ; 
-    return res ;
+    proceedSYNC(d); 
+    return res;
 }
 
 /*!                                                                                                
@@ -175,7 +175,9 @@ UNS8 proceedSYNC(CO_Data* d)
 
     /* only operational state allows PDO transmission */
     if(! d->CurrentCommunicationState.csPDO)
+    {
         return 0;
+    }
 
     res = _sendPDOevent(d, 1 /*isSyncEvent*/ );
 
@@ -186,5 +188,5 @@ UNS8 proceedSYNC(CO_Data* d)
 }
 
 
-void _post_sync(CO_Data* d){(void)d;}
-void _post_TPDO(CO_Data* d){(void)d;}
+void _post_sync(CO_Data* d) {(void)d;}
+void _post_TPDO(CO_Data* d) {(void)d;}
