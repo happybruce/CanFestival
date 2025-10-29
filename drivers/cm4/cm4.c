@@ -18,6 +18,11 @@ void initTimer(void)
 //Set the timer for the next alarm.
 void setTimer(TIMEVAL value)
 {
+    if (value >= TIMEVAL_MAX)
+    {
+        return;
+    }
+    
     uint32_t timer = __HAL_TIM_GET_COUNTER(TimerPtr); // Copy the value of the running timer
     elapsed_time += timer - last_counter_val;
     last_counter_val = TIMEVAL_MAX - value;
@@ -143,7 +148,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         status = HAL_CAN_GetRxMessage(CanPtr, CAN_RX_FIFO0, &RxMessage, data);
         if (HAL_OK == status)
         {
-
             if(RxMessage.IDE == CAN_ID_EXT)
             {
                 return;
