@@ -37,7 +37,6 @@ target_include_directories(canfestival PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/unix>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix>
-    # $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od>
 )
 target_compile_options(canfestival PRIVATE -fPIC -Wall -g -fno-strict-aliasing)
 target_compile_definitions(canfestival PUBLIC NOT_USE_DYNAMIC_LOADING CO_ENABLE_LSS CO_ENABLE_LSS_FS DEBUG_ERR_CONSOLE_ON)
