@@ -72,8 +72,8 @@ struct struct_CO_Data {
     preOperational_t preOperational;
     operational_t operational;
     stopped_t stopped;
-     void (*NMT_Slave_Node_Reset_Callback)(CO_Data*);
-     void (*NMT_Slave_Communications_Reset_Callback)(CO_Data*);
+    void (*NMT_Slave_Node_Reset_Callback)(CO_Data*);
+    void (*NMT_Slave_Communications_Reset_Callback)(CO_Data*);
      
     /* NMT-heartbeat */
     UNS8 *ConsumerHeartbeatCount;
@@ -104,9 +104,9 @@ struct struct_CO_Data {
     
     /* General */
     UNS8 toggle;
-    CAN_PORT canHandle;    
+    CAN_PORT canHandle;
     scanIndexOD_t scanIndexOD;
-    storeODSubIndex_t storeODSubIndex; 
+    storeODSubIndex_t storeODSubIndex;
     
     /* DCF concise */
     const CONSTSTORE indextable* dcf_odentry;

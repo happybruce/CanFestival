@@ -112,7 +112,10 @@ UNS32 _getODentry( CO_Data* d,
     ptrTable = (*d->scanIndexOD)(wIndex, &errorCode, &Callback);
 
     if (errorCode != OD_SUCCESSFUL)
+    {
         return errorCode;
+    }
+        
     if( ptrTable->bSubCount <= bSubindex )
     {
         /* Subindex not found */
@@ -178,7 +181,9 @@ UNS32 _getODentry( CO_Data* d,
     }
 
     if(*pDataType != visible_string)
+    {
         *pExpectedSize = szData;
+    } 
     else
     {
         /* VISIBLE_STRING objects are returned with \0 termination, if the user   *
@@ -192,7 +197,9 @@ UNS32 _getODentry( CO_Data* d,
             *pExpectedSize = szData + 1;
         }
         else
+        {
             *pExpectedSize = szData;
+        }
     }
     return OD_SUCCESSFUL;
 }
@@ -212,9 +219,11 @@ UNS32 _setODentry( CO_Data* d,
     const CONSTSTORE indextable *ptrTable;
     ODCallback_t *Callback;
 
-    ptrTable =(*d->scanIndexOD)(wIndex, &errorCode, &Callback);
+    ptrTable = (*d->scanIndexOD)(wIndex, &errorCode, &Callback);
     if (errorCode != OD_SUCCESSFUL)
+    {
         return errorCode;
+    }
 
     if( ptrTable->bSubCount <= bSubindex )
     {
@@ -222,6 +231,7 @@ UNS32 _setODentry( CO_Data* d,
         accessDictionaryError(wIndex, bSubindex, 0, *pExpectedSize, OD_NO_SUCH_SUBINDEX);
         return OD_NO_SUCH_SUBINDEX;
     }
+
     if (checkAccess && (ptrTable->pSubindex[bSubindex].bAccessType == RO || ptrTable->pSubindex[bSubindex].bAccessType == CONST)) 
     {
         MSG_WAR(0x2B25, "Access Type : ", ptrTable->pSubindex[bSubindex].bAccessType);
@@ -240,34 +250,33 @@ UNS32 _setODentry( CO_Data* d,
     {
 #ifdef CANOPEN_BIG_ENDIAN
         /* re-endianize do not occur for bool, strings time and domains */
-        if(endianize && dataType > boolean && !(
-            dataType >= visible_string && 
-            dataType <= domain))
+        if(endianize && (dataType > boolean) && !(dataType >= visible_string && dataType <= domain))
         {
-          /* we invert the data source directly. This let us do range
-            testing without */
-          /* additional temp variable */
-          UNS8 i;
-          for ( i = 0 ; i < ( ptrTable->pSubindex[bSubindex].size >> 1)  ; i++)
+            /* we invert the data source directly. This let us do range testing without */
+            /* additional temp variable */
+            UNS8 i;
+            for ( i = 0 ; i < ( ptrTable->pSubindex[bSubindex].size >> 1); i++)
             {
-              UNS8 tmp =((UNS8 *)pSourceData) [(ptrTable->pSubindex[bSubindex].size - 1) - i];
-              ((UNS8 *)pSourceData) [(ptrTable->pSubindex[bSubindex].size - 1) - i] = ((UNS8 *)pSourceData)[i];
-              ((UNS8 *)pSourceData)[i] = tmp;
+                UNS8 tmp = ((UNS8 *)pSourceData) [(ptrTable->pSubindex[bSubindex].size - 1) - i];
+                ((UNS8 *)pSourceData) [(ptrTable->pSubindex[bSubindex].size - 1) - i] = ((UNS8 *)pSourceData)[i];
+                ((UNS8 *)pSourceData)[i] = tmp;
             }
         }
 #endif
         errorCode = (*d->valueRangeTest)(dataType, pSourceData);
-        if (errorCode) {
+        if (errorCode)
+        {
             accessDictionaryError(wIndex, bSubindex, szData, *pExpectedSize, errorCode);
             return errorCode;
         }
-        memcpy(ptrTable->pSubindex[bSubindex].pObject,pSourceData, *pExpectedSize);
+        memcpy(ptrTable->pSubindex[bSubindex].pObject, pSourceData, *pExpectedSize);
         /* TODO : CONFORM TO DS-301 : 
         *  - stop using NULL terminated strings
         *  - store string size in td_subindex 
         * */
         /* terminate visible_string with '\0' */
-        if(dataType == visible_string && *pExpectedSize < szData) {
+        if(dataType == visible_string && *pExpectedSize < szData)
+        {
             ((UNS8*)ptrTable->pSubindex[bSubindex].pObject)[*pExpectedSize] = 0;
         }
 
@@ -287,7 +296,7 @@ UNS32 _setODentry( CO_Data* d,
 	     Function should return OD_ACCES_FAILED in case of store error */
         if (ptrTable->pSubindex[bSubindex].bAccessType & TO_BE_SAVE)
         {
-                return (*d->storeODSubIndex)(d, wIndex, bSubindex);
+            return (*d->storeODSubIndex)(d, wIndex, bSubindex);
         }
         return OD_SUCCESSFUL;
     }
@@ -310,9 +319,11 @@ UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCal
     ODCallback_t *CallbackList;
     const CONSTSTORE indextable *odentry;
 
-    odentry = scanIndexOD (d, wIndex, &errorCode, &CallbackList);
-    if(errorCode == OD_SUCCESSFUL  &&  CallbackList  &&  bSubindex < odentry->bSubCount) 
+    odentry = scanIndexOD(d, wIndex, &errorCode, &CallbackList);
+    if(errorCode == OD_SUCCESSFUL  &&  CallbackList  &&  bSubindex < odentry->bSubCount)
+    {
         CallbackList[bSubindex] = Callback;
+    }
     return errorCode;
 }
 

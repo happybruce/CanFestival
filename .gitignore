@@ -9,3 +9,7 @@ Makefile
 *.elf
 *.eep
 build
+Debug/
+.vs/
+CMakeFiles/
+CMakeCache.txt

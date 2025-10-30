@@ -51,7 +51,10 @@ e_nodeState getNodeState (CO_Data* d, UNS8 nodeId)
     e_nodeState networkNodeState = Unknown_state;
 #if NMT_MAX_NODE_ID>0
     if(nodeId < NMT_MAX_NODE_ID)
-      networkNodeState = d->NMTable[nodeId];
+    {
+        networkNodeState = d->NMTable[nodeId];
+    }
+        
 #endif
     return networkNodeState;
 }
@@ -217,33 +220,34 @@ void GuardTimeAlarm(CO_Data* d, UNS32 id)
 
         MSG_WAR(0x00, "Producing nodeguard-requests: ", 0);
 
-        for (i = 0; i < NMT_MAX_NODE_ID; i++) {
+        for (i = 0; i < NMT_MAX_NODE_ID; i++)
+        {
             /** Send node guard request to all nodes except this node, if the 
              * node state is not "Unknown_state"
              */
-            if (d->NMTable[i] != Unknown_state && i != *d->bDeviceNodeId) {
+            if (d->NMTable[i] != Unknown_state && i != *d->bDeviceNodeId)
+            {
 
                 /** Check if the node has confirmed the guarding request within
                 * the LifeTime (GuardTime x LifeTimeFactor)
                 */
-                if (d->nodeGuardStatus[i] <= 0) {
+                if (d->nodeGuardStatus[i] <= 0)
+                {
+                    MSG_WAR(0x00, "Node Guard alarm for nodeId : ", i);
 
-                MSG_WAR(0x00, "Node Guard alarm for nodeId : ", i);
+                    // Call error-callback function
+                    if (*d->nodeguardError)
+                    {
+                        (*d->nodeguardError)(d, i);
+                    }
 
-                // Call error-callback function
-                if (*d->nodeguardError) {
-                    (*d->nodeguardError)(d, i);
-                }
-
-                // Mark node as disconnected
-                d->NMTable[i] = Disconnected;
-
+                    // Mark node as disconnected
+                    d->NMTable[i] = Disconnected;
                 }
 
                 d->nodeGuardStatus[i]--;
 
                 masterSendNMTnodeguard(d, i);
-
             }
         }
     } 
@@ -324,16 +328,19 @@ void nodeguardInit(CO_Data* d)
     RegisterSetODentryCallBack(d, 0x100C, 0x00, &OnNodeGuardUpdate);
     RegisterSetODentryCallBack(d, 0x100D, 0x00, &OnNodeGuardUpdate);
 
-    if (*d->GuardTime && *d->LifeTimeFactor) {
+    if (*d->GuardTime && *d->LifeTimeFactor)
+    {
         UNS8 i;
 
         TIMEVAL time = *d->GuardTime;
         d->GuardTimeTimer = SetAlarm(d, 0, &GuardTimeAlarm, MS_TO_TIMEVAL(time), MS_TO_TIMEVAL(time));
         MSG_WAR(0x0, "GuardTime: ", time);
 
-        for (i = 0; i < NMT_MAX_NODE_ID; i++) {
+        for (i = 0; i < NMT_MAX_NODE_ID; i++)
+        {
             /** Set initial value for the nodes */
-            if (d->NMTable[i] != Unknown_state && i != *d->bDeviceNodeId) { 
+            if (d->NMTable[i] != Unknown_state && i != *d->bDeviceNodeId)
+            { 
                 d->nodeGuardStatus[i] = *d->LifeTimeFactor;
             }
         }
@@ -373,8 +380,8 @@ void lifeGuardStop(CO_Data* d)
 }
 
 
-void _heartbeatError(CO_Data* d, UNS8 heartbeatID){(void)d;(void)heartbeatID;}
-void _post_SlaveBootup(CO_Data* d, UNS8 SlaveID){(void)d;(void)SlaveID;}
-void _post_SlaveStateChange(CO_Data* d, UNS8 nodeId, e_nodeState newNodeState){(void)d;(void)nodeId;(void)newNodeState;}
-void _nodeguardError(CO_Data* d, UNS8 id){(void)d;(void)id;}
+void _heartbeatError(CO_Data* d, UNS8 heartbeatID) {(void)d;(void)heartbeatID;}
+void _post_SlaveBootup(CO_Data* d, UNS8 SlaveID) {(void)d;(void)SlaveID;}
+void _post_SlaveStateChange(CO_Data* d, UNS8 nodeId, e_nodeState newNodeState) {(void)d;(void)nodeId;(void)newNodeState;}
+void _nodeguardError(CO_Data* d, UNS8 id) {(void)d;(void)id;}
 

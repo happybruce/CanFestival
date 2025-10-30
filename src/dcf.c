@@ -69,17 +69,54 @@ void start_node(CO_Data* d, UNS8 nodeId)
 UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
 {   
     if(d->dcf_status != DCF_STATUS_INIT)
+    {
         return 0;
-    /* Set the first SDO client as available */
-    if(d->firstIndex->SDO_CLT)
-        WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 3, nodeId);
-    else
-        return 3;
+    }
+    
+    // Search if nodeId is in valid SDO client range firstly
+    UNS16 offset = d->firstIndex->SDO_CLT;
+    UNS16 lastIndex = d->lastIndex->SDO_CLT;
+    UNS8 CliNbr = 0;
+    UNS8 SDOfound = 0;
+    while (offset <= lastIndex) 
+    {
+        if (d->objdict[offset].bSubCount <= 3) 
+        {
+            MSG_ERR(0x1A00, "Subindex 3 not found at index ", 0x1280 + CliNbr);
+            return 3;
+        }
+        /* looking for the server nodeId */
+        UNS8 nodeIdServer = READ_UNS8(d->objdict, offset, 3);
+
+        if(nodeIdServer == nodeId)
+        {
+            SDOfound = 1;
+            break;
+        }
+        offset++;
+        CliNbr++;
+    } /* end while */
+
+    if (SDOfound == 0) // Not found, set the first SDO client as available
+    {
+        if(d->firstIndex->SDO_CLT)
+        {
+            WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 1, 0x600+nodeId);
+            WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 2, 0x580+nodeId);
+            WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 3, nodeId);
+        }
+        else
+        {
+            return 3;
+        }
+    }
+    
     if((init_consise_dcf(d, nodeId) == 0) || (read_consise_dcf_next_entry(d, nodeId) == 0))
     {
         start_node(d, nodeId);
         return 1;
     }
+    
     d->dcf_status = DCF_STATUS_READ_CHECK;
     return 2;
 }
@@ -184,7 +221,7 @@ dcferror:
 **
 ** @return
 */
-UNS8 init_consise_dcf(CO_Data* d,UNS8 nodeId)
+UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId)
 {
     /* Fetch DCF OD entry */
     UNS32 errorCode;
