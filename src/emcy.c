@@ -109,9 +109,9 @@ void emergencyStop(CO_Data* d)
 UNS8 sendEMCY(CO_Data* d, UNS16 errCode, UNS8 errRegister, const UNS8 errSpecific[5])
 {
     Message m;
-  
+
     MSG_WAR(0x3051, "sendEMCY", 0);
-  
+
     m.cob_id = (UNS16)(*(UNS32*)d->error_cobid);
     m.rtr = NOT_A_REQUEST;    
     m.len = 8;
@@ -120,9 +120,13 @@ UNS8 sendEMCY(CO_Data* d, UNS16 errCode, UNS8 errRegister, const UNS8 errSpecifi
     m.Data[2] = errRegister;
 
     if (errSpecific == NULL)    /* Manufacturer Specific Error Field */
+    {
         memset(&m.Data[3], 0, 5);
+    }
     else
+    {
         memcpy(&m.Data[3], errSpecific, 5);
+    }
 
     return canSend(d->canHandle,&m);
 }

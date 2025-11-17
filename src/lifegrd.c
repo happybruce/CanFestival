@@ -111,7 +111,10 @@ void proceedNODE_GUARD(CO_Data* d, Message* m )
                 d->toggle = 0 ;
             }
             else
+            {
                 d->toggle = 1 ;
+            }
+
             /* send the nodeguard response. */
             MSG_WAR(0x3130, "Sending NMT Nodeguard to master, state: ", d->nodeState);
             canSend(d->canHandle,&msg );
@@ -192,8 +195,9 @@ void ProducerHeartbeatAlarm(CO_Data* d, UNS32 id)
         /* send the heartbeat */
         MSG_WAR(0x3130, "Producing heartbeat: ", d->nodeState);
         canSend(d->canHandle,&msg );
-
-    } else {
+    }
+    else
+    {
         d->ProducerHeartBeatTimer = DelAlarm(d->ProducerHeartBeatTimer);
     }
 }
@@ -309,13 +313,13 @@ void heartbeatInit(CO_Data* d)
     for( index = (UNS8)0x00; index < *d->ConsumerHeartbeatCount; index++ )
     {
         TIMEVAL time = (UNS16) ( (d->ConsumerHeartbeatEntries[index]) & (UNS32)0x0000FFFF ) ;
-        if ( time )
+        if (time)
         {
             d->ConsumerHeartBeatTimers[index] = SetAlarm(d, index, &ConsumerHeartbeatAlarm, MS_TO_TIMEVAL(time), 0);
         }
     }
 
-    if ( *d->ProducerHeartBeatTime )
+    if (*d->ProducerHeartBeatTime)
     {
         TIMEVAL time = *d->ProducerHeartBeatTime;
         d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(time), MS_TO_TIMEVAL(time));

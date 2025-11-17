@@ -48,7 +48,8 @@ extern "C" {
  * @ingroup od
  * @brief This structure contains all necessary informations to define a CANOpen node 
  */
-struct struct_CO_Data {
+struct struct_CO_Data
+{
     /* Object dictionary */
     UNS8 *bDeviceNodeId;
     const CONSTSTORE indextable *objdict;
@@ -134,7 +135,7 @@ struct struct_CO_Data {
     lss_transfer_t lss_transfer;
     lss_StoreConfiguration_t lss_StoreConfiguration;
 #endif    
-};
+}; // struct_CO_Data
 
 #define NMTable_Initializer Unknown_state,
 #define nodeGuardStatus_Initializer 0x00,
