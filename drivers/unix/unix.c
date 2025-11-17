@@ -175,7 +175,8 @@ CAN_PORT canOpen(s_BOARD *board, CO_Data * d)
     }
 
 #ifndef NOT_USE_DYNAMIC_LOADING
-    if (&DLL_CALL(canOpen)==NULL) {
+    if (&DLL_CALL(canOpen)==NULL)
+    {
         fprintf(stderr,"CanOpen : Can Driver dll not loaded\n");
         return NULL;
     }
