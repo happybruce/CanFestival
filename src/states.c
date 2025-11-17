@@ -173,8 +173,10 @@ void switchCommunicationState(CO_Data * d, s_state_communication * newCommunicat
 **/  
 UNS8 setState(CO_Data* d, e_nodeState newState)
 {
-    if(newState != d->nodeState){
-        switch( newState ){
+    if(newState != d->nodeState)
+    {
+        switch( newState )
+        {
             case Initialisation:
             {
                 s_state_communication newCommunicationState = {1, 0, 0, 0, 0, 0, 0};
@@ -192,7 +194,6 @@ UNS8 setState(CO_Data* d, e_nodeState newState)
                                 
             case Pre_operational:
             {
-                
                 s_state_communication newCommunicationState = {0, 1, 1, 1, 1, 0, 1};
                 d->nodeState = Pre_operational;
                 switchCommunicationState(d, &newCommunicationState);
@@ -303,7 +304,7 @@ void setNodeId(CO_Data* d, UNS8 nodeId)
         UNS32 otherBits;
         if( offset )
         {
-            while( (offset <= lastIndex) && (i < 4)) 
+            while((offset <= lastIndex) && (i < 4))
             {
                 canID = READ_UNS32(d->objdict, offset, 1) & 0x1fffffff;
                 otherBits = READ_UNS32(d->objdict, offset, 1) & ~0x1fffffff;
@@ -352,13 +353,13 @@ void setNodeId(CO_Data* d, UNS8 nodeId)
     *d->bDeviceNodeId = nodeId;
 }
 
-void _initialisation(CO_Data* d) {(void)d;}
+void _initialisation(CO_Data* d) { (void)d; }
 void _preOperational(CO_Data* d)
 {
     if (!(*(d->iam_a_slave)))
     {
-        masterSendNMTstateChange (d, 0, NMT_Reset_Node);
+        masterSendNMTstateChange(d, 0, NMT_Reset_Node);
     }
 }
-void _operational(CO_Data* d) {(void)d;}
-void _stopped(CO_Data* d) {(void)d;}
+void _operational(CO_Data* d) { (void)d; }
+void _stopped(CO_Data* d) { (void)d; }

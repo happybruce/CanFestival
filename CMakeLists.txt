@@ -56,6 +56,7 @@ target_include_directories(canfestival_can_socket PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix>
 )
 target_compile_options(canfestival_can_socket PRIVATE -fPIC -Wall -g -fno-strict-aliasing)
+target_compile_definitions(canfestival_can_socket PUBLIC NOT_USE_DYNAMIC_LOADING)
 
 install(TARGETS canfestival_can_socket
     ARCHIVE DESTINATION lib

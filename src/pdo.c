@@ -280,13 +280,11 @@ proceedPDO (CO_Data * d, Message * m)
 
                     return 0;
                 }
-                else
+                else // received cobId does not match, check next PDO
                 {
-                    /* received cobId does not match */
                     numPdo++;
                     offsetObjdict++;
                     // status = state2;
-                    break;
                 }
             }
 

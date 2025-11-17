@@ -48,8 +48,8 @@ extern "C" {
 /* The error states 
  * ----------------- */
 typedef enum enum_errorState {
-  Error_free        = 0x00, 
-  Error_occurred    = 0x01
+    Error_free        = 0x00, 
+    Error_occurred    = 0x01
 } e_errorState;
 
 typedef struct {
