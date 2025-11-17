@@ -71,8 +71,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define UNS64  u_int64_t
 
 /* Reals */
-#define REAL32	float
-#define REAL64 double
+#define REAL32  float
+#define REAL64  double
 
 /* Definition of error and warning macros */
 /* -------------------------------------- */

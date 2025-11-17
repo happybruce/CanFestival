@@ -174,7 +174,7 @@ UNS8 proceedSYNC(CO_Data* d)
     (*d->post_sync)(d);
 
     /* only operational state allows PDO transmission */
-    if(! d->CurrentCommunicationState.csPDO)
+    if(!d->CurrentCommunicationState.csPDO)
     {
         return 0;
     }

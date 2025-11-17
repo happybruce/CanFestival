@@ -56,7 +56,7 @@ UNS8 init_consise_dcf(CO_Data* d,UNS8 nodeId);
 void start_node(CO_Data* d, UNS8 nodeId)
 {
     /* Ask slave node to go in operational mode */
-    masterSendNMTstateChange (d, nodeId, NMT_Start_Node);
+    masterSendNMTstateChange(d, nodeId, NMT_Start_Node);
     d->NMTable[nodeId] = Connecting;
 }
 
@@ -129,17 +129,25 @@ UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
 */
 void start_and_seek_node(CO_Data* d, UNS8 nodeId)
 {
-   UNS8 node;
-   if(nodeId)
-       start_node(d,nodeId);
-   for(node = 0 ; node<NMT_MAX_NODE_ID ; node++)
-   {
-       if(d->NMTable[node] != Initialisation)
-           continue;
-       if(check_and_start_node(d, node) == 2)
-           return;
-   }
-   d->dcf_status = DCF_STATUS_INIT;
+    UNS8 node;
+    if(nodeId)
+    {
+        start_node(d,nodeId);
+    }
+    
+    for(node = 0 ; node < NMT_MAX_NODE_ID ; node++)
+    {
+        if(d->NMTable[node] != Initialisation)
+        {
+            continue;
+        }
+
+        if(check_and_start_node(d, node) == 2)
+        {
+            return;
+        }
+    }
+    d->dcf_status = DCF_STATUS_INIT;
 }
 
 /**
@@ -157,13 +165,18 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
     {
         if(getReadResultNetworkDict (d, nodeId, buf, &size, &abortCode) != SDO_FINISHED)
             goto dcferror;
+
         /* Check if data received match the DCF */
         if(size == d->dcf_size)
         {
             match = 1;
             while(size--)
+            {
                 if(buf[size] != d->dcf_data[size])
+                {
                     match = 0;
+                }
+            }
         }
 
         if(match)
@@ -177,6 +190,7 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
         { /* Data received does not match : start rewriting all */
             if((init_consise_dcf(d, nodeId) == 0) || (write_consise_dcf_next_entry(d, nodeId) == 0))
                 goto dcferror;                
+
             d->dcf_status = DCF_STATUS_WRITE;
         }
     }
@@ -184,6 +198,7 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
     {
         if(getWriteResultNetworkDict (d, nodeId, &abortCode) != SDO_FINISHED)
             goto dcferror;
+
         if(write_consise_dcf_next_entry(d, nodeId) == 0)
         {
 #ifdef DCF_SAVE_NODE
@@ -199,11 +214,13 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
     {
         if(getWriteResultNetworkDict (d, nodeId, &abortCode) != SDO_FINISHED)
             goto dcferror;
+
         masterSendNMTstateChange (d, nodeId, NMT_Reset_Node);
         d->dcf_status = DCF_STATUS_INIT;
         d->NMTable[nodeId] = Unknown_state;
     }
     return;
+
 dcferror:
     MSG_ERR(0x1A01, "SDO error in consise DCF", abortCode);
     MSG_WAR(0x2A02, "slave node : ", nodeId);
@@ -227,12 +244,14 @@ UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId)
     UNS32 errorCode;
     ODCallback_t *Callback;
     d->dcf_odentry = (*d->scanIndexOD)(0x1F22, &errorCode, &Callback);
+    
     /* If DCF entry do not exist... Nothing to do.*/
     if (errorCode != OD_SUCCESSFUL) goto DCF_finish;
     /* Fix DCF table overflow */
     if(nodeId > d->dcf_odentry->bSubCount) goto DCF_finish;
     /* If DCF empty... Nothing to do */
     if(! d->dcf_odentry->pSubindex[nodeId].size) goto DCF_finish;
+    
     d->dcf_cursor = ((UNS8*)d->dcf_odentry->pSubindex[nodeId].pObject) + 4;
     d->dcf_entries_count = 0;
     d->dcf_status = DCF_STATUS_INIT;
