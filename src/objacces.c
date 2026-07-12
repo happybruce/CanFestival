@@ -41,10 +41,10 @@
 #include "data.h"
 
 
-void *memcpy_flash(void * dest, const CONSTSTORE void * source, size_t length)
+void *memcpy_flash(void * dest, const void * source, size_t length)
 {
     char* dstPointer = dest;
-    const CONSTSTORE char* srcPointer = source;
+    const char* srcPointer = source;
     size_t i;
     for(i = 0; i < length; i++) 
     {
@@ -106,7 +106,7 @@ UNS32 _getODentry( CO_Data* d,
     (void)endianize;
     UNS32 errorCode;
     UNS32 szData;
-    const CONSTSTORE indextable *ptrTable;
+    const indextable *ptrTable;
     ODCallback_t *Callback;
 
     ptrTable = (*d->scanIndexOD)(wIndex, &errorCode, &Callback);
@@ -167,7 +167,7 @@ UNS32 _getODentry( CO_Data* d,
     {
         if(ptrTable->pSubindex[bSubindex].bDataType == visible_string && bSubindex != 0) 
         {
-            const CONSTSTORE char* dp = *(const CONSTSTORE char* const CONSTSTORE *)ptrTable->pSubindex[bSubindex].pObjectConst;
+            const char* dp = *(const char* const *)ptrTable->pSubindex[bSubindex].pObjectConst;
             memcpy_flash(pDestData, dp,szData);
         }
         else
@@ -216,7 +216,7 @@ UNS32 _setODentry( CO_Data* d,
     UNS32 szData;
     UNS8 dataType;
     UNS32 errorCode;
-    const CONSTSTORE indextable *ptrTable;
+    const indextable *ptrTable;
     ODCallback_t *Callback;
 
     ptrTable = (*d->scanIndexOD)(wIndex, &errorCode, &Callback);
@@ -308,7 +308,7 @@ UNS32 _setODentry( CO_Data* d,
     }
 }
 
-const CONSTSTORE indextable * scanIndexOD (CO_Data* d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback)
+const indextable * scanIndexOD (CO_Data* d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback)
 {
     return (*d->scanIndexOD)(wIndex, errorCode, Callback);
 }
@@ -317,7 +317,7 @@ UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCal
 {
     UNS32 errorCode;
     ODCallback_t *CallbackList;
-    const CONSTSTORE indextable *odentry;
+    const indextable *odentry;
 
     odentry = scanIndexOD(d, wIndex, &errorCode, &CallbackList);
     if(errorCode == OD_SUCCESSFUL  &&  CallbackList  &&  bSubindex < odentry->bSubCount)

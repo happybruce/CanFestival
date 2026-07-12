@@ -48,14 +48,14 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1000 :   b'Device Type'. */
                     UNS32 slavedic_obj1000 = 0x0;	/* 0 */
-                    const CONSTSTORE subindex slavedic_Index1000[] = 
+                    const  subindex slavedic_Index1000[] = 
                      {
                        { RO, uint32, sizeof (UNS32), .pObject=&slavedic_obj1000 }
                      };
 
 /* index 0x1001 :   b'Error Register'. */
                     UNS8 slavedic_obj1001 = 0x0;	/* 0 */
-                    const CONSTSTORE subindex slavedic_Index1001[] = 
+                    const  subindex slavedic_Index1001[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_obj1001 }
                      };
@@ -71,7 +71,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index1003[] = 
+                    const  subindex slavedic_Index1003[] = 
                      {
                        { RW, valueRange_EMC, sizeof (UNS8), .pObject=(void*)&slavedic_highestSubIndex_obj1003 },
                        { RO, uint32, sizeof (UNS32), .pObject=(void*)&slavedic_obj1003[0] }
@@ -102,7 +102,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index1017[] = 
+                    const  subindex slavedic_Index1017[] = 
                      {
                        { RW, uint16, sizeof (UNS16), .pObject=&slavedic_obj1017 }
                      };
@@ -113,7 +113,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS32 slavedic_obj1018_Product_Code = 0x0;	/* 0 */
                     UNS32 slavedic_obj1018_Revision_Number = 0x0;	/* 0 */
                     UNS32 slavedic_obj1018_Serial_Number = 0x0;	/* 0 */
-                    const CONSTSTORE subindex slavedic_Index1018[] = 
+                    const  subindex slavedic_Index1018[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1018 },
                        { RO, uint32, sizeof (UNS32), .pObject=&slavedic_obj1018_Vendor_ID },
@@ -126,7 +126,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 slavedic_highestSubIndex_obj1200 = 2; /* number of subindex - 1*/
                     UNS32 slavedic_obj1200_COB_ID_Client_to_Server_Receive_SDO = 0x600;	/* 1536 */
                     UNS32 slavedic_obj1200_COB_ID_Server_to_Client_Transmit_SDO = 0x580;	/* 1408 */
-                    const CONSTSTORE subindex slavedic_Index1200[] = 
+                    const  subindex slavedic_Index1200[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1200 },
                        { RO, uint32, sizeof (UNS32), .pObject=&slavedic_obj1200_COB_ID_Client_to_Server_Receive_SDO },
@@ -141,7 +141,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 slavedic_obj1400_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 slavedic_obj1400_Event_Timer = 0x0;	/* 0 */
                     UNS8 slavedic_obj1400_SYNC_start_value = 0x0;	/* 0 */
-                    const CONSTSTORE subindex slavedic_Index1400[] = 
+                    const  subindex slavedic_Index1400[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1400 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1400_COB_ID_used_by_PDO },
@@ -160,7 +160,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 slavedic_obj1401_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 slavedic_obj1401_Event_Timer = 0x0;	/* 0 */
                     UNS8 slavedic_obj1401_SYNC_start_value = 0x0;	/* 0 */
-                    const CONSTSTORE subindex slavedic_Index1401[] = 
+                    const  subindex slavedic_Index1401[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1401 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1401_COB_ID_used_by_PDO },
@@ -179,7 +179,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 slavedic_obj1402_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 slavedic_obj1402_Event_Timer = 0x0;	/* 0 */
                     UNS8 slavedic_obj1402_SYNC_start_value = 0x0;	/* 0 */
-                    const CONSTSTORE subindex slavedic_Index1402[] = 
+                    const  subindex slavedic_Index1402[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1402 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1402_COB_ID_used_by_PDO },
@@ -198,7 +198,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 slavedic_obj1403_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 slavedic_obj1403_Event_Timer = 0x0;	/* 0 */
                     UNS8 slavedic_obj1403_SYNC_start_value = 0x0;	/* 0 */
-                    const CONSTSTORE subindex slavedic_Index1403[] = 
+                    const  subindex slavedic_Index1403[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1403 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1403_COB_ID_used_by_PDO },
@@ -222,7 +222,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       0x0,	/* 0 */
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex slavedic_Index1600[] = 
+                    const  subindex slavedic_Index1600[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1600 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1600[0] },
@@ -248,7 +248,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       0x0,	/* 0 */
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex slavedic_Index1601[] = 
+                    const  subindex slavedic_Index1601[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1601 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1601[0] },
@@ -274,7 +274,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       0x0,	/* 0 */
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex slavedic_Index1602[] = 
+                    const  subindex slavedic_Index1602[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1602 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1602[0] },
@@ -300,7 +300,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       0x0,	/* 0 */
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex slavedic_Index1603[] = 
+                    const  subindex slavedic_Index1603[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1603 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1603[0] },
@@ -331,7 +331,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index1800[] = 
+                    const  subindex slavedic_Index1800[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1800 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1800_COB_ID_used_by_PDO },
@@ -360,7 +360,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index1801[] = 
+                    const  subindex slavedic_Index1801[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1801 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1801_COB_ID_used_by_PDO },
@@ -389,7 +389,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index1802[] = 
+                    const  subindex slavedic_Index1802[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1802 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1802_COB_ID_used_by_PDO },
@@ -418,7 +418,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index1803[] = 
+                    const  subindex slavedic_Index1803[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1803 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1803_COB_ID_used_by_PDO },
@@ -442,7 +442,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       0x0,	/* 0 */
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex slavedic_Index1A00[] = 
+                    const  subindex slavedic_Index1A00[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1A00 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1A00[0] },
@@ -468,7 +468,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       0x0,	/* 0 */
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex slavedic_Index1A01[] = 
+                    const  subindex slavedic_Index1A01[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1A01 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1A01[0] },
@@ -494,7 +494,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       0x0,	/* 0 */
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex slavedic_Index1A02[] = 
+                    const  subindex slavedic_Index1A02[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1A02 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1A02[0] },
@@ -520,7 +520,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       0x0,	/* 0 */
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex slavedic_Index1A03[] = 
+                    const  subindex slavedic_Index1A03[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&slavedic_highestSubIndex_obj1A03 },
                        { RW, uint32, sizeof (UNS32), .pObject=&slavedic_obj1A03[0] },
@@ -538,7 +538,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index2000[] = 
+                    const  subindex slavedic_Index2000[] = 
                      {
                        { RW, uint32, sizeof (UNS32), .pObject=&counter }
                      };
@@ -548,7 +548,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index2001[] = 
+                    const  subindex slavedic_Index2001[] = 
                      {
                        { RW, int16, sizeof (INTEGER16), .pObject=&position }
                      };
@@ -558,7 +558,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex slavedic_Index4003[] = 
+                    const  subindex slavedic_Index4003[] = 
                      {
                        { RW, int16, sizeof (INTEGER16), .pObject=&hehe }
                      };
@@ -567,35 +567,35 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 /* Declaration of pointed variables                                       */
 /**************************************************************************/
 
-const CONSTSTORE indextable slavedic_objdict[] = 
+const  indextable slavedic_objdict[] = 
 {
-  { (const CONSTSTORE subindex* const)slavedic_Index1000,sizeof(slavedic_Index1000)/sizeof(slavedic_Index1000[0]), 0x1000},
-  { (const CONSTSTORE subindex* const)slavedic_Index1001,sizeof(slavedic_Index1001)/sizeof(slavedic_Index1001[0]), 0x1001},
-  { (const CONSTSTORE subindex* const)slavedic_Index1017,sizeof(slavedic_Index1017)/sizeof(slavedic_Index1017[0]), 0x1017},
-  { (const CONSTSTORE subindex* const)slavedic_Index1018,sizeof(slavedic_Index1018)/sizeof(slavedic_Index1018[0]), 0x1018},
-  { (const CONSTSTORE subindex* const)slavedic_Index1200,sizeof(slavedic_Index1200)/sizeof(slavedic_Index1200[0]), 0x1200},
-  { (const CONSTSTORE subindex* const)slavedic_Index1400,sizeof(slavedic_Index1400)/sizeof(slavedic_Index1400[0]), 0x1400},
-  { (const CONSTSTORE subindex* const)slavedic_Index1401,sizeof(slavedic_Index1401)/sizeof(slavedic_Index1401[0]), 0x1401},
-  { (const CONSTSTORE subindex* const)slavedic_Index1402,sizeof(slavedic_Index1402)/sizeof(slavedic_Index1402[0]), 0x1402},
-  { (const CONSTSTORE subindex* const)slavedic_Index1403,sizeof(slavedic_Index1403)/sizeof(slavedic_Index1403[0]), 0x1403},
-  { (const CONSTSTORE subindex* const)slavedic_Index1600,sizeof(slavedic_Index1600)/sizeof(slavedic_Index1600[0]), 0x1600},
-  { (const CONSTSTORE subindex* const)slavedic_Index1601,sizeof(slavedic_Index1601)/sizeof(slavedic_Index1601[0]), 0x1601},
-  { (const CONSTSTORE subindex* const)slavedic_Index1602,sizeof(slavedic_Index1602)/sizeof(slavedic_Index1602[0]), 0x1602},
-  { (const CONSTSTORE subindex* const)slavedic_Index1603,sizeof(slavedic_Index1603)/sizeof(slavedic_Index1603[0]), 0x1603},
-  { (const CONSTSTORE subindex* const)slavedic_Index1800,sizeof(slavedic_Index1800)/sizeof(slavedic_Index1800[0]), 0x1800},
-  { (const CONSTSTORE subindex* const)slavedic_Index1801,sizeof(slavedic_Index1801)/sizeof(slavedic_Index1801[0]), 0x1801},
-  { (const CONSTSTORE subindex* const)slavedic_Index1802,sizeof(slavedic_Index1802)/sizeof(slavedic_Index1802[0]), 0x1802},
-  { (const CONSTSTORE subindex* const)slavedic_Index1803,sizeof(slavedic_Index1803)/sizeof(slavedic_Index1803[0]), 0x1803},
-  { (const CONSTSTORE subindex* const)slavedic_Index1A00,sizeof(slavedic_Index1A00)/sizeof(slavedic_Index1A00[0]), 0x1A00},
-  { (const CONSTSTORE subindex* const)slavedic_Index1A01,sizeof(slavedic_Index1A01)/sizeof(slavedic_Index1A01[0]), 0x1A01},
-  { (const CONSTSTORE subindex* const)slavedic_Index1A02,sizeof(slavedic_Index1A02)/sizeof(slavedic_Index1A02[0]), 0x1A02},
-  { (const CONSTSTORE subindex* const)slavedic_Index1A03,sizeof(slavedic_Index1A03)/sizeof(slavedic_Index1A03[0]), 0x1A03},
-  { (const CONSTSTORE subindex* const)slavedic_Index2000,sizeof(slavedic_Index2000)/sizeof(slavedic_Index2000[0]), 0x2000},
-  { (const CONSTSTORE subindex* const)slavedic_Index2001,sizeof(slavedic_Index2001)/sizeof(slavedic_Index2001[0]), 0x2001},
-  { (const CONSTSTORE subindex* const)slavedic_Index4003,sizeof(slavedic_Index4003)/sizeof(slavedic_Index4003[0]), 0x4003},
+  { (const  subindex* const)slavedic_Index1000,sizeof(slavedic_Index1000)/sizeof(slavedic_Index1000[0]), 0x1000},
+  { (const  subindex* const)slavedic_Index1001,sizeof(slavedic_Index1001)/sizeof(slavedic_Index1001[0]), 0x1001},
+  { (const  subindex* const)slavedic_Index1017,sizeof(slavedic_Index1017)/sizeof(slavedic_Index1017[0]), 0x1017},
+  { (const  subindex* const)slavedic_Index1018,sizeof(slavedic_Index1018)/sizeof(slavedic_Index1018[0]), 0x1018},
+  { (const  subindex* const)slavedic_Index1200,sizeof(slavedic_Index1200)/sizeof(slavedic_Index1200[0]), 0x1200},
+  { (const  subindex* const)slavedic_Index1400,sizeof(slavedic_Index1400)/sizeof(slavedic_Index1400[0]), 0x1400},
+  { (const  subindex* const)slavedic_Index1401,sizeof(slavedic_Index1401)/sizeof(slavedic_Index1401[0]), 0x1401},
+  { (const  subindex* const)slavedic_Index1402,sizeof(slavedic_Index1402)/sizeof(slavedic_Index1402[0]), 0x1402},
+  { (const  subindex* const)slavedic_Index1403,sizeof(slavedic_Index1403)/sizeof(slavedic_Index1403[0]), 0x1403},
+  { (const  subindex* const)slavedic_Index1600,sizeof(slavedic_Index1600)/sizeof(slavedic_Index1600[0]), 0x1600},
+  { (const  subindex* const)slavedic_Index1601,sizeof(slavedic_Index1601)/sizeof(slavedic_Index1601[0]), 0x1601},
+  { (const  subindex* const)slavedic_Index1602,sizeof(slavedic_Index1602)/sizeof(slavedic_Index1602[0]), 0x1602},
+  { (const  subindex* const)slavedic_Index1603,sizeof(slavedic_Index1603)/sizeof(slavedic_Index1603[0]), 0x1603},
+  { (const  subindex* const)slavedic_Index1800,sizeof(slavedic_Index1800)/sizeof(slavedic_Index1800[0]), 0x1800},
+  { (const  subindex* const)slavedic_Index1801,sizeof(slavedic_Index1801)/sizeof(slavedic_Index1801[0]), 0x1801},
+  { (const  subindex* const)slavedic_Index1802,sizeof(slavedic_Index1802)/sizeof(slavedic_Index1802[0]), 0x1802},
+  { (const  subindex* const)slavedic_Index1803,sizeof(slavedic_Index1803)/sizeof(slavedic_Index1803[0]), 0x1803},
+  { (const  subindex* const)slavedic_Index1A00,sizeof(slavedic_Index1A00)/sizeof(slavedic_Index1A00[0]), 0x1A00},
+  { (const  subindex* const)slavedic_Index1A01,sizeof(slavedic_Index1A01)/sizeof(slavedic_Index1A01[0]), 0x1A01},
+  { (const  subindex* const)slavedic_Index1A02,sizeof(slavedic_Index1A02)/sizeof(slavedic_Index1A02[0]), 0x1A02},
+  { (const  subindex* const)slavedic_Index1A03,sizeof(slavedic_Index1A03)/sizeof(slavedic_Index1A03[0]), 0x1A03},
+  { (const  subindex* const)slavedic_Index2000,sizeof(slavedic_Index2000)/sizeof(slavedic_Index2000[0]), 0x2000},
+  { (const  subindex* const)slavedic_Index2001,sizeof(slavedic_Index2001)/sizeof(slavedic_Index2001[0]), 0x2001},
+  { (const  subindex* const)slavedic_Index4003,sizeof(slavedic_Index4003)/sizeof(slavedic_Index4003[0]), 0x4003},
 };
 
-const CONSTSTORE indextable * slavedic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
+const  indextable * slavedic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
 {
 	int i;
 	*callbacks = NULL;
@@ -639,7 +639,7 @@ const CONSTSTORE indextable * slavedic_scanIndexOD (UNS16 wIndex, UNS32 * errorC
  */
 s_PDO_status slavedic_PDO_status[4] = {s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer};
 
-const CONSTSTORE quick_index slavedic_firstIndex = {
+const  quick_index slavedic_firstIndex = {
   4, /* SDO_SVR */
   0, /* SDO_CLT */
   5, /* PDO_RCV */
@@ -648,7 +648,7 @@ const CONSTSTORE quick_index slavedic_firstIndex = {
   17 /* PDO_TRS_MAP */
 };
 
-const CONSTSTORE quick_index slavedic_lastIndex = {
+const  quick_index slavedic_lastIndex = {
   4, /* SDO_SVR */
   0, /* SDO_CLT */
   8, /* PDO_RCV */
@@ -657,7 +657,7 @@ const CONSTSTORE quick_index slavedic_lastIndex = {
   20 /* PDO_TRS_MAP */
 };
 
-const CONSTSTORE UNS16 slavedic_ObjdictSize = sizeof(slavedic_objdict)/sizeof(slavedic_objdict[0]); 
+const  UNS16 slavedic_ObjdictSize = sizeof(slavedic_objdict)/sizeof(slavedic_objdict[0]); 
 
 CO_Data slavedic_Data = CANOPEN_NODE_DATA_INITIALIZER(slavedic);
 

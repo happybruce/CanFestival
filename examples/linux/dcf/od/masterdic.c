@@ -52,14 +52,14 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1000 :   b'Device Type'. */
                     UNS32 masterdic_obj1000 = 0x0;	/* 0 */
-                    const CONSTSTORE subindex masterdic_Index1000[] = 
+                    const  subindex masterdic_Index1000[] = 
                      {
                        { RO, uint32, sizeof (UNS32), .pObject=&masterdic_obj1000 }
                      };
 
 /* index 0x1001 :   b'Error Register'. */
                     UNS8 masterdic_obj1001 = 0x0;	/* 0 */
-                    const CONSTSTORE subindex masterdic_Index1001[] = 
+                    const  subindex masterdic_Index1001[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_obj1001 }
                      };
@@ -75,7 +75,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index1003[] = 
+                    const  subindex masterdic_Index1003[] = 
                      {
                        { RW, valueRange_EMC, sizeof (UNS8), .pObject=(void*)&masterdic_highestSubIndex_obj1003 },
                        { RO, uint32, sizeof (UNS32), .pObject=(void*)&masterdic_obj1003[0] }
@@ -102,7 +102,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1016[] = 
+                    const  subindex masterdic_Index1016[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1016 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1016[0] }
@@ -114,7 +114,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index1017[] = 
+                    const  subindex masterdic_Index1017[] = 
                      {
                        { RW, uint16, sizeof (UNS16), .pObject=&masterdic_obj1017 }
                      };
@@ -125,7 +125,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS32 masterdic_obj1018_Product_Code = 0x0;	/* 0 */
                     UNS32 masterdic_obj1018_Revision_Number = 0x0;	/* 0 */
                     UNS32 masterdic_obj1018_Serial_Number = 0x0;	/* 0 */
-                    const CONSTSTORE subindex masterdic_Index1018[] = 
+                    const  subindex masterdic_Index1018[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1018 },
                        { RO, uint32, sizeof (UNS32), .pObject=&masterdic_obj1018_Vendor_ID },
@@ -139,7 +139,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS32 masterdic_obj1280_COB_ID_Client_to_Server_Transmit_SDO = 0x601;	/* 1537 */
                     UNS32 masterdic_obj1280_COB_ID_Server_to_Client_Receive_SDO = 0x581;	/* 1409 */
                     UNS8 masterdic_obj1280_Node_ID_of_the_SDO_Server = 0x1;	/* 1 */
-                    const CONSTSTORE subindex masterdic_Index1280[] = 
+                    const  subindex masterdic_Index1280[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1280 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1280_COB_ID_Client_to_Server_Transmit_SDO },
@@ -155,7 +155,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 masterdic_obj1400_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 masterdic_obj1400_Event_Timer = 0x0;	/* 0 */
                     UNS8 masterdic_obj1400_SYNC_start_value = 0x0;	/* 0 */
-                    const CONSTSTORE subindex masterdic_Index1400[] = 
+                    const  subindex masterdic_Index1400[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1400 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1400_COB_ID_used_by_PDO },
@@ -174,7 +174,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 masterdic_obj1401_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 masterdic_obj1401_Event_Timer = 0x0;	/* 0 */
                     UNS8 masterdic_obj1401_SYNC_start_value = 0x0;	/* 0 */
-                    const CONSTSTORE subindex masterdic_Index1401[] = 
+                    const  subindex masterdic_Index1401[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1401 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1401_COB_ID_used_by_PDO },
@@ -193,7 +193,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 masterdic_obj1402_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 masterdic_obj1402_Event_Timer = 0x0;	/* 0 */
                     UNS8 masterdic_obj1402_SYNC_start_value = 0x0;	/* 0 */
-                    const CONSTSTORE subindex masterdic_Index1402[] = 
+                    const  subindex masterdic_Index1402[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1402 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1402_COB_ID_used_by_PDO },
@@ -210,7 +210,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x30000020	/* 805306400 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1600[] = 
+                    const  subindex masterdic_Index1600[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1600 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1600[0] }
@@ -222,7 +222,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x30010020	/* 805371936 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1601[] = 
+                    const  subindex masterdic_Index1601[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1601 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1601[0] }
@@ -234,7 +234,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x30030020	/* 805503008 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1602[] = 
+                    const  subindex masterdic_Index1602[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1602 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1602[0] }
@@ -258,7 +258,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index1800[] = 
+                    const  subindex masterdic_Index1800[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1800 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1800_COB_ID_used_by_PDO },
@@ -287,7 +287,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index1801[] = 
+                    const  subindex masterdic_Index1801[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1801 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1801_COB_ID_used_by_PDO },
@@ -316,7 +316,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index1802[] = 
+                    const  subindex masterdic_Index1802[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1802 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1802_COB_ID_used_by_PDO },
@@ -333,7 +333,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x20000010	/* 536870928 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1A00[] = 
+                    const  subindex masterdic_Index1A00[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1A00 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1A00[0] }
@@ -345,7 +345,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x20010010	/* 536936464 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1A01[] = 
+                    const  subindex masterdic_Index1A01[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1A01 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1A01[0] }
@@ -357,7 +357,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x20020010	/* 537002000 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1A02[] = 
+                    const  subindex masterdic_Index1A02[] = 
                      {
                        { RW, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1A02 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1A02[0] }
@@ -369,7 +369,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       ""
                     };
-                    const CONSTSTORE subindex masterdic_Index1F20[] = 
+                    const  subindex masterdic_Index1F20[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1F20 },
                        { RW, domain, 0, .pObject=&masterdic_obj1F20[0] }
@@ -381,7 +381,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1F21[] = 
+                    const  subindex masterdic_Index1F21[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1F21 },
                        { RW, int8, sizeof (INTEGER8), .pObject=&masterdic_obj1F21[0] }
@@ -395,7 +395,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                       "",
                       ""
                     };
-                    const CONSTSTORE subindex masterdic_Index1F22[] = 
+                    const  subindex masterdic_Index1F22[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1F22 },
                        { RW, domain, 0, .pObject=&masterdic_obj1F22[0] },
@@ -409,7 +409,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       ""
                     };
-                    const CONSTSTORE subindex masterdic_Index1F50[] = 
+                    const  subindex masterdic_Index1F50[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1F50 },
                        { RW, domain, 0, .pObject=&masterdic_obj1F50[0] }
@@ -421,7 +421,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1F51[] = 
+                    const  subindex masterdic_Index1F51[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1F51 },
                        { RW, uint8, sizeof (UNS8), .pObject=&masterdic_obj1F51[0] }
@@ -431,7 +431,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 masterdic_highestSubIndex_obj1F52 = 2; /* number of subindex - 1*/
                     UNS32 masterdic_obj1F52_Application_software_date = 0x0;	/* 0 */
                     UNS32 masterdic_obj1F52_Application_sofware_time = 0x0;	/* 0 */
-                    const CONSTSTORE subindex masterdic_Index1F52[] = 
+                    const  subindex masterdic_Index1F52[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1F52 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1F52_Application_software_date },
@@ -444,7 +444,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1F53[] = 
+                    const  subindex masterdic_Index1F53[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1F53 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1F53[0] }
@@ -456,7 +456,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     {
                       0x0	/* 0 */
                     };
-                    const CONSTSTORE subindex masterdic_Index1F55[] = 
+                    const  subindex masterdic_Index1F55[] = 
                      {
                        { RO, uint8, sizeof (UNS8), .pObject=&masterdic_highestSubIndex_obj1F55 },
                        { RW, uint32, sizeof (UNS32), .pObject=&masterdic_obj1F55[0] }
@@ -467,7 +467,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index2000[] = 
+                    const  subindex masterdic_Index2000[] = 
                      {
                        { RW, int16, sizeof (INTEGER16), .pObject=&position_1 }
                      };
@@ -477,7 +477,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index2001[] = 
+                    const  subindex masterdic_Index2001[] = 
                      {
                        { RW, int16, sizeof (INTEGER16), .pObject=&position_2 }
                      };
@@ -487,7 +487,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index2002[] = 
+                    const  subindex masterdic_Index2002[] = 
                      {
                        { RW, int16, sizeof (INTEGER16), .pObject=&position_3 }
                      };
@@ -497,7 +497,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index3000[] = 
+                    const  subindex masterdic_Index3000[] = 
                      {
                        { RW, uint32, sizeof (UNS32), .pObject=&counter_1 }
                      };
@@ -507,7 +507,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index3001[] = 
+                    const  subindex masterdic_Index3001[] = 
                      {
                        { RW, uint32, sizeof (UNS32), .pObject=&counter_2 }
                      };
@@ -517,13 +517,13 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      {
                        NULL,
                      };
-                    const CONSTSTORE subindex masterdic_Index3003[] = 
+                    const  subindex masterdic_Index3003[] = 
                      {
                        { RW, uint32, sizeof (UNS32), .pObject=&counter_3 }
                      };
 
 /* index 0x4003 :   Mapped variable b'hehe' */
-                    const CONSTSTORE subindex masterdic_Index4003[] = 
+                    const  subindex masterdic_Index4003[] = 
                      {
                        { RW, int16, sizeof (INTEGER16), .pObject=&hehe }
                      };
@@ -532,44 +532,44 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 /* Declaration of pointed variables                                       */
 /**************************************************************************/
 
-const CONSTSTORE indextable masterdic_objdict[] = 
+const  indextable masterdic_objdict[] = 
 {
-  { (const CONSTSTORE subindex* const)masterdic_Index1000,sizeof(masterdic_Index1000)/sizeof(masterdic_Index1000[0]), 0x1000},
-  { (const CONSTSTORE subindex* const)masterdic_Index1001,sizeof(masterdic_Index1001)/sizeof(masterdic_Index1001[0]), 0x1001},
-  { (const CONSTSTORE subindex* const)masterdic_Index1016,sizeof(masterdic_Index1016)/sizeof(masterdic_Index1016[0]), 0x1016},
-  { (const CONSTSTORE subindex* const)masterdic_Index1017,sizeof(masterdic_Index1017)/sizeof(masterdic_Index1017[0]), 0x1017},
-  { (const CONSTSTORE subindex* const)masterdic_Index1018,sizeof(masterdic_Index1018)/sizeof(masterdic_Index1018[0]), 0x1018},
-  { (const CONSTSTORE subindex* const)masterdic_Index1280,sizeof(masterdic_Index1280)/sizeof(masterdic_Index1280[0]), 0x1280},
-  { (const CONSTSTORE subindex* const)masterdic_Index1400,sizeof(masterdic_Index1400)/sizeof(masterdic_Index1400[0]), 0x1400},
-  { (const CONSTSTORE subindex* const)masterdic_Index1401,sizeof(masterdic_Index1401)/sizeof(masterdic_Index1401[0]), 0x1401},
-  { (const CONSTSTORE subindex* const)masterdic_Index1402,sizeof(masterdic_Index1402)/sizeof(masterdic_Index1402[0]), 0x1402},
-  { (const CONSTSTORE subindex* const)masterdic_Index1600,sizeof(masterdic_Index1600)/sizeof(masterdic_Index1600[0]), 0x1600},
-  { (const CONSTSTORE subindex* const)masterdic_Index1601,sizeof(masterdic_Index1601)/sizeof(masterdic_Index1601[0]), 0x1601},
-  { (const CONSTSTORE subindex* const)masterdic_Index1602,sizeof(masterdic_Index1602)/sizeof(masterdic_Index1602[0]), 0x1602},
-  { (const CONSTSTORE subindex* const)masterdic_Index1800,sizeof(masterdic_Index1800)/sizeof(masterdic_Index1800[0]), 0x1800},
-  { (const CONSTSTORE subindex* const)masterdic_Index1801,sizeof(masterdic_Index1801)/sizeof(masterdic_Index1801[0]), 0x1801},
-  { (const CONSTSTORE subindex* const)masterdic_Index1802,sizeof(masterdic_Index1802)/sizeof(masterdic_Index1802[0]), 0x1802},
-  { (const CONSTSTORE subindex* const)masterdic_Index1A00,sizeof(masterdic_Index1A00)/sizeof(masterdic_Index1A00[0]), 0x1A00},
-  { (const CONSTSTORE subindex* const)masterdic_Index1A01,sizeof(masterdic_Index1A01)/sizeof(masterdic_Index1A01[0]), 0x1A01},
-  { (const CONSTSTORE subindex* const)masterdic_Index1A02,sizeof(masterdic_Index1A02)/sizeof(masterdic_Index1A02[0]), 0x1A02},
-  { (const CONSTSTORE subindex* const)masterdic_Index1F20,sizeof(masterdic_Index1F20)/sizeof(masterdic_Index1F20[0]), 0x1F20},
-  { (const CONSTSTORE subindex* const)masterdic_Index1F21,sizeof(masterdic_Index1F21)/sizeof(masterdic_Index1F21[0]), 0x1F21},
-  { (const CONSTSTORE subindex* const)masterdic_Index1F22,sizeof(masterdic_Index1F22)/sizeof(masterdic_Index1F22[0]), 0x1F22},
-  { (const CONSTSTORE subindex* const)masterdic_Index1F50,sizeof(masterdic_Index1F50)/sizeof(masterdic_Index1F50[0]), 0x1F50},
-  { (const CONSTSTORE subindex* const)masterdic_Index1F51,sizeof(masterdic_Index1F51)/sizeof(masterdic_Index1F51[0]), 0x1F51},
-  { (const CONSTSTORE subindex* const)masterdic_Index1F52,sizeof(masterdic_Index1F52)/sizeof(masterdic_Index1F52[0]), 0x1F52},
-  { (const CONSTSTORE subindex* const)masterdic_Index1F53,sizeof(masterdic_Index1F53)/sizeof(masterdic_Index1F53[0]), 0x1F53},
-  { (const CONSTSTORE subindex* const)masterdic_Index1F55,sizeof(masterdic_Index1F55)/sizeof(masterdic_Index1F55[0]), 0x1F55},
-  { (const CONSTSTORE subindex* const)masterdic_Index2000,sizeof(masterdic_Index2000)/sizeof(masterdic_Index2000[0]), 0x2000},
-  { (const CONSTSTORE subindex* const)masterdic_Index2001,sizeof(masterdic_Index2001)/sizeof(masterdic_Index2001[0]), 0x2001},
-  { (const CONSTSTORE subindex* const)masterdic_Index2002,sizeof(masterdic_Index2002)/sizeof(masterdic_Index2002[0]), 0x2002},
-  { (const CONSTSTORE subindex* const)masterdic_Index3000,sizeof(masterdic_Index3000)/sizeof(masterdic_Index3000[0]), 0x3000},
-  { (const CONSTSTORE subindex* const)masterdic_Index3001,sizeof(masterdic_Index3001)/sizeof(masterdic_Index3001[0]), 0x3001},
-  { (const CONSTSTORE subindex* const)masterdic_Index3003,sizeof(masterdic_Index3003)/sizeof(masterdic_Index3003[0]), 0x3003},
-  { (const CONSTSTORE subindex* const)masterdic_Index4003,sizeof(masterdic_Index4003)/sizeof(masterdic_Index4003[0]), 0x4003},
+  { (const  subindex* const)masterdic_Index1000,sizeof(masterdic_Index1000)/sizeof(masterdic_Index1000[0]), 0x1000},
+  { (const  subindex* const)masterdic_Index1001,sizeof(masterdic_Index1001)/sizeof(masterdic_Index1001[0]), 0x1001},
+  { (const  subindex* const)masterdic_Index1016,sizeof(masterdic_Index1016)/sizeof(masterdic_Index1016[0]), 0x1016},
+  { (const  subindex* const)masterdic_Index1017,sizeof(masterdic_Index1017)/sizeof(masterdic_Index1017[0]), 0x1017},
+  { (const  subindex* const)masterdic_Index1018,sizeof(masterdic_Index1018)/sizeof(masterdic_Index1018[0]), 0x1018},
+  { (const  subindex* const)masterdic_Index1280,sizeof(masterdic_Index1280)/sizeof(masterdic_Index1280[0]), 0x1280},
+  { (const  subindex* const)masterdic_Index1400,sizeof(masterdic_Index1400)/sizeof(masterdic_Index1400[0]), 0x1400},
+  { (const  subindex* const)masterdic_Index1401,sizeof(masterdic_Index1401)/sizeof(masterdic_Index1401[0]), 0x1401},
+  { (const  subindex* const)masterdic_Index1402,sizeof(masterdic_Index1402)/sizeof(masterdic_Index1402[0]), 0x1402},
+  { (const  subindex* const)masterdic_Index1600,sizeof(masterdic_Index1600)/sizeof(masterdic_Index1600[0]), 0x1600},
+  { (const  subindex* const)masterdic_Index1601,sizeof(masterdic_Index1601)/sizeof(masterdic_Index1601[0]), 0x1601},
+  { (const  subindex* const)masterdic_Index1602,sizeof(masterdic_Index1602)/sizeof(masterdic_Index1602[0]), 0x1602},
+  { (const  subindex* const)masterdic_Index1800,sizeof(masterdic_Index1800)/sizeof(masterdic_Index1800[0]), 0x1800},
+  { (const  subindex* const)masterdic_Index1801,sizeof(masterdic_Index1801)/sizeof(masterdic_Index1801[0]), 0x1801},
+  { (const  subindex* const)masterdic_Index1802,sizeof(masterdic_Index1802)/sizeof(masterdic_Index1802[0]), 0x1802},
+  { (const  subindex* const)masterdic_Index1A00,sizeof(masterdic_Index1A00)/sizeof(masterdic_Index1A00[0]), 0x1A00},
+  { (const  subindex* const)masterdic_Index1A01,sizeof(masterdic_Index1A01)/sizeof(masterdic_Index1A01[0]), 0x1A01},
+  { (const  subindex* const)masterdic_Index1A02,sizeof(masterdic_Index1A02)/sizeof(masterdic_Index1A02[0]), 0x1A02},
+  { (const  subindex* const)masterdic_Index1F20,sizeof(masterdic_Index1F20)/sizeof(masterdic_Index1F20[0]), 0x1F20},
+  { (const  subindex* const)masterdic_Index1F21,sizeof(masterdic_Index1F21)/sizeof(masterdic_Index1F21[0]), 0x1F21},
+  { (const  subindex* const)masterdic_Index1F22,sizeof(masterdic_Index1F22)/sizeof(masterdic_Index1F22[0]), 0x1F22},
+  { (const  subindex* const)masterdic_Index1F50,sizeof(masterdic_Index1F50)/sizeof(masterdic_Index1F50[0]), 0x1F50},
+  { (const  subindex* const)masterdic_Index1F51,sizeof(masterdic_Index1F51)/sizeof(masterdic_Index1F51[0]), 0x1F51},
+  { (const  subindex* const)masterdic_Index1F52,sizeof(masterdic_Index1F52)/sizeof(masterdic_Index1F52[0]), 0x1F52},
+  { (const  subindex* const)masterdic_Index1F53,sizeof(masterdic_Index1F53)/sizeof(masterdic_Index1F53[0]), 0x1F53},
+  { (const  subindex* const)masterdic_Index1F55,sizeof(masterdic_Index1F55)/sizeof(masterdic_Index1F55[0]), 0x1F55},
+  { (const  subindex* const)masterdic_Index2000,sizeof(masterdic_Index2000)/sizeof(masterdic_Index2000[0]), 0x2000},
+  { (const  subindex* const)masterdic_Index2001,sizeof(masterdic_Index2001)/sizeof(masterdic_Index2001[0]), 0x2001},
+  { (const  subindex* const)masterdic_Index2002,sizeof(masterdic_Index2002)/sizeof(masterdic_Index2002[0]), 0x2002},
+  { (const  subindex* const)masterdic_Index3000,sizeof(masterdic_Index3000)/sizeof(masterdic_Index3000[0]), 0x3000},
+  { (const  subindex* const)masterdic_Index3001,sizeof(masterdic_Index3001)/sizeof(masterdic_Index3001[0]), 0x3001},
+  { (const  subindex* const)masterdic_Index3003,sizeof(masterdic_Index3003)/sizeof(masterdic_Index3003[0]), 0x3003},
+  { (const  subindex* const)masterdic_Index4003,sizeof(masterdic_Index4003)/sizeof(masterdic_Index4003[0]), 0x4003},
 };
 
-const CONSTSTORE indextable * masterdic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
+const  indextable * masterdic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
 {
 	int i;
 	*callbacks = NULL;
@@ -622,7 +622,7 @@ const CONSTSTORE indextable * masterdic_scanIndexOD (UNS16 wIndex, UNS32 * error
  */
 s_PDO_status masterdic_PDO_status[3] = {s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer};
 
-const CONSTSTORE quick_index masterdic_firstIndex = {
+const  quick_index masterdic_firstIndex = {
   0, /* SDO_SVR */
   5, /* SDO_CLT */
   6, /* PDO_RCV */
@@ -631,7 +631,7 @@ const CONSTSTORE quick_index masterdic_firstIndex = {
   15 /* PDO_TRS_MAP */
 };
 
-const CONSTSTORE quick_index masterdic_lastIndex = {
+const  quick_index masterdic_lastIndex = {
   0, /* SDO_SVR */
   5, /* SDO_CLT */
   8, /* PDO_RCV */
@@ -640,7 +640,7 @@ const CONSTSTORE quick_index masterdic_lastIndex = {
   17 /* PDO_TRS_MAP */
 };
 
-const CONSTSTORE UNS16 masterdic_ObjdictSize = sizeof(masterdic_objdict)/sizeof(masterdic_objdict[0]); 
+const  UNS16 masterdic_ObjdictSize = sizeof(masterdic_objdict)/sizeof(masterdic_objdict[0]); 
 
 CO_Data masterdic_Data = CANOPEN_NODE_DATA_INITIALIZER(masterdic);
 

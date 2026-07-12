@@ -930,11 +930,11 @@ TPDO_Communication_Parameter_Callback (CO_Data * d,
         case 3:                  /* Changed inhibit time */
         case 5:                  /* Changed event time */
         {
-            const CONSTSTORE indextable *TPDO_com = d->objdict + d->firstIndex->PDO_TRS;
+            const indextable *TPDO_com = d->objdict + d->firstIndex->PDO_TRS;
 
             UNS32 errorCode;
             ODCallback_t* callback;
-            const CONSTSTORE indextable *OD_entry = scanIndexOD (d, wIndex, &errorCode, &callback);
+            const indextable *OD_entry = scanIndexOD (d, wIndex, &errorCode, &callback);
             UNS8 numPdo = (UNS8) (OD_entry - TPDO_com);    /* number of the actual processed pdo-nr. */
 
             /* Zap all timers and inhibit flag */

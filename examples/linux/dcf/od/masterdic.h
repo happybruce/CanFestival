@@ -8,7 +8,7 @@
 
 /* Prototypes of function provided by object dictionnary */
 UNS32 masterdic_valueRangeTest (UNS8 typeValue, void * value);
-const CONSTSTORE indextable * masterdic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks);
+const  indextable * masterdic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks);
 
 /* Master node data struct */
 extern CO_Data masterdic_Data;

@@ -8,7 +8,7 @@
 
 /* Prototypes of function provided by object dictionnary */
 UNS32 slavedic_valueRangeTest (UNS8 typeValue, void * value);
-const CONSTSTORE indextable * slavedic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks);
+const  indextable * slavedic_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks);
 
 /* Master node data struct */
 extern CO_Data slavedic_Data;

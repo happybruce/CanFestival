@@ -5,13 +5,13 @@
 #include "data.h"
 
 #define READ_UNS32(objDict, index, subIndex)\
-    (objDict[index].pSubindex[subIndex].bAccessType != CONST ? *(UNS32*)objDict[index].pSubindex[subIndex].pObject : *(const CONSTSTORE UNS32*)objDict[index].pSubindex[subIndex].pObjectConst)
+    (objDict[index].pSubindex[subIndex].bAccessType != CONST ? *(UNS32*)objDict[index].pSubindex[subIndex].pObject : *(const UNS32*)objDict[index].pSubindex[subIndex].pObjectConst)
 
 #define READ_UNS16(objDict, index, subIndex)\
-    (objDict[index].pSubindex[subIndex].bAccessType != CONST ? *(UNS16*)objDict[index].pSubindex[subIndex].pObject : *(const CONSTSTORE UNS16*)objDict[index].pSubindex[subIndex].pObjectConst)
+    (objDict[index].pSubindex[subIndex].bAccessType != CONST ? *(UNS16*)objDict[index].pSubindex[subIndex].pObject : *(const UNS16*)objDict[index].pSubindex[subIndex].pObjectConst)
 
 #define READ_UNS8(objDict, index, subIndex)\
-    (objDict[index].pSubindex[subIndex].bAccessType != CONST ? *(UNS8*)objDict[index].pSubindex[subIndex].pObject : *(const CONSTSTORE UNS8*)objDict[index].pSubindex[subIndex].pObjectConst)
+    (objDict[index].pSubindex[subIndex].bAccessType != CONST ? *(UNS8*)objDict[index].pSubindex[subIndex].pObject : *(const UNS8*)objDict[index].pSubindex[subIndex].pObjectConst)
 
 #define IS_NULL(objDict, index, subIndex)\
     (objDict[index].pSubindex[subIndex].bAccessType != CONST ? objDict[index].pSubindex[subIndex].pObject == NULL : objDict[index].pSubindex[subIndex].pObjectConst == NULL)
@@ -33,6 +33,6 @@
  * @param **Callback
  * @return NULL if index not found. Else : return the table part of the object dictionary.
  */
-const CONSTSTORE indextable * scanIndexOD (CO_Data* d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback);
+const indextable * scanIndexOD (CO_Data* d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback);
 
 #endif /* __objaccessinternal_h__ */

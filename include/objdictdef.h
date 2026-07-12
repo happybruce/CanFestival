@@ -82,11 +82,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define TO_BE_SAVE  0x04
 #define DCF_TO_SEND 0x08
 
-#ifdef __AVR__
-#define CONSTSTORE __flash
-#else
-#define CONSTSTORE
-#endif
 
 /************************ STRUCTURES ****************************/
 /** This are some structs which are neccessary for creating the entries
@@ -99,7 +94,7 @@ typedef struct td_subindex
     UNS32       size;      /* The size (in Byte) of the variable */
     union {
         void* pObject;   /* This is the pointer of the Variable */
-        const CONSTSTORE void* const pObjectConst;
+        const void* const pObjectConst;
     };
 } subindex;
 
@@ -107,7 +102,7 @@ typedef struct td_subindex
  */
 typedef struct td_indextable
 {
-    const CONSTSTORE subindex* const  pSubindex;   /* Pointer to the subindex */
+    const subindex* const  pSubindex;   /* Pointer to the subindex */
     const UNS8 bSubCount;   /* the count of valid entries for this subindex
                          * This count here defines how many memory has been
                          * allocated. this memory does not have to be used.
@@ -133,7 +128,7 @@ typedef struct s_quick_index{
 
 #include "declaration.h"
 typedef UNS32 (*ODCallback_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
-typedef const CONSTSTORE indextable * (*scanIndexOD_t)(UNS16 wIndex, UNS32 * errorCode, ODCallback_t **Callback);
+typedef const indextable * (*scanIndexOD_t)(UNS16 wIndex, UNS32 * errorCode, ODCallback_t **Callback);
 
 /* CANopen usefull helpers */
 #define GET_NODE_ID(m)         (UNS16_LE(m.cob_id) & 0x7f)
