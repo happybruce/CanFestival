@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 /** @defgroup pdo Process Data Object (PDO)
- *  PDO is a communication object defined by the DPO communication parameter and PDA mapping parameter objects.
- *  It is an uncomfirmed communication service without protocol overhead.
+ *  PDO is a communication object defined by the PDO communication parameter and PDO mapping parameter objects.
+ *  It is an unconfirmed communication service without protocol overhead.
  *  @ingroup comobj
  */
  
@@ -46,13 +46,13 @@ typedef struct struct_s_PDO_status s_PDO_status;
 
 
 /* Handler for RxPDO event timers : empty function that user can overload */
-void _RxPDO_EventTimers_Handler(CO_Data *d, UNS32 pdoNum);
+void _RxPDO_EventTimers_Handler(CO_Data* d, UNS32 pdoNum);
 
-/* Status of the TPDO : */
+/* Status of the TPDO */
 #define PDO_INHIBITED 0x01
 #define PDO_RTR_SYNC_READY 0x01
 
-/** The PDO structure */
+/* The PDO structure */
 struct struct_s_PDO_status {
     UNS8 transmit_type_parameter;
     TIMER_HANDLE event_timer;
@@ -64,7 +64,7 @@ struct struct_s_PDO_status {
 
 /** definitions of the different types of PDOs' transmission
  * 
- * SYNCHRO(n) means that the PDO will be transmited every n SYNC signal.
+ * SYNCHRO(n) means that the PDO will be transmitted every n SYNC signals.
  */
 #define TRANS_EVERY_N_SYNC(n) (n) /*n = 1 to 240 */
 #define TRANS_SYNC_ACYCLIC    0    /* Trans after reception of n SYNC. n = 1 to 240 */
@@ -78,18 +78,18 @@ struct struct_s_PDO_status {
 /** 
  * @brief Copy all the data to transmit in process_var
  * Prepare the PDO defined at index to be sent
- * *pwCobId : returns the value of the cobid. (subindex 1)
- * @param *d Pointer on a CAN object data structure
+ * *pwCobId: returns the value of the COB-ID (subindex 1)
+ * @param d Pointer on a CAN object data structure
  * @param numPdo The PDO number
- * @param *pdo Pointer on a CAN message structure
+ * @param pdo Pointer on a CAN message structure
  * @return 0 or 0xFF if error.
  */
-UNS8 buildPDO(CO_Data* d, UNS8 numPdo, Message *pdo);
+UNS8 buildPDO(CO_Data* d, UNS8 numPdo, Message* pdo);
 
 /** 
  * @ingroup pdo
  * @brief Transmit a PDO request frame on the network to the slave.
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @param RPDOIndex Index of the receive PDO
  * @return
  *       - CanFestival file descriptor is returned upon success.
@@ -97,67 +97,66 @@ UNS8 buildPDO(CO_Data* d, UNS8 numPdo, Message *pdo);
  
  * @return 0xFF if error, other in success.
  */
-UNS8 sendPDOrequest( CO_Data* d, UNS16 RPDOIndex );
+UNS8 sendPDOrequest(CO_Data* d, UNS16 RPDOIndex);
 
 /**
  * @brief Compute a PDO frame reception
  * bus_id is hardware dependant
- * @param *d Pointer on a CAN object data structure
- * @param *m Pointer on a CAN message structure
+ * @param d Pointer on a CAN object data structure
+ * @param m Pointer on a CAN message structure
  * @return 0xFF if error, else return 0
  */
-UNS8 proceedPDO (CO_Data* d, Message *m);
+UNS8 proceedPDO(CO_Data* d, Message* m);
 
 /** 
  * @brief Used by the application to signal changes in process data
  * that could be mapped to some TPDO.
- * This do not necessarily imply PDO emission.
- * Function iterates on all TPDO and look TPDO transmit 
- * type and content change before sending it.    
- * @param *d Pointer on a CAN object data structure
+ * This does not necessarily imply PDO emission.
+ * The function iterates over all TPDOs and checks TPDO transmit
+ * type and content changes before sending them.
+ * @param d Pointer on a CAN object data structure
  */
-UNS8 sendPDOevent (CO_Data* d);
-UNS8 sendOnePDOevent (CO_Data* d, UNS8 pdoNum);
+UNS8 sendPDOevent(CO_Data* d);
+UNS8 sendOnePDOevent(CO_Data* d, UNS8 pdoNum);
 
 /** 
  * @brief Enable a PDO by setting to 0 the bit 32 of the COB-ID parameter
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @param pdoNum The PDO number
  */
-void PDOEnable (CO_Data * d, UNS8 pdoNum);
+void PDOEnable(CO_Data* d, UNS8 pdoNum);
 
 /** 
  * @brief Disable a PDO by setting to 1 the bit 32 of the COB-ID parameter
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @param pdoNum The PDO number
  */
-void PDODisable (CO_Data * d, UNS8 pdoNum);
+void PDODisable(CO_Data* d, UNS8 pdoNum);
 
 /** 
  * @ingroup pdo
- * @brief Function iterates on all TPDO and look TPDO transmit 
- * type and content change before sending it.
- * @param *d Pointer on a CAN object data structure
- * @param isSyncEvent
+ * @brief Iterate over all TPDOs and check transmit type and content changes before sending them.
+ * @param d Pointer on a CAN object data structure
+ * @param isSyncEvent Indicates if the PDO event is triggered by a SYNC message
  */
 UNS8 _sendPDOevent(CO_Data* d, UNS8 isSyncEvent);
 
 /** 
- * @brief Initialize PDO feature 
- * @param *d Pointer on a CAN object data structure
+ * @brief Initialize PDO feature
+ * @param d Pointer on a CAN object data structure
  */
 void PDOInit(CO_Data* d);
 
 /** 
- * @brief Stop PDO feature 
- * @param *d Pointer on a CAN object data structure
+ * @brief Stop PDO feature
+ * @param d Pointer on a CAN object data structure
  */
 void PDOStop(CO_Data* d);
 
 /** 
  * @ingroup pdo
  * @brief Set timer for PDO event
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @param pdoNum The PDO number
  */
 void PDOEventTimerAlarm(CO_Data* d, UNS32 pdoNum);
@@ -165,12 +164,12 @@ void PDOEventTimerAlarm(CO_Data* d, UNS32 pdoNum);
 /** 
  * @ingroup pdo
  * @brief Inhibit timer for PDO event
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @param pdoNum The PDO number
  */
 void PDOInhibitTimerAlarm(CO_Data* d, UNS32 pdoNum);
 
-/* copy bit per bit in little endian */
+/* Copy bits in little-endian order */
 void CopyBits(UNS8 NbBits, UNS8* SrcByteIndex, UNS8 SrcBitIndex, UNS8 SrcBigEndian, UNS8* DestByteIndex, UNS8 DestBitIndex, UNS8 DestBigEndian);
 
 #ifdef __cplusplus

@@ -20,8 +20,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __can_driver_h__
-#define __can_driver_h__
+#ifndef __CAN_DRIVER_H__
+#define __CAN_DRIVER_H__
 
 struct struct_s_BOARD;
 
@@ -30,6 +30,10 @@ typedef struct struct_s_BOARD s_BOARD;
 #include "applicfg.h"
 #include "can.h"
 #include "declaration.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief The CAN board configuration
@@ -70,6 +74,10 @@ CAN_HANDLE DLL_CALL(canOpen)(s_BOARD *)FCT_PTR_INIT;
 int DLL_CALL(canClose)(CAN_HANDLE)FCT_PTR_INIT;
 UNS8 DLL_CALL(canChangeBaudRate)(CAN_HANDLE, char *)FCT_PTR_INIT;
 
+#ifdef __cplusplus
+}
+#endif
+
 #if defined DEBUG_MSG_CONSOLE_ON || defined NEED_PRINT_MESSAGE
 #include "def.h"
 
@@ -79,6 +87,11 @@ static inline void print_message(Message const *m)
 {
     int i;
     UNS8 fc;
+    UNS8 len;
+
+    if (!m) { return; }
+
+
     MSG("id:%02x ", m->cob_id & 0x7F);
     fc = m->cob_id >> 7;
     switch(fc)
@@ -111,6 +124,7 @@ static inline void print_message(Message const *m)
         _P(NODE_GUARD)
         _P(NMT)
     }
+
     if( fc == SDOtx)
     {
         switch(m->data[0] >> 5)
@@ -122,7 +136,8 @@ static inline void print_message(Message const *m)
             _P(INITIATE_UPLOAD_RESPONSE)
             _P(ABORT_TRANSFER_REQUEST)
         }
-    }else if( fc == SDOrx)
+    }
+    else if( fc == SDOrx)
     {
         switch(m->data[0] >> 5)
         {
@@ -134,13 +149,24 @@ static inline void print_message(Message const *m)
             _P(ABORT_TRANSFER_REQUEST)
         }
     }
+
     MSG(" rtr:%d", m->rtr);
     MSG(" len:%d", m->len);
-    for (i = 0 ; i < m->len ; i++)
+    len = m->len;
+    if (len > (UNS8)sizeof(m->data))
+    {
+        len = (UNS8)sizeof(m->data);
+    }
+
+    for (i = 0 ; i < len ; i++)
+    {
         MSG(" %02x", m->data[i]);
+    }
     MSG("\n");
 }
 
+#undef _P
+
 #endif // #if defined DEBUG_MSG_CONSOLE_ON || defined NEED_PRINT_MESSAGE
 
-#endif /* __can_driver_h__ */
+#endif /* __CAN_DRIVER_H__ */

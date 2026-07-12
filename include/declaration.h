@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 // Add below declaration to solve repeated definition problem
-typedef struct struct_CO_Data CO_Data;
+typedef struct CO_Data CO_Data;
 typedef struct Message Message;
 
 #ifdef __cplusplus

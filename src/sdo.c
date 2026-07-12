@@ -51,7 +51,7 @@
 #define INLINE inline
 #endif
 
-typedef struct struct_CO_Data CO_Data;
+typedef struct CO_Data CO_Data;
 
 /*Internals prototypes*/
 
@@ -331,8 +331,8 @@ UNS32 objdictToSDOline (CO_Data* d, UNS8 line)
  **/
 UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
 {
-    UNS8 i;
-    UNS32 offset;
+    UNS8 i = 0;
+    UNS32 offset = 0;
 
 #ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
     if ((d->transfers[line].offset + nbBytes) > SDO_MAX_LENGTH_TRANSFER)
@@ -348,11 +348,14 @@ UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
         return 0xFF;
     }
     offset = d->transfers[line].offset;
+
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
     if (d->transfers[line].count <= SDO_MAX_LENGTH_TRANSFER)
     {
         for (i = 0 ; i < nbBytes ; i++)
-            * (data + i) = d->transfers[line].data[offset + i];
+        {
+            *(data + i) = d->transfers[line].data[offset + i];
+        }
     }
     else
     {
@@ -362,12 +365,17 @@ UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
             return 0xFF;
         }
         for (i = 0 ; i < nbBytes ; i++)
-            * (data + i) = d->transfers[line].dynamicData[offset + i];
+        {
+            *(data + i) = d->transfers[line].dynamicData[offset + i];
+        }
     }
 #else //SDO_DYNAMIC_BUFFER_ALLOCATION
     for (i = 0 ; i < nbBytes ; i++)
-        * (data + i) = d->transfers[line].data[offset + i];
+    {
+        *(data + i) = d->transfers[line].data[offset + i];
+    }
 #endif //SDO_DYNAMIC_BUFFER_ALLOCATION
+
     d->transfers[line].offset = d->transfers[line].offset + nbBytes;
     return 0;
 }
@@ -384,8 +392,9 @@ UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
  **/
 UNS8 SDOtoLine (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
 {
-    UNS8 i;
-    UNS32 offset;
+    UNS8 i = 0;
+    UNS32 offset = 0;
+    UNS32 requiredSize = 0;
 #ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
     if ((d->transfers[line].offset + nbBytes) > SDO_MAX_LENGTH_TRANSFER)
     {
@@ -395,27 +404,31 @@ UNS8 SDOtoLine (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
 #endif //SDO_DYNAMIC_BUFFER_ALLOCATION
 
     offset = d->transfers[line].offset;
+    requiredSize = offset + nbBytes;
+
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
     {
         UNS8* lineData = d->transfers[line].data;
-        if ((d->transfers[line].offset + nbBytes) > SDO_MAX_LENGTH_TRANSFER)
+        if (requiredSize > SDO_MAX_LENGTH_TRANSFER)
         {
             if (d->transfers[line].dynamicData == NULL)
             {
                 d->transfers[line].dynamicData = (UNS8*) malloc(SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE);
                 d->transfers[line].dynamicDataSize = SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
 
-                if (d->transfers[line].dynamicData == NULL) {
-                    MSG_ERR(0x1A15,"SDO allocating dynamic buffer failed, size", SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE);
+                if (d->transfers[line].dynamicData == NULL)
+                {
+                    MSG_ERR(0x1A15,"SDO allocating dynamic buffer failed, size", d->transfers[line].dynamicDataSize);
                     return 0xFF;
                 }
-                //Copy present data
+                /* Copy present data */
                 memcpy(d->transfers[line].dynamicData, d->transfers[line].data, offset);
             }
-            else if ((d->transfers[line].offset + nbBytes) > d->transfers[line].dynamicDataSize)
+            else if (requiredSize > d->transfers[line].dynamicDataSize)
             {
                 UNS8* newDynamicBuffer = (UNS8*) realloc(d->transfers[line].dynamicData, d->transfers[line].dynamicDataSize + SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE);
-                if (newDynamicBuffer == NULL) {
+                if (newDynamicBuffer == NULL)
+                {
                     MSG_ERR(0x1A15,"SDO reallocating dynamic buffer failed, size", d->transfers[line].dynamicDataSize + SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE);
                     return 0xFF;
                 }
@@ -426,11 +439,15 @@ UNS8 SDOtoLine (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
         }
 
         for (i = 0 ; i < nbBytes ; i++)
-            lineData[offset + i] = * (data + i);
+        {
+            lineData[offset + i] = *(data + i);
+        }
     }
 #else //SDO_DYNAMIC_BUFFER_ALLOCATION
     for (i = 0 ; i < nbBytes ; i++)
-        d->transfers[line].data[offset + i] = * (data + i);
+    {
+        d->transfers[line].data[offset + i] = *(data + i);
+    }
 #endif //SDO_DYNAMIC_BUFFER_ALLOCATION
 
     d->transfers[line].offset = d->transfers[line].offset + nbBytes;
@@ -449,24 +466,24 @@ UNS8 SDOtoLine (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
  **
  ** @return
  **/
-UNS8 failedSDO (CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
+UNS8 failedSDO(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
         UNS8 subIndex, UNS32 abortCode)
 {
     UNS8 err;
     UNS8 line;
-    err = getSDOlineOnUse( d, CliServNbr, whoami, &line );
+    err = getSDOlineOnUse(d, CliServNbr, whoami, &line);
     if (!err) // If a line on use have been found.
     { 
         MSG_WAR(0x3A20, "FailedSDO : line found : ", line);
     }
 
-    if ((! err) && (whoami == SDO_SERVER))
+    if ((!err) && (whoami == SDO_SERVER))
     {
         resetSDOline( d, line );
         MSG_WAR(0x3A21, "FailedSDO : line released : ", line);
     }
 
-    if ((! err) && (whoami == SDO_CLIENT))
+    if ((!err) && (whoami == SDO_CLIENT))
     {
         StopSDO_TIMER(line);
         d->transfers[line].state = SDO_ABORTED_INTERNAL;
@@ -488,12 +505,12 @@ UNS8 failedSDO (CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
  ** @param d
  ** @param line
  **/
-void resetSDOline ( CO_Data* d, UNS8 line )
+void resetSDOline(CO_Data* d, UNS8 line)
 {
     UNS32 i;
     MSG_WAR(0x3A25, "reset SDO line nb : ", line);
     initSDOline(d, line, 0, 0, 0, SDO_RESET);
-    for (i = 0 ; i < SDO_MAX_LENGTH_TRANSFER ; i++)
+    for (i = 0; i < SDO_MAX_LENGTH_TRANSFER; i++)
     {
         d->transfers[line].data[i] = 0;
     }
@@ -513,7 +530,7 @@ void resetSDOline ( CO_Data* d, UNS8 line )
  **
  ** @return
  **/
-UNS8 initSDOline (CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS8 state)
+UNS8 initSDOline(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS8 state)
 {
     MSG_WAR(0x3A25, "init SDO line nb : ", line);
     if (state == SDO_DOWNLOAD_IN_PROGRESS       || state == SDO_UPLOAD_IN_PROGRESS ||
@@ -559,11 +576,9 @@ UNS8 initSDOline (CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subI
  **
  ** @return
  **/
-UNS8 getSDOfreeLine ( CO_Data* d, UNS8 whoami, UNS8 *line )
+UNS8 getSDOfreeLine( CO_Data* d, UNS8 whoami, UNS8 *line )
 {
-
-    UNS8 i;
-
+    UNS8 i = 0;
     for (i = 0 ; i < SDO_MAX_SIMULTANEOUS_TRANSFERS ; i++)
     {
         if ( d->transfers[i].state == SDO_RESET )
@@ -587,19 +602,17 @@ UNS8 getSDOfreeLine ( CO_Data* d, UNS8 whoami, UNS8 *line )
  **
  ** @return
  **/
-UNS8 getSDOlineOnUse (CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
+UNS8 getSDOlineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
 {
-
-    UNS8 i;
-
-    for (i = 0 ; i < SDO_MAX_SIMULTANEOUS_TRANSFERS ; i++)
+    UNS8 i = 0;
+    for (i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
     {
         if ( (d->transfers[i].state != SDO_RESET) &&
              (d->transfers[i].state != SDO_ABORTED_INTERNAL) &&
              (d->transfers[i].CliServNbr == CliServNbr) &&
              (d->transfers[i].whoami == whoami) ) 
         {
-            if (line) *line = i;
+            if (line) { *line = i; }
             return 0;
         }
     }
@@ -616,18 +629,16 @@ UNS8 getSDOlineOnUse (CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
  **
  ** @return
  **/
-UNS8 getSDOlineToClose (CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
+UNS8 getSDOlineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
 {
-
-    UNS8 i;
-
-    for (i = 0 ; i < SDO_MAX_SIMULTANEOUS_TRANSFERS ; i++)
+    UNS8 i = 0;
+    for (i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
     {
         if ( (d->transfers[i].state != SDO_RESET) &&
              (d->transfers[i].CliServNbr == CliServNbr) &&
              (d->transfers[i].whoami == whoami) ) 
         {
-            if (line) *line = i;
+            if (line) { *line = i; }
             return 0;
         }
     }
@@ -644,7 +655,7 @@ UNS8 getSDOlineToClose (CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
  **
  ** @return
  **/
-UNS8 closeSDOtransfer (CO_Data* d, UNS8 nodeId, UNS8 whoami)
+UNS8 closeSDOtransfer(CO_Data* d, UNS8 nodeId, UNS8 whoami)
 {
     UNS8 err;
     UNS8 line;
@@ -675,7 +686,7 @@ UNS8 closeSDOtransfer (CO_Data* d, UNS8 nodeId, UNS8 whoami)
  **
  ** @return
  **/
-UNS8 getSDOlineRestBytes (CO_Data* d, UNS8 line, UNS32 * nbBytes)
+UNS8 getSDOlineRestBytes(CO_Data* d, UNS8 line, UNS32* nbBytes)
 {
     /* SDO initiated with e=0 and s=0 have count set to null */
     if (d->transfers[line].count == 0)
@@ -698,7 +709,7 @@ UNS8 getSDOlineRestBytes (CO_Data* d, UNS8 line, UNS32 * nbBytes)
  **
  ** @return
  **/
-UNS8 setSDOlineRestBytes (CO_Data* d, UNS8 line, UNS32 nbBytes)
+UNS8 setSDOlineRestBytes(CO_Data* d, UNS8 line, UNS32 nbBytes)
 {
 #ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
     if (nbBytes > SDO_MAX_LENGTH_TRANSFER)
@@ -722,7 +733,7 @@ UNS8 setSDOlineRestBytes (CO_Data* d, UNS8 line, UNS32 nbBytes)
  **
  ** @return
  **/
-UNS8 sendSDO (CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8 *pData)
+UNS8 sendSDO(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8* pData)
 {
     UNS16 offset;
     UNS8 i;
@@ -736,7 +747,7 @@ UNS8 sendSDO (CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8 *pData)
     }
 
     /*get the server->client cobid*/
-    if ( whoami == SDO_SERVER )
+    if (whoami == SDO_SERVER)
     {
         offset = d->firstIndex->SDO_SVR;
         if ((offset == 0) || ((offset+CliServNbr) > d->lastIndex->SDO_SVR))
@@ -782,7 +793,7 @@ UNS8 sendSDO (CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8 *pData)
  **
  ** @return
  **/
-UNS8 sendSDOabort (CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS32 abortCode)
+UNS8 sendSDOabort(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS32 abortCode)
 {
     UNS8 data[8];
     UNS8 ret;
@@ -812,7 +823,7 @@ UNS8 sendSDOabort (CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 s
  **
  ** @return
  **/
-UNS8 proceedSDO (CO_Data* d, Message *m)
+UNS8 proceedSDO(CO_Data* d, Message* m)
 {
     UNS8 err;
     UNS8 cs;

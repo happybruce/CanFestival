@@ -46,19 +46,19 @@ extern "C" {
 
 /**
  * @ingroup od
- * @brief This structure contains all necessary informations to define a CANOpen node 
+ * @brief This structure contains all necessary information to define a CANOpen node
  */
-struct struct_CO_Data
+struct CO_Data
 {
     /* Object dictionary */
     UNS8 *bDeviceNodeId;
-    const CONSTSTORE indextable *objdict;
+    const indextable *objdict;
     s_PDO_status *PDO_status;
     TIMER_HANDLE *RxPDO_EventTimers;
     void (*RxPDO_EventTimers_Handler)(CO_Data*, UNS32);
-    const CONSTSTORE quick_index *firstIndex; // first index in OD for specified entry
-    const CONSTSTORE quick_index *lastIndex; // last index in OD for specified entry
-    const CONSTSTORE UNS16 *ObjdictSize;
+    const quick_index *firstIndex; // first index in OD for specified entry
+    const quick_index *lastIndex; // last index in OD for specified entry
+    const UNS16 *ObjdictSize;
     const UNS8 *iam_a_slave;
     valueRangeTest_t valueRangeTest;
     
@@ -110,10 +110,10 @@ struct struct_CO_Data
     storeODSubIndex_t storeODSubIndex;
     
     /* DCF concise */
-    const CONSTSTORE indextable* dcf_odentry;
+    const indextable* dcf_odentry;
     //union {
         UNS8* dcf_cursor;
-        //const CONSTSTORE UNS8* dcf_cursor_const;
+        //const UNS8* dcf_cursor_const;
     //};
     UNS32 dcf_entries_count;
     UNS8 dcf_status;
@@ -135,11 +135,12 @@ struct struct_CO_Data
     lss_transfer_t lss_transfer;
     lss_StoreConfiguration_t lss_StoreConfiguration;
 #endif    
-}; // struct_CO_Data
+}; // CO_Data
 
 #define NMTable_Initializer Unknown_state,
 #define nodeGuardStatus_Initializer 0x00,
 
+// A macro to initialize s_transfer object in CO_Data structure
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
 #define s_transfer_Initializer {\
         0,          /* CliServNbr */\
@@ -194,6 +195,7 @@ struct struct_CO_Data
       },
 #endif //SDO_DYNAMIC_BUFFER_ALLOCATION
 
+// A macro to initialize s_errors object in CO_Data structure
 #define ERROR_DATA_INITIALIZER \
     {\
     0, /* errCode */\
@@ -203,7 +205,8 @@ struct struct_CO_Data
     
 #ifdef CO_ENABLE_LSS
 
-#ifdef CO_ENABLE_LSS_FS    
+#ifdef CO_ENABLE_LSS_FS
+// A macro to initialize lss_transfer_t object, it will be used in macro lss_Initializer
 #define lss_fs_Initializer \
         ,0,                     /* IDNumber */\
         128,                    /* BitChecked */\
@@ -217,6 +220,7 @@ struct struct_CO_Data
 #define lss_fs_Initializer
 #endif        
 
+// A macro to initialize lss_transfer and lss_StoreConfiguration in CO_Data structure
 #define lss_Initializer {\
         LSS_RESET,                /* state */\
         0,                        /* command */\
@@ -242,7 +246,7 @@ struct struct_CO_Data
 #endif
 
 
-/* A macro to initialize the data in client app.*/
+/* A macro to initialize the CO_Data object in client app.*/
 /* CO_Data structure */
 #define CANOPEN_NODE_DATA_INITIALIZER(NODE_PREFIX) {\
     /* Object dictionary*/\
@@ -312,7 +316,7 @@ struct struct_CO_Data
     \
     /* General */\
     0,                                         /* toggle */\
-    NULL,                                      /* canSend */\
+    NULL,                                      /* canHandle */\
     NODE_PREFIX ## _scanIndexOD,               /* scanIndexOD */\
     _storeODSubIndex,                          /* storeODSubIndex */\
     /* DCF concise */\

@@ -80,8 +80,8 @@ void StopTimerLoop(TimerCallback_t Callback);
 /**
  * @brief Stop the timer task
  * @param port CanFestival file descriptor
- * @param *handle handle of receive loop thread
- * @param *ReceiveLoopPtr Pointer on the receive loop function
+ * @param handle handle of receive loop thread
+ * @param ReceiveLoopPtr Pointer on the receive loop function
  */
 void CreateReceiveTask(CAN_PORT port, TASK_HANDLE* handle, void* ReceiveLoopPtr);
 

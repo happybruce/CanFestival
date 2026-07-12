@@ -30,8 +30,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /* Time resolution : 64bit (~584942 years) */
 typedef uint64_t TIMEVAL;
 #define TIMEVAL_MAX UINT64_MAX
-#define MS_TO_TIMEVAL(ms) ms*1000L
-#define US_TO_TIMEVAL(us) us
+#define MS_TO_TIMEVAL(ms) (ms*1000L)
+#define US_TO_TIMEVAL(us) (us)
 
 #define TASK_HANDLE pthread_t
 

@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  This file contains functions for accessing the object dictionary and
  *  variables that are contained by the object dictionary.
- *  Accessing the object dictionary contains setting local variables
- *  as PDOs and accessing (read/write) all entries of the object dictionary
+ *  Accessing the object dictionary includes setting local variables
+ *  used by PDOs and reading/writing all object dictionary entries.
  *  @warning Only the basic entries of an object dictionary are included
  *           at the moment.
  */
@@ -36,8 +36,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *  @ingroup userapi
  */
  
-#ifndef __objacces_h__
-#define __objacces_h__
+#ifndef __OBJ_ACCESS_H__
+#define __OBJ_ACCESS_H__
 
 #include "applicfg.h"
 #include "declaration.h"
@@ -47,33 +47,35 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 extern "C" {
 #endif
 
-
-typedef UNS32 (*valueRangeTest_t)(UNS8 typeValue, void *Value);
+// Function pointer type
+typedef UNS32 (*valueRangeTest_t)(UNS8 typeValue, void* Value);
 typedef UNS32 (*storeODSubIndex_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
+
 UNS32 _storeODSubIndex(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
 
 /**
- * @brief Print MSG_WAR (s) if error to the access to the object dictionary occurs.
+ * @brief Print MSG_WAR logs if an object dictionary access error occurs.
  * 
  * You must uncomment the lines in the file objaccess.c :\n
  * //\#define DEBUG_CAN\n
  * //\#define DEBUG_WAR_CONSOLE_ON\n
  * //\#define DEBUG_ERR_CONSOLE_ON\n\n
- * Beware that sometimes, we force the sizeDataDict or sizeDataGiven to 0, when we wants to use
+ * Beware that sometimes we force sizeDataDict or sizeDataGiven to 0 when we want to use
  * this function but we do not have the access to the right value. One example is
- * getSDOerror(). So do not take attention to these variables if they are null.
+ * getSDOerror(). So ignore these variables if they are null.
  * @param index
  * @param subIndex
  * @param sizeDataDict Size of the data defined in the dictionary
- * @param sizeDataGiven Size data given by the user.
+ * @param sizeDataGiven Size of data provided by the user.
  * @param code error code to print. (SDO abort code. See file def.h)
  * @return
  */ 
 UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex, 
-               UNS32 sizeDataDict, UNS32 sizeDataGiven, UNS32 code);
+              UNS32 sizeDataDict, UNS32 sizeDataGiven, UNS32 code);
 
 
-/* _getODentry() Reads an entry from the object dictionary.\n
+/**
+ * @brief _getODentry() reads an entry from the object dictionary.\n
  * 
  *    use getODentry() macro to read from object and endianize
  *    use readLocalDict() macro to read from object and not endianize   
@@ -98,11 +100,11 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
  *                  used to tell you how many valid entries you can find
  *                  in this index. Look at the canopen standard for further
  *                  information
- * @param *pDestData Pointer to the pointer which points to the variable where
+ * @param pDestData Pointer to the pointer which points to the variable where
  *                   the value of this object dictionary entry should be copied
  * @param pExpectedSize This function writes the size of the copied value (in Byte)
  *                      into this variable.
- * @param *pDataType Pointer to the type of the data. See objdictdef.h
+ * @param pDataType Pointer to the type of the data. See objdictdef.h
  * @param CheckAccess if other than 0, do not read if the data is Write Only
  *                    [Not used today. Put always 0].
  * @param Endianize  When not 0, data is endianized into network byte order
@@ -112,14 +114,14 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
  * - OD_SUCCESSFUL is returned upon success. 
  * - SDO abort code is returned if error occurs . (See file def.h)
  */
-UNS32 _getODentry( CO_Data* d,
-                   UNS16 wIndex,
-                   UNS8 bSubindex,
-                   void * pDestData,
-                   UNS32 * pExpectedSize,
-                   UNS8 * pDataType,
-                   UNS8 checkAccess,
-                   UNS8 endianize);
+UNS32 _getODentry(CO_Data* d,
+              UNS16 wIndex,
+              UNS8 bSubindex,
+              void* pDestData,
+              UNS32* pExpectedSize,
+              UNS8* pDataType,
+              UNS8 checkAccess,
+              UNS8 endianize);
 
 /** 
  * @ingroup od
@@ -131,26 +133,26 @@ UNS32 _getODentry( CO_Data* d,
  *                  used to tell you how many valid entries you can find
  *                  in this index. Look at the canopen standard for further
  *                  information
- * @param *pDestData Pointer to the pointer which points to the variable where
+ * @param pDestData Pointer to the pointer which points to the variable where
  *                   the value of this object dictionary entry should be copied
  * @param pExpectedSize This function writes the size of the copied value (in Byte)
  *                      into this variable.
- * @param *pDataType Pointer to the type of the data. See objdictdef.h
- * @param checkAccess Flag that indicate if a check rights must be perfomed (0 : no , other than 0 : yes)
- * @return 
+ * @param pDataType Pointer to the type of the data. See objdictdef.h
+ * @param checkAccess Flag that indicates whether access rights must be checked (0: no, non-zero: yes)
+ * @return
  * - OD_SUCCESSFUL is returned upon success. 
  * - SDO abort code is returned if error occurs . (See file def.h)
  */
-#ifndef getODEntry
-#define getODentry( OD, wIndex, bSubindex, pDestData, pExpectedSize, \
-                     pDataType,  checkAccess)                         \
-       _getODentry( OD, wIndex, bSubindex, pDestData, pExpectedSize, \
-                     pDataType,  checkAccess, 1)            
+#ifndef getODentry
+#define getODentry(OD, wIndex, bSubindex, pDestData, pExpectedSize, \
+                     pDataType, checkAccess)                         \
+       _getODentry(OD, wIndex, bSubindex, pDestData, pExpectedSize, \
+                     pDataType, checkAccess, 1)
 #endif
 
 /** 
  * @ingroup od
- * @brief readLocalDict() reads an entry from the object dictionary, but in 
+ * @brief readLocalDict() reads an entry from the object dictionary, but in
  * contrast to getODentry(), readLocalDict() doesn't endianize entry and reads
  * entry in machine native endianness. 
  * @param OD Pointer to a CAN object data structure
@@ -160,47 +162,48 @@ UNS32 _getODentry( CO_Data* d,
  *                  used to tell you how many valid entries you can find
  *                  in this index. Look at the canopen standard for further
  *                  information
- * @param *pDestData Pointer to the pointer which points to the variable where
+ * @param pDestData Pointer to the pointer which points to the variable where
  *                   the value of this object dictionary entry should be copied
  * @param pExpectedSize This function writes the size of the copied value (in Byte)
  *                      into this variable.
- * @param *pDataType Pointer to the type of the data. See objdictdef.h
- * @param checkAccess if other than 0, do not read if the data is Write Only
+ * @param pDataType Pointer to the type of the data. See objdictdef.h
+ * @param checkAccess if non-zero, do not read if the data is Write Only
  *                    [Not used today. Put always 0].
  * @return 
  * - OD_SUCCESSFUL is returned upon success. 
  * - SDO abort code is returned if error occurs . (See file def.h)
  */
 #ifndef readLocalDict
-#define readLocalDict( OD, wIndex, bSubindex, pDestData, pExpectedSize, \
-                     pDataType,  checkAccess)                         \
-       _getODentry( OD, wIndex, bSubindex, pDestData, pExpectedSize, \
-                     pDataType,  checkAccess, 0)
+#define readLocalDict(OD, wIndex, bSubindex, pDestData, pExpectedSize, \
+                     pDataType, checkAccess)                         \
+       _getODentry(OD, wIndex, bSubindex, pDestData, pExpectedSize, \
+                     pDataType, checkAccess, 0)
 #endif
 
-/* By this function you can write an entry into the object dictionary
- * @param *d Pointer to a CAN object data structure
+/**
+ * Write an entry into the object dictionary
+ * @param d Pointer to a CAN object data structure
  * @param wIndex The index in the object dictionary where you want to write
  *               an entry
  * @param bSubindex The subindex of the Index. e.g. mostly subindex 0 is
  *                  used to tell you how many valid entries you can find
  *                  in this index. Look at the canopen standard for further
  *                  information
- * @param *pSourceData Pointer to the variable that holds the value that should
+ * @param pSourceData Pointer to the variable that holds the value that should
  *                     be copied into the object dictionary
- * @param *pExpectedSize The size of the value (in Byte).
- * @param checkAccess Flag that indicate if a check rights must be perfomed (0 : no , other than 0 : yes)
+ * @param pExpectedSize The size of the value (in Byte).
+ * @param checkAccess Flag that indicates whether access rights must be checked (0: no, non-zero: yes)
  * @return 
  * - OD_SUCCESSFUL is returned upon success. 
  * - SDO abort code is returned if error occurs . (See file def.h)
  */
-UNS32 _setODentry( CO_Data* d,
-                   UNS16 wIndex,
-                   UNS8 bSubindex,
-                   void * pSourceData,
-                   UNS32 * pExpectedSize,
-                   UNS8 checkAccess,
-                   UNS8 endianize);
+UNS32 _setODentry(CO_Data* d,
+              UNS16 wIndex,
+              UNS8 bSubindex,
+              void* pSourceData,
+              UNS32* pExpectedSize,
+              UNS8 checkAccess,
+              UNS8 endianize);
 
 /**
  * @ingroup od
@@ -220,18 +223,18 @@ UNS32 _setODentry( CO_Data* d,
  *                  used to tell you how many valid entries you can find
  *                  in this index. Look at the canopen standard for further
  *                  information
- * @param *pSourceData Pointer to the variable that holds the value that should
+ * @param pSourceData Pointer to the variable that holds the value that should
  *                     be copied into the object dictionary
- * @param *pExpectedSize The size of the value (in Byte).
- * @param checkAccess Flag that indicate if a check rights must be perfomed (0 : no , other than 0 : yes)
+ * @param pExpectedSize The size of the value (in Byte).
+ * @param checkAccess Flag that indicates whether access rights must be checked (0: no, non-zero: yes)
  * @return 
  * - OD_SUCCESSFUL is returned upon success. 
  * - SDO abort code is returned if error occurs . (See file def.h)
  */
 #ifndef setODentry
-#define setODentry( d, wIndex, bSubindex, pSourceData, pExpectedSize, \
+#define setODentry(d, wIndex, bSubindex, pSourceData, pExpectedSize, \
                   checkAccess) \
-       _setODentry( d, wIndex, bSubindex, pSourceData, pExpectedSize, \
+       _setODentry(d, wIndex, bSubindex, pSourceData, pExpectedSize, \
                   checkAccess, 1)
 #endif
 
@@ -246,10 +249,10 @@ UNS32 _setODentry( CO_Data* d,
  *                  used to tell you how many valid entries you can find
  *                  in this index. Look at the canopen standard for further
  *                  information
- * @param *pSourceData Pointer to the variable that holds the value that should
+ * @param pSourceData Pointer to the variable that holds the value that should
  *                     be copied into the object dictionary
- * @param *pExpectedSize The size of the value (in Byte).
- * @param checkAccess Flag that indicate if a check rights must be perfomed (0 : no , other than 0 : yes)
+ * @param pExpectedSize The size of the value (in Byte).
+ * @param checkAccess Flag that indicates whether access rights must be checked (0: no, non-zero: yes)
  * @return 
  * - OD_SUCCESSFUL is returned upon success. 
  * - SDO abort code is returned if error occurs . (See file def.h)
@@ -263,8 +266,8 @@ UNS32 _setODentry( CO_Data* d,
  * @endcode
  */
 #ifndef writeLocalDict
-#define writeLocalDict( d, wIndex, bSubindex, pSourceData, pExpectedSize, checkAccess) \
-       _setODentry( d, wIndex, bSubindex, pSourceData, pExpectedSize, checkAccess, 0)
+#define writeLocalDict(d, wIndex, bSubindex, pSourceData, pExpectedSize, checkAccess) \
+       _setODentry(d, wIndex, bSubindex, pSourceData, pExpectedSize, checkAccess, 0)
 #endif
 
 
@@ -274,4 +277,4 @@ UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCal
 }
 #endif
 
-#endif /* __objacces_h__ */
+#endif /* __OBJ_ACCESS_H__ */

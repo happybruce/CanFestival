@@ -68,7 +68,7 @@ void _post_emcy(CO_Data* d, UNS8 nodeID, UNS16 errCode, UNS8 errReg, const UNS8 
 /** 
  * @ingroup emcy
  * @brief Sets a new error with code errCode. Also sets corresponding bits in Error register (1001h)
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @param errCode The error code
  * @param errRegMask
  * @param addInfo
@@ -79,7 +79,7 @@ UNS8 EMCY_setError(CO_Data* d, UNS16 errCode, UNS8 errRegMask, UNS16 addInfo);
 /**
  * @ingroup emcy 
  * @brief Indicates it has recovered from error errCode. Also clears corresponding bits in Error register (1001h)
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @param errCode The error code
  */
 void EMCY_errorRecovered(CO_Data* d, UNS16 errCode);
@@ -87,22 +87,22 @@ void EMCY_errorRecovered(CO_Data* d, UNS16 errCode);
 /**
  * @ingroup emcy 
  * @brief Start EMCY consumer and producer
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  */
 void emergencyInit(CO_Data* d);
 
 /** 
  * @ingroup emcy
  * @brief Stop EMCY producer and consumer
- * @param *d Pointer on a CAN object data structure 
+ * @param d Pointer on a CAN object data structure 
  */
 void emergencyStop(CO_Data* d);
 
 /** 
  * @ingroup emcy
  * @brief This function is responsible to process an EMCY canopen-message
- * @param *d Pointer on a CAN object data structure 
- * @param *m Pointer on the CAN-message which has to be analysed.
+ * @param d Pointer on a CAN object data structure 
+ * @param m Pointer on the CAN-message which has to be analysed.
  */
 void proceedEMCY(CO_Data* d, Message* m);
 

@@ -39,6 +39,7 @@ struct Message {
 
 #include "declaration.h"
 
+// Used for initialization of struct Message object
 #define Message_Initializer {0,0,0,{0,0,0,0,0,0,0,0}}
 
 typedef UNS8 (*canSend_t)(Message *);

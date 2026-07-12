@@ -301,4 +301,11 @@ void proceedEMCY(CO_Data* d, Message* m)
     (*d->post_emcy)(d, nodeID, errCode, errReg, (const UNS8*)&m->Data[3]);
 }
 
-void _post_emcy(CO_Data* d, UNS8 nodeID, UNS16 errCode, UNS8 errReg, const UNS8 errSpec[5]){(void)d;(void)nodeID;(void)errCode;(void)errReg;(void)errSpec;}
+void _post_emcy(CO_Data* d, UNS8 nodeID, UNS16 errCode, UNS8 errReg, const UNS8 errSpec[5])
+{
+    (void)d;
+    (void)nodeID;
+    (void)errCode;
+    (void)errReg;
+    (void)errSpec;
+}

@@ -50,24 +50,24 @@ void _post_TPDO(CO_Data* d);
 
 /** 
  * @brief Transmit a SYNC message and trigger sync TPDOs
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @return
  */
 UNS8 sendSYNC(CO_Data* d);
 
 /** 
  * @brief Transmit a SYNC message on CAN bus
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @return
  */
 UNS8 sendSYNCMessage(CO_Data* d);
 
 /** 
  * @brief This function is called when the node is receiving a SYNC message (cob-id = 0x80).
- *  - Check if the node is in OERATIONAL mode. (other mode : return 0 but does nothing).
+ *  - Check if the node is in OPERATIONAL mode. (other mode : return 0 but does nothing).
  *  - Get the SYNC cobId by reading the dictionary index 1005, check it does correspond to the received cobId
  *  - Trigger sync TPDO emission 
- * @param *d Pointer on a CAN object data structure
+ * @param d Pointer on a CAN object data structure
  * @return 0 if OK, 0xFF if error 
  */
 UNS8 proceedSYNC(CO_Data* d);

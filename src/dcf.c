@@ -28,7 +28,7 @@
 ** @author Edouard TISSERANT and Francis DUPIN
 ** @date   Mon Jun  4 17:06:12 2007
 **
-** @brief EXEMPLE OF SOMMARY
+** @brief Concise DCF processing helpers.
 **
 **
 */
@@ -48,7 +48,7 @@ typedef struct {
 void SaveNode(CO_Data* d, UNS8 nodeId);
 static UNS8 read_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId);
 static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId);
-UNS8 init_consise_dcf(CO_Data* d,UNS8 nodeId);
+UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId);
 
 
 
@@ -73,7 +73,7 @@ UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
         return 0;
     }
     
-    // Search if nodeId is in valid SDO client range firstly
+    /* Search whether nodeId is already in a valid SDO client range */
     UNS16 offset = d->firstIndex->SDO_CLT;
     UNS16 lastIndex = d->lastIndex->SDO_CLT;
     UNS8 CliNbr = 0;
@@ -101,8 +101,8 @@ UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
     {
         if(d->firstIndex->SDO_CLT)
         {
-            WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 1, 0x600+nodeId);
-            WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 2, 0x580+nodeId);
+            WRITE_UNS32(d->objdict, d->firstIndex->SDO_CLT, 1, 0x600 + nodeId);
+            WRITE_UNS32(d->objdict, d->firstIndex->SDO_CLT, 2, 0x580 + nodeId);
             WRITE_UNS8(d->objdict, d->firstIndex->SDO_CLT, 3, nodeId);
         }
         else
@@ -163,7 +163,7 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
     UNS32 size=4;
     if(d->dcf_status == DCF_STATUS_READ_CHECK)
     {
-        if(getReadResultNetworkDict (d, nodeId, buf, &size, &abortCode) != SDO_FINISHED)
+        if(getReadResultNetworkDict(d, nodeId, buf, &size, &abortCode) != SDO_FINISHED)
             goto dcferror;
 
         /* Check if data received match the DCF */
@@ -196,7 +196,7 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
     }
     else if(d->dcf_status == DCF_STATUS_WRITE)
     {
-        if(getWriteResultNetworkDict (d, nodeId, &abortCode) != SDO_FINISHED)
+        if(getWriteResultNetworkDict(d, nodeId, &abortCode) != SDO_FINISHED)
             goto dcferror;
 
         if(write_consise_dcf_next_entry(d, nodeId) == 0)
@@ -212,10 +212,10 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
     }
     else if(d->dcf_status == DCF_STATUS_SAVED)
     {
-        if(getWriteResultNetworkDict (d, nodeId, &abortCode) != SDO_FINISHED)
+        if(getWriteResultNetworkDict(d, nodeId, &abortCode) != SDO_FINISHED)
             goto dcferror;
 
-        masterSendNMTstateChange (d, nodeId, NMT_Reset_Node);
+        masterSendNMTstateChange(d, nodeId, NMT_Reset_Node);
         d->dcf_status = DCF_STATUS_INIT;
         d->NMTable[nodeId] = Unknown_state;
     }
@@ -261,9 +261,10 @@ DCF_finish:
     return 0;
 }
 
-UNS8 get_next_DCF_data(CO_Data* d, dcf_entry_t *dcf_entry, UNS8 nodeId)
+UNS8 get_next_DCF_data(CO_Data* d, dcf_entry_t* dcf_entry, UNS8 nodeId)
 {
     UNS8* dcfend;
+    UNS32 dcf_header;
     UNS32 nb_entries;
     UNS32 szData;
     UNS8* dcf;
@@ -279,8 +280,14 @@ UNS8 get_next_DCF_data(CO_Data* d, dcf_entry_t *dcf_entry, UNS8 nodeId)
     }
         
     szData = d->dcf_odentry->pSubindex[nodeId].size;
+    if (szData < sizeof(UNS32))
+    {
+        return 0;
+    }
+
     dcf = (UNS8*)d->dcf_odentry->pSubindex[nodeId].pObject;
-    nb_entries = UNS32_LE(*((UNS32*)dcf));
+    memcpy(&dcf_header, dcf, sizeof(UNS32));
+    nb_entries = UNS32_LE(dcf_header);
     dcfend = dcf + szData;
     if((UNS8*)d->dcf_cursor + 7 < (UNS8*)dcfend && d->dcf_entries_count < nb_entries)
     {
@@ -295,7 +302,9 @@ UNS8 get_next_DCF_data(CO_Data* d, dcf_entry_t *dcf_entry, UNS8 nodeId)
         memcpy(&dcf_entry->Index, d->dcf_cursor,2);
             d->dcf_cursor+=2;
 #endif
+        
         dcf_entry->Subindex = *(d->dcf_cursor++);
+
 #ifdef CANOPEN_BIG_ENDIAN
         dcf_entry->Size = *(d->dcf_cursor++) << 24 | 
                           *(d->dcf_cursor++) << 16 | 
@@ -305,6 +314,12 @@ UNS8 get_next_DCF_data(CO_Data* d, dcf_entry_t *dcf_entry, UNS8 nodeId)
         memcpy(&dcf_entry->Size, d->dcf_cursor,4);
         d->dcf_cursor+=4;
 #endif
+
+    // if ((UNS32)(dcfend - d->dcf_cursor) < dcf_entry->Size)
+    // {
+    //     return 0;
+    // }
+
         d->dcf_data = dcf_entry->Data = d->dcf_cursor;
         d->dcf_size = dcf_entry->Size;
         d->dcf_cursor += dcf_entry->Size;
@@ -327,7 +342,7 @@ static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
                     nodeId, /* UNS8 nodeId*/
                     dcf_entry.Index, /* UNS16 index*/
                     dcf_entry.Subindex, /* UNS8 subindex*/
-                    (UNS8)dcf_entry.Size, /* UNS8 count*/
+                    dcf_entry.Size, /* UNS32 count*/
                     0, /* UNS8 dataType*/
                     dcf_entry.Data,/* void *data*/
                     CheckSDOAndContinue,/* Callback*/
@@ -335,7 +350,7 @@ static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
                     0); /* no block mode */
     if(Ret)
     {
-        MSG_ERR(0x1A02,"Error writeNetworkDictCallBackAI",Ret);
+        MSG_ERR(0x1A02, "Error writeNetworkDictCallBackAI", Ret);
     }
     return 1;
 }

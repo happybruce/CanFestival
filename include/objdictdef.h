@@ -20,18 +20,18 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __objdictdef_h__
-#define __objdictdef_h__
+#ifndef __OBJ_DICT_DEF_H__
+#define __OBJ_DICT_DEF_H__
 
-#if defined ( __CC_ARM   )
+#if defined(__CC_ARM)
 #pragma anon_unions
 #endif
 
-/************************* CONSTANTES **********************************/
-/** this are static defined datatypes taken fCODE the canopen standard. They
+/************************* CONSTANTS **********************************/
+/** These are statically defined data types taken from the CANopen standard. They
  *  are located at index 0x0001 to 0x001B. As described in the standard, they
- *  are in the object dictionary for definition purpose only. a device does not
- *  to support all of this datatypes.
+ *  are in the object dictionary for definition purposes only. A device does not
+ *  need to support all of these data types.
  */
 #define boolean         0x01
 #define int8            0x02
@@ -71,7 +71,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
-/** Each entry of the object dictionary can be READONLY (RO), READ/WRITE (RW),
+/** Each entry of the object dictionary can be READ ONLY (RO), READ/WRITE (RW),
  *  WRITE-ONLY (WO)
  */
 #define RW     0x00  
@@ -84,29 +84,29 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 /************************ STRUCTURES ****************************/
-/** This are some structs which are neccessary for creating the entries
+/** These are structures needed to create entries
  *  of the object dictionary.
  */
 typedef struct td_subindex
 {
-    const UNS8  bAccessType;
-    const UNS8  bDataType; /* Defines of what datatype the entry is */
-    UNS32       size;      /* The size (in Byte) of the variable */
+    const UNS8 bAccessType;
+    const UNS8 bDataType; /* Defines the data type of the entry */
+    UNS32      size;      /* The size (in Byte) of the variable */
     union {
-        void* pObject;   /* This is the pointer of the Variable */
+        void* pObject;    /* Pointer to the variable */
         const void* const pObjectConst;
     };
 } subindex;
 
-/** Struct for creating entries in the communictaion profile
+/** Structure for creating entries in the communication profile
  */
 typedef struct td_indextable
 {
-    const subindex* const  pSubindex;   /* Pointer to the subindex */
-    const UNS8 bSubCount;   /* the count of valid entries for this subindex
-                         * This count here defines how many memory has been
-                         * allocated. this memory does not have to be used.
-                         */
+    const subindex* const pSubindex; /* Pointer to the subindex */
+    const UNS8 bSubCount;            /* Number of valid entries for this subindex
+                                      * This count defines how much memory has been
+                                      * allocated. This memory does not have to be used.
+                                      */
     const UNS16 index;
 } indextable;
 
@@ -114,13 +114,13 @@ typedef struct td_indextable
  * @brief Index of specified entry in Object Dict (OD). Only valid if value is > 0
  * 
  */
-typedef struct s_quick_index{
-    UNS16 SDO_SVR;     /* index in OD for SDO Server */ 
-    UNS16 SDO_CLT;     /* index in OD for SDO Client */ 
-    UNS16 PDO_RCV;     /* index in OD for Recv PDO */ 
-    UNS16 PDO_RCV_MAP; /* index in OD for Recv PDO mapping */ 
-    UNS16 PDO_TRS;     /* index in OD for Trans PDO */ 
-    UNS16 PDO_TRS_MAP; /* index in OD for Trans PDO mapping */ 
+typedef struct s_quick_index {
+    UNS16 SDO_SVR;     /* Index in OD for SDO Server */
+    UNS16 SDO_CLT;     /* Index in OD for SDO Client */
+    UNS16 PDO_RCV;     /* Index in OD for received PDO */
+    UNS16 PDO_RCV_MAP; /* Index in OD for received PDO mapping */
+    UNS16 PDO_TRS;     /* Index in OD for transmitted PDO */
+    UNS16 PDO_TRS_MAP; /* Index in OD for transmitted PDO mapping */
 } quick_index;
 
 /************************** MACROS *********************************/
@@ -128,10 +128,10 @@ typedef struct s_quick_index{
 
 #include "declaration.h"
 typedef UNS32 (*ODCallback_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
-typedef const indextable * (*scanIndexOD_t)(UNS16 wIndex, UNS32 * errorCode, ODCallback_t **Callback);
+typedef const indextable* (*scanIndexOD_t)(UNS16 wIndex, UNS32* errorCode, ODCallback_t** Callback);
 
-/* CANopen usefull helpers */
+/* Useful CANopen helpers */
 #define GET_NODE_ID(m)         (UNS16_LE(m.cob_id) & 0x7f)
 #define GET_FUNCTION_CODE(m)   (UNS16_LE(m.cob_id) >> 7)
 
-#endif /* __objdictdef_h__ */
+#endif /* __OBJ_DICT_DEF_H__ */

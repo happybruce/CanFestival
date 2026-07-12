@@ -115,12 +115,12 @@ void lifeGuardStop(CO_Data* d);
  * @ingroup statemachine
  * @brief To read the state of a node
  * This can be used by the master after having sent a life guard request,
- * of by any node if it is waiting for heartbeat.
+ * or by any node if it is waiting for heartbeat.
  * @param *d Pointer on a CAN object data structure
  * @param nodeId Id of a node
  * @return e_nodeState State of the node corresponding to the nodeId
  */
-e_nodeState getNodeState (CO_Data* d, UNS8 nodeId);
+e_nodeState getNodeState(CO_Data* d, UNS8 nodeId);
 
 /** 
  * @brief Start heartbeat consumer and producer
@@ -139,14 +139,13 @@ void heartbeatInit(CO_Data* d);
 void heartbeatStop(CO_Data* d);
 
 /** 
- * @brief This function is responsible to process a canopen-message which seams to be an NMT Error Control
- * Messages.
+ * @brief Process a CANopen message that belongs to NMT Error Control services.
  * If a BootUp message is detected, it will return the nodeId of the Slave who booted up
  * @param *d Pointer on a CAN object data structure 
  * @param *m Pointer on the CAN-message which has to be analysed.
  * @ingroup nodeguardo
  */
-void proceedNODE_GUARD (CO_Data* d, Message* m);
+void proceedNODE_GUARD(CO_Data* d, Message* m);
 
 #ifdef __cplusplus
 }

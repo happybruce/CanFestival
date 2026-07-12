@@ -60,7 +60,7 @@ typedef struct struct_s_timer_entry s_timer_entry;
 /**
  * @ingroup timer
  * @brief Set an alarm to execute a callback function when expired.
- * @param *d Pointer to a CAN object data structure
+ * @param d Pointer to a CAN object data structure
  * @param id The alarm Id
  * @param callback A callback function
  * @param value Call the callback function at current time + value

@@ -7,13 +7,13 @@
 
 /* Warning: the argument must not update pointers, e.g. *p++ */
 
-#define UNS16_LE(v)  ((((UNS16)(v) & 0xff00) >> 8) | \
-              (((UNS16)(v) & 0x00ff) << 8))
+#define UNS16_LE(v)  ((((UNS16)(v) & 0xFF00) >> 8) | \
+              (((UNS16)(v) & 0x00FF) << 8))
 
-#define UNS32_LE(v)  ((((UNS32)(v) & 0xff000000) >> 24) |    \
-              (((UNS32)(v) & 0x00ff0000) >> 8)  |    \
-              (((UNS32)(v) & 0x0000ff00) << 8)  |    \
-              (((UNS32)(v) & 0x000000ff) << 24))
+#define UNS32_LE(v)  ((((UNS32)(v) & 0xFF000000) >> 24) |    \
+              (((UNS32)(v) & 0x00FF0000) >> 8)  |    \
+              (((UNS32)(v) & 0x0000FF00) << 8)  |    \
+              (((UNS32)(v) & 0x000000FF) << 24))
 
 #else
 
