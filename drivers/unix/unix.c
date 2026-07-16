@@ -19,14 +19,9 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-#ifndef __KERNEL__
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#else
 #include <linux/module.h>
 #include <linux/delay.h>
-#endif
+
 
 #ifndef NOT_USE_DYNAMIC_LOADING
 #define DLL_CALL(funcname) (* funcname##_driver)
@@ -204,18 +199,18 @@ CAN_PORT canOpen(s_BOARD *board, CO_Data * d)
  * @param d CAN object data
  * @return success or error
  */
-int canClose(CO_Data * d)
+int canClose(CO_Data* d)
 {
     int res = 0;
 
     CANPort* port = (CANPort*)d->canHandle;
     if(port)
     {
-        ((CANPort*)d->canHandle)->used = 0;
+        port->used = 0;
 
         res = DLL_CALL(canClose)(port->fd);
 
-        WaitReceiveTaskEnd(&port->receiveTask);
+        WaitReceiveTaskEnd(&(port->receiveTask));
 
         d->canHandle = NULL;
     }
@@ -243,10 +238,3 @@ UNS8 canChangeBaudRate(CAN_PORT port, char* baud)
     return 1; // NOT OK
 }
 
-
-#ifdef __KERNEL__
-EXPORT_SYMBOL (canOpen);
-EXPORT_SYMBOL (canClose);
-EXPORT_SYMBOL (canSend);
-EXPORT_SYMBOL (canChangeBaudRate);
-#endif

@@ -59,7 +59,7 @@ UNS8 masterSendNMTstateChange(CO_Data* d, UNS8 nodeId, UNS8 cs)
     m.data[0] = cs;
     m.data[1] = nodeId;
 
-    return canSend(d->canHandle,&m);
+    return canSend(d->canHandle, &m);
 }
 
 
@@ -83,7 +83,7 @@ UNS8 masterSendNMTnodeguard(CO_Data* d, UNS8 nodeId)
 
     MSG_WAR(0x3503, "Send_NODE_GUARD to node : ", nodeId);
 
-    return canSend(d->canHandle,&m);
+    return canSend(d->canHandle, &m);
 }
 
 /*!

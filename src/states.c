@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ** @param newCommunicationState                                                                    
 **/     
 void switchCommunicationState(CO_Data* d, 
-    s_state_communication *newCommunicationState);
+    s_state_communication* newCommunicationState);
     
 /*!                                                                                                
 **                                                                                                 
@@ -62,7 +62,7 @@ e_nodeState getState(CO_Data* d)
 ** @param d                                                                                        
 ** @param m                                                                                        
 **/  
-void canDispatch(CO_Data* d, Message *m)
+void canDispatch(CO_Data* d, Message* m)
 {
     UNS16 cob_id = UNS16_LE(m->cob_id);
     switch(cob_id >> 7)
@@ -79,7 +79,7 @@ void canDispatch(CO_Data* d, Message *m)
             {
                 if(d->CurrentCommunicationState.csEmergency)
                 {
-                    proceedEMCY(d,m);
+                    proceedEMCY(d, m);
                 }
             }
             break;
@@ -94,38 +94,38 @@ void canDispatch(CO_Data* d, Message *m)
         case PDO4rx:
             if (d->CurrentCommunicationState.csPDO)
             {
-                proceedPDO(d,m);
+                proceedPDO(d, m);
             }
             break;
         case SDOtx:
         case SDOrx:
             if (d->CurrentCommunicationState.csSDO)
             {
-                proceedSDO(d,m);
+                proceedSDO(d, m);
             }
             break;
         case NODE_GUARD:
             if (d->CurrentCommunicationState.csLifeGuard)
             {
-                proceedNODE_GUARD(d,m);
+                proceedNODE_GUARD(d, m);
             }
             break;
         case NMT:
             if (*(d->iam_a_slave))
             {
-                proceedNMTstateChange(d,m);
+                proceedNMTstateChange(d, m);
             }
             break;
 #ifdef CO_ENABLE_LSS
         case LSS:
             if (!d->CurrentCommunicationState.csLSS)break;
-            if ((*(d->iam_a_slave)) && cob_id==MLSS_ADRESS)
+            if ((*(d->iam_a_slave)) && (cob_id == MLSS_ADRESS))
             {
-                proceedLSS_Slave(d,m);
+                proceedLSS_Slave(d, m);
             }
-            else if(!(*(d->iam_a_slave)) && cob_id==SLSS_ADRESS)
+            else if(!(*(d->iam_a_slave)) && (cob_id == SLSS_ADRESS))
             {
-                proceedLSS_Master(d,m);
+                proceedLSS_Master(d, m);
             }
             break;
 #endif
@@ -133,12 +133,12 @@ void canDispatch(CO_Data* d, Message *m)
 }
 
 #define StartOrStop(CommType, FuncStart, FuncStop) \
-    if(newCommunicationState->CommType && d->CurrentCommunicationState.CommType == 0){\
-        MSG_WAR(0x9999,#FuncStart, 9999);\
+    if(newCommunicationState->CommType && (d->CurrentCommunicationState.CommType == 0)) {\
+        MSG_WAR(0x9999, #FuncStart, 9999);\
         d->CurrentCommunicationState.CommType = 1;\
         FuncStart;\
-    }else if(!newCommunicationState->CommType && d->CurrentCommunicationState.CommType == 1){\
-        MSG_WAR(0x9999,#FuncStop, 9999);\
+    }else if(!newCommunicationState->CommType && (d->CurrentCommunicationState.CommType == 1)) {\
+        MSG_WAR(0x9999, #FuncStop, 9999);\
         d->CurrentCommunicationState.CommType = 0;\
         FuncStop;\
     }

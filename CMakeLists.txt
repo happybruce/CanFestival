@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(canfestival LANGUAGES C CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 option(BUILD_EXAMPLES "Build example executables" ON)
 
 # Source files
@@ -16,7 +18,6 @@ set(CANFESTIVAL_SRC
     src/sdo.c
     src/pdo.c
     src/states.c
-    # src/symbols.c
     src/sync.c
     src/timer.c
 )
@@ -36,7 +37,6 @@ add_library(canfestival STATIC ${CANFESTIVAL_SRC})
 target_include_directories(canfestival PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/unix>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix>
 )
 target_compile_options(canfestival PRIVATE -fPIC -Wall -g -fno-strict-aliasing)
 target_compile_definitions(canfestival PUBLIC NOT_USE_DYNAMIC_LOADING CO_ENABLE_LSS CO_ENABLE_LSS_FS DEBUG_ERR_CONSOLE_ON)
@@ -53,7 +53,6 @@ add_library(canfestival_can_socket STATIC ${CANFESTIVAL_DRV_SRC})
 target_include_directories(canfestival_can_socket PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/unix>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix>
 )
 target_compile_options(canfestival_can_socket PRIVATE -fPIC -Wall -g -fno-strict-aliasing)
 target_compile_definitions(canfestival_can_socket PUBLIC NOT_USE_DYNAMIC_LOADING)
@@ -92,44 +91,30 @@ if(BUILD_EXAMPLES)
     )
 
     set(LINK_LIBS canfestival canfestival_can_socket pthread dl rt)
-
-    add_executable(slave ${SLAVE_APP_C_SRC})
-    target_link_libraries(slave PRIVATE ${LINK_LIBS})
-    target_include_directories(slave PRIVATE
+    set(INCLUDE_DIRS
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/unix>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od>
     )
+
+    add_executable(slave ${SLAVE_APP_C_SRC})
+    target_link_libraries(slave PRIVATE ${LINK_LIBS})
+    target_include_directories(slave PRIVATE ${INCLUDE_DIRS})
     install(TARGETS slave RUNTIME DESTINATION bin)
 
     add_executable(master ${MASTER_APP_C_SRC})
     target_link_libraries(master PRIVATE ${LINK_LIBS})
-    target_include_directories(master PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/unix>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od>
-    )
+    target_include_directories(master PRIVATE ${INCLUDE_DIRS})
     install(TARGETS master RUNTIME DESTINATION bin)
 
     add_executable(slave_cpp ${SLAVE_APP_CPP_SRC})
     target_link_libraries(slave_cpp PRIVATE ${LINK_LIBS})
-    target_include_directories(slave_cpp PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/unix>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od>
-    )
+    target_include_directories(slave_cpp PRIVATE ${INCLUDE_DIRS})
     install(TARGETS slave_cpp RUNTIME DESTINATION bin)
 
     add_executable(master_cpp ${MASTER_APP_CPP_SRC})
     target_link_libraries(master_cpp PRIVATE ${LINK_LIBS})
-    target_include_directories(master_cpp PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/unix>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/timers_unix>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/linux/dcf/od>
-    )
+    target_include_directories(master_cpp PRIVATE ${INCLUDE_DIRS})
     install(TARGETS master_cpp RUNTIME DESTINATION bin)
 endif()

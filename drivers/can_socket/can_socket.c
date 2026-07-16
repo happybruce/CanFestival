@@ -67,13 +67,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "can_driver.h"
 
 /*********functions which permit to communicate with the board****************/
-UNS8
-canReceive_driver (CAN_HANDLE fd0, Message * m)
+UNS8 canReceive_driver(CAN_HANDLE fd0, Message* m)
 {
     int res;
     struct can_frame frame;
 
-    res = CAN_RECV (*(int *) fd0, &frame, sizeof (frame), 0);
+    res = CAN_RECV(*(int *) fd0, &frame, sizeof (frame), 0);
     if (res < 0)
     {
         fprintf (stderr, "Recv failed: %s\n", strerror (CAN_ERRNO (res)));
@@ -97,8 +96,7 @@ canReceive_driver (CAN_HANDLE fd0, Message * m)
 
 
 /***************************************************************************/
-UNS8
-canSend_driver (CAN_HANDLE fd0, Message const * m)
+UNS8 canSend_driver(CAN_HANDLE fd0, Message const* m)
 {
     int res;
     struct can_frame frame;
@@ -128,8 +126,7 @@ canSend_driver (CAN_HANDLE fd0, Message const * m)
 
 /***************************************************************************/
 #ifdef RTCAN_SOCKET
-int
-TranslateBaudRate (const char *optarg)
+int TranslateBaudRate (const char *optarg)
 {
     int baudrate;
     int val, len;
@@ -167,8 +164,7 @@ UNS8 canChangeBaudRate_driver( CAN_HANDLE fd, char* baud)
 }
 
 /***************************************************************************/
-CAN_HANDLE
-canOpen_driver (s_BOARD * board)
+CAN_HANDLE canOpen_driver (s_BOARD * board)
 {
     struct ifreq ifr;
     struct sockaddr_can addr;
@@ -272,8 +268,7 @@ error_ret:
 }
 
 /***************************************************************************/
-int
-canClose_driver (CAN_HANDLE fd0)
+int canClose_driver(CAN_HANDLE fd0)
 {
     if (fd0)
     {

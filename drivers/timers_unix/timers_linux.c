@@ -1,6 +1,9 @@
 #include <stdlib.h>
+#include <errno.h>
 #include <sys/time.h>
+#include <sys/eventfd.h>
 #include <sys/timerfd.h>
+#include <poll.h>
 #include <pthread.h>
 #include <time.h>
 #include <stdint.h>
@@ -11,11 +14,27 @@
 
 static pthread_mutex_t CanFestival_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static struct timeval last_sig;
+static TIMEVAL last_sig;
 
 static int iTimerFD = -1;
+static int iWakeFD = -1;
 
 static pthread_t iTimeThrId;
+static int timerThreadRunning = 0;
+
+
+static TIMEVAL monotonic_time_us(void)
+{
+    struct timespec now;
+
+    if (clock_gettime(CLOCK_MONOTONIC, &now) == -1)
+    {
+        perror("clock_gettime()");
+        return 0;
+    }
+
+    return ((TIMEVAL)now.tv_sec * 1000000ULL) + ((TIMEVAL)now.tv_nsec / 1000ULL);
+}
 
 
 void TimerCleanup(void)
@@ -42,40 +61,107 @@ void LeaveMutex(void)
 
 void* timer_notify_thr(void* arg)
 {
-    while (1)
+    (void)arg;
+
+    while (timerThreadRunning)
     {
+        struct pollfd pollfds[2];
         uint64_t exp = 0;
-        
-        int ret = read(iTimerFD, &exp, sizeof(uint64_t));
-        
-        if (ret == sizeof(uint64_t))
+        int pollRet;
+
+        pollfds[0].fd = iTimerFD;
+        pollfds[0].events = POLLIN;
+        pollfds[0].revents = 0;
+        pollfds[1].fd = iWakeFD;
+        pollfds[1].events = POLLIN;
+        pollfds[1].revents = 0;
+
+        pollRet = poll(pollfds, 2, -1);
+        if (pollRet == -1)
         {
-            if(gettimeofday(&last_sig, NULL))
+            if (errno == EINTR)
             {
-                perror("gettimeofday()");
+                continue;
+            }
+
+            if (timerThreadRunning)
+            {
+                perror("poll()");
+            }
+
+            break;
+        }
+
+        if (pollfds[1].revents & POLLIN)
+        {
+            uint64_t wakeValue;
+
+            if (read(iWakeFD, &wakeValue, sizeof(wakeValue)) == -1 && errno != EAGAIN)
+            {
+                perror("read()");
+            }
+
+            break;
+        }
+
+        if (!(pollfds[0].revents & POLLIN))
+        {
+            continue;
+        }
+
+        ssize_t ret = read(iTimerFD, &exp, sizeof(exp));
+        
+        if (ret == (ssize_t)sizeof(exp))
+        {
+            if (!timerThreadRunning)
+            {
+                break;
             }
 
             EnterMutex();
+            last_sig = monotonic_time_us();
             TimeDispatch();
             LeaveMutex();
+
+            continue;
         }
+
+        if (ret == -1 && errno == EINTR)
+        {
+            continue;
+        }
+
+        if (timerThreadRunning)
+        {
+            perror("read()");
+        }
+
+        break;
     }
+
+    return NULL;
 }
 
 
 void TimerInit(void)
 {
     // Take first absolute time ref.
-    if(gettimeofday(&last_sig, NULL))
-    {
-        perror("gettimeofday()");
-    }
+    last_sig = monotonic_time_us();
 
+    iWakeFD = eventfd(0, EFD_CLOEXEC);
+    if (iWakeFD == -1)
+    {
+        perror("eventfd()");
+        return;
+    }
 
     iTimerFD = timerfd_create(CLOCK_MONOTONIC, 0);
     if (iTimerFD == -1)
     {
         perror("timer_create()");
+        close(iWakeFD);
+        iWakeFD = -1;
+        return;
     }
 
     struct itimerspec itime;
@@ -89,30 +175,43 @@ void TimerInit(void)
         perror("timerfd_settime()");
     }
 
+    timerThreadRunning = 1;
     if(pthread_create(&iTimeThrId, NULL, timer_notify_thr, NULL))
     {
         perror("pthread_create()");
+        timerThreadRunning = 0;
+        close(iTimerFD);
+        iTimerFD = -1;
+        close(iWakeFD);
+        iWakeFD = -1;
     }
 }
 
 void StopTimerLoop(TimerCallback_t exitfunction)
 {
-    EnterMutex();
-
-    struct itimerspec itime;
-    itime.it_value.tv_sec     = 0;
-    itime.it_value.tv_nsec    = 0;
-    itime.it_interval.tv_sec  = 0;
-    itime.it_interval.tv_nsec = 0;
-    /* stop timer */
-    if (timerfd_settime(iTimerFD, 0, &itime, NULL) == -1)
+    if (iTimerFD != -1 && iWakeFD != -1)
     {
-        perror("timerfd_settime()");
-    }
-    close(iTimerFD);
-    
-    iTimerFD = -1;
+        uint64_t wakeValue = 1;
 
+        timerThreadRunning = 0;
+
+        if (write(iWakeFD, &wakeValue, sizeof(wakeValue)) == -1)
+        {
+            perror("write()");
+        }
+
+        if (pthread_join(iTimeThrId, NULL))
+        {
+            perror("pthread_join()");
+        }
+
+        close(iTimerFD);
+        iTimerFD = -1;
+        close(iWakeFD);
+        iWakeFD = -1;
+    }
+
+    EnterMutex();
     exitfunction(NULL,0);
     LeaveMutex();
 }
@@ -171,7 +270,7 @@ void WaitReceiveTaskEnd(TASK_HANDLE *Thread)
 #define maxval(a,b) ((a>b)?a:b)
 void setTimer(TIMEVAL value)
 {
-    if (value == TIMEVAL_MAX)
+    if (value == TIMEVAL_MAX || iTimerFD == -1)
     {
         return;
     }
@@ -196,11 +295,12 @@ void setTimer(TIMEVAL value)
 
 TIMEVAL getElapsedTime(void)
 {
-    struct timeval p;
-    if(gettimeofday(&p,NULL)) 
+    TIMEVAL now = monotonic_time_us();
+
+    if (now < last_sig)
     {
-        perror("gettimeofday()");
+        return 0;
     }
-//    printf("getCurrentTime() return=%u\n", p.tv_usec);
-    return (p.tv_sec - last_sig.tv_sec)* 1000000 + p.tv_usec - last_sig.tv_usec;
+
+    return (now - last_sig);
 }

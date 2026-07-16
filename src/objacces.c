@@ -41,7 +41,7 @@
 #include "data.h"
 
 
-void *memcpy_flash(void * dest, const void * source, size_t length)
+void* memcpy_flash(void* dest, const void* source, size_t length)
 {
     char* dstPointer = dest;
     const char* srcPointer = source;
@@ -63,27 +63,27 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
   MSG_WAR(0X2B10,"           subindex : ", subIndex);
   switch (code)
   {
-  case  OD_NO_SUCH_OBJECT:
-    MSG_WAR(0x2B11,"Index not found ", index);
+  case OD_NO_SUCH_OBJECT:
+    MSG_WAR(0x2B11, "Index not found ", index);
     break;
   case OD_NO_SUCH_SUBINDEX :
-    MSG_WAR(0x2B12,"SubIndex not found ", subIndex);
+    MSG_WAR(0x2B12, "SubIndex not found ", subIndex);
     break;
   case OD_WRITE_NOT_ALLOWED :
-    MSG_WAR(0x2B13,"Write not allowed, data is read only ", index);
+    MSG_WAR(0x2B13, "Write not allowed, data is read only ", index);
     break;
   case OD_LENGTH_DATA_INVALID :
-    MSG_WAR(0x2B14,"Conflict size data. Should be (bytes)  : ", sizeDataDict);
-    MSG_WAR(0x2B15,"But you have given the size  : ", sizeDataGiven);
+    MSG_WAR(0x2B14, "Conflict size data. Should be (bytes)  : ", sizeDataDict);
+    MSG_WAR(0x2B15, "But you have given the size  : ", sizeDataGiven);
     break;
   case OD_NOT_MAPPABLE :
-    MSG_WAR(0x2B16,"Not mappable data in a PDO at index    : ", index);
+    MSG_WAR(0x2B16, "Not mappable data in a PDO at index    : ", index);
     break;
   case OD_VALUE_TOO_LOW :
-    MSG_WAR(0x2B17,"Value range error : value too low. SDOabort : ", code);
+    MSG_WAR(0x2B17, "Value range error : value too low. SDOabort : ", code);
     break;
   case OD_VALUE_TOO_HIGH :
-    MSG_WAR(0x2B18,"Value range error : value too high. SDOabort : ", code);
+    MSG_WAR(0x2B18, "Value range error : value too high. SDOabort : ", code);
     break;
   default :
     MSG_WAR(0x2B20, "Unknown error code : ", code);
@@ -96,9 +96,9 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
 UNS32 _getODentry( CO_Data* d,
                    UNS16 wIndex,
                    UNS8 bSubindex,
-                   void * pDestData,
-                   UNS32 * pExpectedSize,
-                   UNS8 * pDataType,
+                   void* pDestData,
+                   UNS32* pExpectedSize,
+                   UNS8* pDataType,
                    UNS8 checkAccess,
                    UNS8 endianize)
 { /* DO NOT USE MSG_ERR because the macro may send a PDO -> infinite
@@ -106,10 +106,10 @@ UNS32 _getODentry( CO_Data* d,
     (void)endianize;
     UNS32 errorCode;
     UNS32 szData;
-    const indextable *ptrTable;
-    ODCallback_t *Callback;
+    const indextable* ptrTable;
+    ODCallback_t* Callback;
 
-    ptrTable = (*d->scanIndexOD)(wIndex, &errorCode, &Callback);
+    ptrTable = (*(d->scanIndexOD))(wIndex, &errorCode, &Callback);
 
     if (errorCode != OD_SUCCESSFUL)
     {
@@ -135,7 +135,7 @@ UNS32 _getODentry( CO_Data* d,
         return SDOABT_GENERAL_ERROR;
     }
 
-    if (ptrTable->pSubindex[bSubindex].size > *pExpectedSize)
+    if (ptrTable->pSubindex[bSubindex].size > (*pExpectedSize))
     {
         /* Requested variable is too large to fit into a transfer line, inform    *
         * the caller about the real size of the requested variable.              */
@@ -168,11 +168,11 @@ UNS32 _getODentry( CO_Data* d,
         if(ptrTable->pSubindex[bSubindex].bDataType == visible_string && bSubindex != 0) 
         {
             const char* dp = *(const char* const *)ptrTable->pSubindex[bSubindex].pObjectConst;
-            memcpy_flash(pDestData, dp,szData);
+            memcpy_flash(pDestData, dp, szData);
         }
         else
         {
-            memcpy_flash(pDestData, ptrTable->pSubindex[bSubindex].pObjectConst,szData);
+            memcpy_flash(pDestData, ptrTable->pSubindex[bSubindex].pObjectConst, szData);
         }
     }
     else
@@ -191,7 +191,7 @@ UNS32 _getODentry( CO_Data* d,
         * Note:  If the parameter "Default String Size" of the Object Dictionary *
         *        Editor is larger than the string, then the \0 byte will be      *
         *        appended anyways!                                               */
-        if(*pExpectedSize > ptrTable->pSubindex[bSubindex].size)
+        if((*pExpectedSize) > ptrTable->pSubindex[bSubindex].size)
         {
             *((UNS8*)pDestData + szData) = '\0';
             *pExpectedSize = szData + 1;
@@ -246,7 +246,7 @@ UNS32 _setODentry( CO_Data* d,
     /* check the size, we must allow to store less bytes than data size, even for intergers
 	 (e.g. UNS40 : objdictedit will store it in a uint64_t, setting the size to 8 but PDO comes
 	 with 5 bytes so ExpectedSize is 5 */
-    if( *pExpectedSize == 0 || *pExpectedSize <= szData )
+    if( (*pExpectedSize == 0) || (*pExpectedSize <= szData) )
     {
 #ifdef CANOPEN_BIG_ENDIAN
         /* re-endianize do not occur for bool, strings time and domains */
@@ -308,9 +308,9 @@ UNS32 _setODentry( CO_Data* d,
     }
 }
 
-const indextable * scanIndexOD (CO_Data* d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback)
+const indextable* scanIndexOD (CO_Data* d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback)
 {
-    return (*d->scanIndexOD)(wIndex, errorCode, Callback);
+    return (*(d->scanIndexOD))(wIndex, errorCode, Callback);
 }
 
 UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCallback_t Callback)
@@ -320,7 +320,7 @@ UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCal
     const indextable *odentry;
 
     odentry = scanIndexOD(d, wIndex, &errorCode, &CallbackList);
-    if(errorCode == OD_SUCCESSFUL  &&  CallbackList  &&  bSubindex < odentry->bSubCount)
+    if((errorCode == OD_SUCCESSFUL)  &&  CallbackList  &&  (bSubindex < odentry->bSubCount))
     {
         CallbackList[bSubindex] = Callback;
     }
