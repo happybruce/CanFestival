@@ -19,8 +19,9 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-#include <linux/module.h>
-#include <linux/delay.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 #ifndef NOT_USE_DYNAMIC_LOADING
