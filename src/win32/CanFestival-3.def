@@ -80,11 +80,11 @@ EXPORTS
         initSDOline
         getSDOfreeLine
         getSDOlineOnUse
-        closeSDOtransfer
-        getSDOlineRestBytes
-        setSDOlineRestBytes
+        closeSDOTransfer
+        getSDOLineRestBytes
+        setSDOLineRestBytes
         sendSDO
-        sendSDOabort
+        sendSDOAbort
         proceedSDO
         writeNetworkDict
         writeNetworkDictCallBack

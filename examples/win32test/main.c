@@ -92,7 +92,7 @@ UNS8 ReadSDO(UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, void* data,
       sleep_proc(1);
       continue;
       }
-   closeSDOtransfer(&win32test_Data, nodeId, SDO_CLIENT);
+   closeSDOTransfer(&win32test_Data, nodeId, SDO_CLIENT);
    if (res == SDO_FINISHED)
       return 0;
    return 0xFF;   

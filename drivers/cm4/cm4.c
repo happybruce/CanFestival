@@ -1,24 +1,33 @@
 // Includes for the Canfestival driver
 #include "canfestival.h"
+#include "timerscfg.h"
 #include "timer.h"
 #include "data.h"
-#include "cm4.h"
 
-TIMEVAL last_counter_val = 0;
-TIMEVAL elapsed_time = 0;
+
+static TIMEVAL last_counter_val = 0;
+static TIMEVAL elapsed_time = 0;
 
 static CO_Data *co_data = NULL;
 
-// Initializes the timer, turn on the interrupt and put the interrupt time to zero
-void initTimer(void)
-{
+static CAN_HandleTypeDef * CanPtr   = NULL;
+static TIM_HandleTypeDef * TimerPtr = NULL;
 
+
+void selectTimer(TIM_HandleTypeDef* timer)
+{
+    TimerPtr = timer;
+}
+
+void selectCAN(CAN_HandleTypeDef* can)
+{
+    CanPtr = can;
 }
 
 //Set the timer for the next alarm.
 void setTimer(TIMEVAL value)
-{
-    if (value >= TIMEVAL_MAX)
+{   
+    if ((!TimerPtr) || value >= TIMEVAL_MAX)
     {
         return;
     }
@@ -34,6 +43,11 @@ void setTimer(TIMEVAL value)
 //Return the elapsed time to tell the Stack how much time is spent since last call.
 TIMEVAL getElapsedTime(void)
 {
+    if (!TimerPtr)
+    {
+        return 0;
+    }
+
     uint32_t timer = __HAL_TIM_GET_COUNTER(TimerPtr);
     if(timer < last_counter_val)
     {
@@ -46,30 +60,10 @@ TIMEVAL getElapsedTime(void)
 }
 
 
-/* prescaler values for 87.5%  sampling point (88.9% at 1Mbps)
-   if unknown bitrate default to 50k
-*/
-uint16_t brp_from_birate(uint32_t bitrate)
-{
-    if(bitrate == 10000)
-        return 225;
-    if(bitrate == 50000)
-        return 45;
-    if(bitrate == 125000)
-        return 18;
-    if(bitrate == 250000)
-        return 9;
-    if(bitrate == 500000)
-        return 9;
-    if(bitrate == 1000000)
-        return 4;
-    return 45;
-}
-
 //Initialize the CAN hardware 
 unsigned char canInit(CO_Data * d, uint32_t bitrate)
 {
-    // /* save the canfestival handle */  
+    // Set CANopen data pointer
     co_data = d;
 
     return 1;
@@ -78,6 +72,11 @@ unsigned char canInit(CO_Data * d, uint32_t bitrate)
 // The driver send a CAN message passed from the CANopen stack
 unsigned char canSend(CAN_PORT notused, Message *m)
 {
+    if (!CanPtr)
+    {
+        return 0;
+    }
+
     uint32_t TxMailbox;
     CAN_TxHeaderTypeDef TxMessage;
     uint8_t data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -100,86 +99,65 @@ unsigned char canSend(CAN_PORT notused, Message *m)
 
     if (HAL_CAN_AddTxMessage(CanPtr, &TxMessage, data, &TxMailbox) != HAL_OK)
     {
-        // __disable_irq();
-        // while (1)
-        // {
-        // }
+        // disable_it();
         return 0;
     }
 
     return 1;
 }
 
-//The driver pass a received CAN message to the stack
-/*
-unsigned char canReceive(Message *m)
-{
-}
-*/
-unsigned char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud)
-{
-    return 0;
-}
 
-
-// void disable_it(void)
-// {
-    // TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
-    // CAN_ITConfig(CANx, CAN_IT_FMP0, DISABLE);
-// }
-
-// void enable_it(void)
-// {
-    // TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-    // CAN_ITConfig(CANx, CAN_IT_FMP0, ENABLE);
-// }
-
-
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+// void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+void handleCANPendingMessage()
 {
     uint8_t  data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     HAL_StatusTypeDef  status;
-    
-    if (hcan == CanPtr)
+
+    if (!CanPtr)
     {
-        Message rxm = {0};
-        CAN_RxHeaderTypeDef RxMessage;
-        
-        status = HAL_CAN_GetRxMessage(CanPtr, CAN_RX_FIFO0, &RxMessage, data);
-        if (HAL_OK == status)
+        return;
+    }
+
+    Message rxm = {0};
+    CAN_RxHeaderTypeDef RxMessage;
+    
+    status = HAL_CAN_GetRxMessage(CanPtr, CAN_RX_FIFO0, &RxMessage, data);
+    if (HAL_OK == status)
+    {
+        if(RxMessage.IDE == CAN_ID_EXT)
         {
-            if(RxMessage.IDE == CAN_ID_EXT)
-            {
-                return;
-            }
-            
-            rxm.cob_id = RxMessage.StdId;
-            if(RxMessage.RTR == CAN_RTR_REMOTE)
-            {
-                rxm.rtr = 1;
-            }
-            
-            rxm.len = RxMessage.DLC;
-            for(uint32_t i = 0; i < rxm.len; i++)
-            {
-                rxm.data[i] = data[i];
-            }
-            
-            canDispatch(co_data, &rxm);
+            return;
         }
+        
+        rxm.cob_id = RxMessage.StdId;
+        if(RxMessage.RTR == CAN_RTR_REMOTE)
+        {
+            rxm.rtr = 1;
+        }
+        
+        rxm.len = RxMessage.DLC;
+        for(uint32_t i = 0; i < rxm.len; i++)
+        {
+            rxm.data[i] = data[i];
+        }
+        
+        canDispatch(co_data, &rxm);
     }
 }
 
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void handleTimerPeriodElapsed()
 {
-    if (htim == TimerPtr)
+    if (!TimerPtr)
     {
-        last_counter_val = 0;
-        elapsed_time = 0;
-
-        __HAL_TIM_CLEAR_FLAG(TimerPtr, TIM_SR_UIF);
-
-        TimeDispatch();
+        return;
     }
+    
+    last_counter_val = 0;
+    elapsed_time = 0;
+
+    __HAL_TIM_CLEAR_FLAG(TimerPtr, TIM_SR_UIF);
+
+    TimeDispatch();
 }

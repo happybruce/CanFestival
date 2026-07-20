@@ -117,9 +117,9 @@ typedef struct td_indextable
 typedef struct s_quick_index {
     UNS16 SDO_SVR;     /* Index in OD for SDO Server */
     UNS16 SDO_CLT;     /* Index in OD for SDO Client */
-    UNS16 PDO_RCV;     /* Index in OD for received PDO */
+    UNS16 PDO_RCV;     /* Index in OD for received PDO communication parameter */
     UNS16 PDO_RCV_MAP; /* Index in OD for received PDO mapping */
-    UNS16 PDO_TRS;     /* Index in OD for transmitted PDO */
+    UNS16 PDO_TRS;     /* Index in OD for transmitted PDO communication parameter */
     UNS16 PDO_TRS_MAP; /* Index in OD for transmitted PDO mapping */
 } quick_index;
 

@@ -127,7 +127,7 @@ void CheckReadInfoSDO(CO_Data* d, UNS8 nodeid)
 		}
 	}
 	/* Finalize last SDO transfer with this node */
-	closeSDOtransfer(CANOpenShellOD_Data, nodeid, SDO_CLIENT);
+	closeSDOTransfer(CANOpenShellOD_Data, nodeid, SDO_CLIENT);
 
 	GetSlaveNodeInfo(nodeid);
 }
@@ -175,7 +175,7 @@ void CheckReadSDO(CO_Data* d, UNS8 nodeid)
 		printf("\nResult : %x\n", data);
 
 	/* Finalize last SDO transfer with this node */
-	closeSDOtransfer(CANOpenShellOD_Data, nodeid, SDO_CLIENT);
+	closeSDOTransfer(CANOpenShellOD_Data, nodeid, SDO_CLIENT);
 }
 
 /* Read a slave node object dictionary entry */
@@ -216,7 +216,7 @@ void CheckWriteSDO(CO_Data* d, UNS8 nodeid)
 		printf("\nSend data OK\n");
 
 	/* Finalize last SDO transfer with this node */
-	closeSDOtransfer(CANOpenShellOD_Data, nodeid, SDO_CLIENT);
+	closeSDOTransfer(CANOpenShellOD_Data, nodeid, SDO_CLIENT);
 }
 
 /* Write a slave node object dictionnary entry */

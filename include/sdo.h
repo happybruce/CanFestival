@@ -127,7 +127,7 @@ void resetSDO(CO_Data* d);
  * @param line SDO line
  * @return SDO error code if error. Else, returns 0.
  */
-UNS32 SDOlineToObjdict(CO_Data* d, UNS8 line);
+UNS32 SDOLineToObjDict(CO_Data* d, UNS8 line);
 
 /** 
  * @brief Copy the data from the object dictionary to the SDO line for a network transfer.
@@ -135,7 +135,7 @@ UNS32 SDOlineToObjdict(CO_Data* d, UNS8 line);
  * @param line SDO line
  * @return SDO error code if error. Else, returns 0.
  */
-UNS32 objdictToSDOline(CO_Data* d, UNS8 line);
+UNS32 objDictToSDOLine(CO_Data* d, UNS8 line);
 
 /** 
  * @brief Copy data from an existing line into the argument "* data"
@@ -145,7 +145,7 @@ UNS32 objdictToSDOline(CO_Data* d, UNS8 line);
  * @param data Pointer on the data
  * @return 0xFF if error. Else, returns 0.
  */
-UNS8 lineToSDO(CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8 * data);
+UNS8 lineToSDO(CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data);
 
 /** 
  * @brief Add data to an existing line
@@ -155,7 +155,7 @@ UNS8 lineToSDO(CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8 * data);
  * @param data Pointer on the data
  * @return 0xFF if error. Else, returns 0.
  */
-UNS8 SDOtoLine(CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8 * data);
+UNS8 SDOtoLine(CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data);
 
 /** 
  * @brief Called when an internal SDO abort occurs.
@@ -179,7 +179,7 @@ UNS8 failedSDO(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index, UNS8 subIn
  * @param *d Pointer on a CAN object data structure
  * @param line SDO line
  */
-void resetSDOline(CO_Data* d, UNS8 line);
+void resetSDOLine(CO_Data* d, UNS8 line);
 
 /** 
  * @brief Initialize some fields of the structure.
@@ -191,7 +191,7 @@ void resetSDOline(CO_Data* d, UNS8 line);
  * @param state
  * @return 0
  */
-UNS8 initSDOline(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS8 state);
+UNS8 initSDOLine(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS8 state);
 
 /** 
  * @brief Search for an unused line in the transfers array
@@ -203,7 +203,7 @@ UNS8 initSDOline(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIn
  * @param line Pointer on a SDO line 
  * @return 0xFF if all the lines are on use. Else, return 0.
  */
-UNS8 getSDOfreeLine(CO_Data* d, UNS8 whoami, UNS8 *line);
+UNS8 getSDOFreeLine(CO_Data* d, UNS8 whoami, UNS8 *line);
 
 /** 
  * @brief Search for the line in the transfers array that contains the
@@ -214,14 +214,14 @@ UNS8 getSDOfreeLine(CO_Data* d, UNS8 whoami, UNS8 *line);
  * @param line Pointer on a SDO line 
  * @return 0xFF if error.  Else, return 0
  */
-UNS8 getSDOlineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line);
+UNS8 getSDOLineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line);
 
 /** 
  * @brief Search for the line in the transfers array that contains the
  * beginning of the reception of a fragmented SDO
  *
- * Because getSDOlineOnUse() does not return any line in state \c SDO_ABORTED_INTERNAL,
- * this funtion is used to return them, too.
+ * Because getSDOLineOnUse() does not return any line in state \c SDO_ABORTED_INTERNAL,
+ * this function is used to return them, too.
  *
  * @param d Pointer on a CAN object data structure
  * @param CliServNbr Client or Server object involved
@@ -229,7 +229,7 @@ UNS8 getSDOlineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line);
  * @param line Pointer on a SDO line
  * @return 0xFF if error.  Else, return 0
  */
-UNS8 getSDOlineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line);
+UNS8 getSDOLineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line);
 
 /** 
  * @brief Close a transmission.
@@ -237,7 +237,7 @@ UNS8 getSDOlineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line);
  * @param CliServNbr Client or Server object involved
  * @param whoami Line opened as SDO_CLIENT or SDO_SERVER
  */
-UNS8 closeSDOtransfer(CO_Data* d, UNS8 CliServNbr, UNS8 whoami);
+UNS8 closeSDOTransfer(CO_Data* d, UNS8 CliServNbr, UNS8 whoami);
 
 /** 
  * @brief Bytes in the line structure that must be transmitted (or received)
@@ -246,7 +246,7 @@ UNS8 closeSDOtransfer(CO_Data* d, UNS8 CliServNbr, UNS8 whoami);
  * @param nbBytes Pointer on nbBytes
  * @return 0.
  */
-UNS8 getSDOlineRestBytes(CO_Data* d, UNS8 line, UNS32* nbBytes);
+UNS8 getSDOLineRestBytes(CO_Data* d, UNS8 line, UNS32* nbBytes);
 
 /** 
  * @brief Store in the line structure the number of bytes that must be transmitted (or received)
@@ -255,7 +255,7 @@ UNS8 getSDOlineRestBytes(CO_Data* d, UNS8 line, UNS32* nbBytes);
  * @param nbBytes
  * @return 0 if success, 0xFF if error.
  */
-UNS8 setSDOlineRestBytes(CO_Data* d, UNS8 line, UNS32 nbBytes);
+UNS8 setSDOLineRestBytes(CO_Data* d, UNS8 line, UNS32 nbBytes);
 
 /**
  * @brief Transmit an SDO frame on the bus bus_id
@@ -281,7 +281,7 @@ UNS8 sendSDO(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8* pData);
  * @param abortCode
  * @return 0
  */
-UNS8 sendSDOabort(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS32 abortCode);
+UNS8 sendSDOAbort(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS32 abortCode);
 
 /** 
  * @brief Process an SDO frame reception
@@ -350,7 +350,7 @@ UNS8 writeNetworkDictCallBack(CO_Data* d, UNS8 nodeId, UNS16 index,
  * @brief Used to send an SDO request frame to write into a remote node dictionary.
  * @details The function Callback which must be defined in the user code is called at the
  * end of the exchange. (on success or abort). First free SDO client parameter is
- * automatically initialized for specific node if not already defined.
+ * automatically initialized for specific node if not already defined. (AI: Automatic Initialization)
  * @param d Pointer to a CAN object data structure
  * @param nodeId Node Id of the slave
  * @param index At index indicated
@@ -410,7 +410,7 @@ UNS8 readNetworkDictCallback(CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIndex
  * @brief Used to send an SDO request frame to read from a remote node dictionary.
  * @details The function Callback which must be defined in the user code is called at the
  * end of the exchange. (on success or abort). First free SDO client parameter is
- * automatically initialized for specific node if not already defined.
+ * automatically initialized for specific node if not already defined. (AI: Automatic Initialization)
  * @param d Pointer on a CAN object data structure
  * @param nodeId Node Id of the slave
  * @param index At index indicated

@@ -79,7 +79,7 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
 		eprintf("Master : Failed in initializing slave %2.2x, step %d, AbortCode :%4.4x \n", nodeId, init_step, abortCode);
 
 	/* Finalise last SDO transfer with this node */
-	closeSDOtransfer(&TestMaster_Data, nodeId, SDO_CLIENT);
+	closeSDOTransfer(&TestMaster_Data, nodeId, SDO_CLIENT);
 
 	ConfigureSlaveNode(d, nodeId);
 }
@@ -198,7 +198,7 @@ static void CheckSDO(CO_Data* d, UNS8 nodeId)
 		eprintf("Master : Failed in changing Slave's transmit type AbortCode :%4.4x \n", abortCode);
 
 	/* Finalise last SDO transfer with this node */
-	closeSDOtransfer(&TestMaster_Data, nodeId, SDO_CLIENT);
+	closeSDOTransfer(&TestMaster_Data, nodeId, SDO_CLIENT);
 }
 
 
