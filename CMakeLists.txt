@@ -94,6 +94,11 @@ if(BUILD_EXAMPLES)
         examples/linux/dcf/od/masterdic.c
     )
 
+    set(SLAVE_UPDATE_SRC
+        examples/linux/dcf/slave_update.cpp
+        examples/linux/dcf/od/update_firmware.c
+    )
+
     set(LINK_LIBS canfestival canfestival_can_socket pthread dl rt)
     set(INCLUDE_DIRS
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -116,6 +121,11 @@ if(BUILD_EXAMPLES)
     target_link_libraries(slave_cpp PRIVATE ${LINK_LIBS})
     target_include_directories(slave_cpp PRIVATE ${INCLUDE_DIRS})
     install(TARGETS slave_cpp RUNTIME DESTINATION bin)
+
+    add_executable(slave_update ${SLAVE_UPDATE_SRC})
+    target_link_libraries(slave_update PRIVATE ${LINK_LIBS})
+    target_include_directories(slave_update PRIVATE ${INCLUDE_DIRS})
+    install(TARGETS slave_update RUNTIME DESTINATION bin)
 
     add_executable(master_cpp ${MASTER_APP_CPP_SRC})
     target_link_libraries(master_cpp PRIVATE ${LINK_LIBS})

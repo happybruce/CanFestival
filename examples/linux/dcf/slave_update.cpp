@@ -26,9 +26,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <unistd.h>
 #include <signal.h>
 
-#include "slavedic.h"
+#include "update_firmware.h"
 #include "canfestival.h"
 
+
+
+CO_Data* objDictData = &update_firmware_ObjDictData;
 
 static s_BOARD SlaveBoard0 = {"0", ""};
 static char Run;
@@ -42,17 +45,17 @@ void display_usage(char *prog)
 }
 
 /* A callback called when position is written */
-UNS32 callback_on_position(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
-{
-    printf("position have been set to %d\n", position);
-    return 0;
-}
+// UNS32 callback_on_position(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
+// {
+//     printf("position have been set to %d\n", position);
+//     return 0;
+// }
 
-UNS32 callback_on_4003h(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
-{
-    printf("Set value to 4003h :  %d\n", hehe);
-    return 0;
-}
+// UNS32 callback_on_4003h(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
+// {
+//     printf("Set value to 4003h :  %d\n", hehe);
+//     return 0;
+// }
 
 /* A callback called when node state changes */
 void state_change(CO_Data* d)
@@ -79,7 +82,7 @@ void state_change(CO_Data* d)
 
 void Exit(CO_Data* d, UNS32 id)
 {
-    setState(&slavedic_Data, Stopped);
+    setState(objDictData, Stopped);
     printf("Program terminating\n");
 }
 
@@ -113,43 +116,38 @@ int main(int argc,char **argv)
     printf("Starting on %s with node id = %u\n", SlaveBoard0.busname, nodeid);
 
     // register the callbacks we use
-    RegisterSetODentryCallBack(&slavedic_Data, 0x2001, 0, callback_on_position);
-    RegisterSetODentryCallBack(&slavedic_Data, 0x4003, 0, callback_on_4003h);
-    slavedic_Data.initialisation=state_change;
-    slavedic_Data.preOperational=state_change;
-    slavedic_Data.operational=state_change;
-    slavedic_Data.stopped=state_change;
+    // RegisterSetODentryCallBack(&slavedic_Data, 0x2001, 0, callback_on_position);
+    // RegisterSetODentryCallBack(&slavedic_Data, 0x4003, 0, callback_on_4003h);
+    // slavedic_Data.initialisation=state_change;
+    // slavedic_Data.preOperational=state_change;
+    // slavedic_Data.operational=state_change;
+    // slavedic_Data.stopped=state_change;
 
-    // Init Canfestival
-    // if (LoadCanDriver("./libcanfestival_can_socket.so") == NULL){
-    //     printf("Unable to load driver library\n");
-    //     printf("please put file libcanfestival_can_socket.so in the current directory\n");
-    //     exit(1);
-    // }
-    if(!canOpen(&SlaveBoard0,&slavedic_Data))
+
+    if(!canOpen(&SlaveBoard0, objDictData))
     {
         printf("Cannot open can interface %s\n",SlaveBoard0.busname);
         exit(1);
     }
 
     TimerInit();
-    setNodeId(&slavedic_Data, nodeid);
-    setState(&slavedic_Data, Initialisation);
+    setNodeId(objDictData, nodeid);
+    setState(objDictData, Initialisation);
 
     printf("Canfestival initialisation done\n");
     Run = 1;
     while(Run)
     {
         sleep(1);
-        EnterMutex();
-        counter += nodeid;
-        LeaveMutex();
+        // EnterMutex();
+        // counter += nodeid;
+        // LeaveMutex();
     }
 
     // Stop timer thread
     StopTimerLoop(&Exit);
     // Close CAN devices (and can threads)
-    canClose(&slavedic_Data);
+    canClose(objDictData);
     return 0;
 
 }
