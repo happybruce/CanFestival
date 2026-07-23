@@ -58,7 +58,7 @@ typedef void (*SDOCallback_t)(CO_Data* d, UNS8 nodeId);
  * - the reading of the dictionary to put on a SDO to transmit
  * WARNING: after a change in this structure, check the s_transfer_Initializer macro in data.h
  */
-struct struct_s_transfer {
+typedef struct {
   UNS8           CliServNbr; /**< The index of the SDO client/server in our OD minus 0x1280 / 0x1200 */
 
   UNS8           whoami;     /**< Takes the values SDO_CLIENT or SDO_SERVER */
@@ -76,7 +76,7 @@ struct struct_s_transfer {
                               * WARNING s_transfer.data is subject to ENDIANISATION
                               * (with respect to CANOPEN_BIG_ENDIAN)
                               */
-  UNS8           data [SDO_MAX_LENGTH_TRANSFER];
+  UNS8           data[SDO_MAX_LENGTH_TRANSFER];
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
   UNS8           *dynamicData;
   UNS32          dynamicDataSize;
@@ -103,8 +103,8 @@ struct struct_s_transfer {
                               * when the response SDO have been received.
                               */
   SDOCallback_t  Callback;   /**< The user callback func to be called at SDO transaction end */
-};
-typedef struct struct_s_transfer s_transfer;
+} s_transfer;
+
 
 /** 
  * @brief Reset an SDO exchange on timeout.

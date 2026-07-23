@@ -32,14 +32,12 @@
 /* #define DEBUG_WAR_CONSOLE_ON */
 /* #define DEBUG_ERR_CONSOLE_ON */
 
-#include <stdlib.h>
 
 #include "sdo.h"
 #include "def.h"
 #include "states.h"
 #include "sysdep.h"
 #include "canfestival.h"
-#include "data.h"
 #include "objaccessinternal.h"
 
 /* Uncomment if your compiler does not support inline functions */
@@ -181,17 +179,39 @@ void SDOTimeoutAlarm(CO_Data* d, UNS32 id)
     }
 }
 
-#define StopSDO_TIMER(line) \
-    MSG_WAR(0x3A05, "StopSDO_TIMER for line : ", line);\
-d->transfers[line].timer = DelAlarm(d->transfers[line].timer);
+void StopSDO_TIMER(CO_Data* d, UNS8 line)
+{
+    if (d)
+    {
+        MSG_WAR(0x3A05, "StopSDO_TIMER for line : ", line);
+        d->transfers[line].timer = DelAlarm(d->transfers[line].timer);
+    }
+}
 
-#define StartSDO_TIMER(line) \
-    MSG_WAR(0x3A06, "StartSDO_TIMER for line : ", line);\
-d->transfers[line].timer = SetAlarm(d,line,&SDOTimeoutAlarm,(TIMEVAL)MS_TO_TIMEVAL(SDO_TIMEOUT_MS),0);
 
-#define RestartSDO_TIMER(line) \
-    MSG_WAR(0x3A07, "restartSDO_TIMER for line : ", line);\
-if(d->transfers[line].timer != TIMER_NONE) { StopSDO_TIMER(line) StartSDO_TIMER(line) }
+void StartSDO_TIMER(CO_Data* d, UNS8 line)
+{
+    if (d)
+    {
+        MSG_WAR(0x3A06, "StartSDO_TIMER for line : ", line);
+        d->transfers[line].timer = SetAlarm(d, line, &SDOTimeoutAlarm, (TIMEVAL)MS_TO_TIMEVAL(SDO_TIMEOUT_MS), 0);
+    }
+}
+
+
+void RestartSDO_TIMER(CO_Data* d, UNS8 line)
+{
+    if (d)
+    {
+        MSG_WAR(0x3A07, "restartSDO_TIMER for line : ", line);
+        if(d->transfers[line].timer != TIMER_NONE)
+        { 
+            StopSDO_TIMER(d, line);
+            StartSDO_TIMER(d, line);
+        }
+    }
+}
+
 
 /*!
  ** Reset all sdo buffers
@@ -200,24 +220,14 @@ if(d->transfers[line].timer != TIMER_NONE) { StopSDO_TIMER(line) StartSDO_TIMER(
  **/
 void resetSDO (CO_Data* d)
 {
-    UNS8 j;
-
     /* transfer structure initialization */
-    for (j = 0 ; j < SDO_MAX_SIMULTANEOUS_TRANSFERS ; j++)
+    for (UNS8 j = 0 ; j < SDO_MAX_SIMULTANEOUS_TRANSFERS ; j++)
     {
         resetSDOLine(d, j);
     }
-        
 }
 
-/*!
- **
- **
- ** @param d
- ** @param line
- **
- ** @return
- **/
+
 UNS32 SDOLineToObjDict (CO_Data* d, UNS8 line)
 {
     UNS32 size;
@@ -232,12 +242,12 @@ UNS32 SDOLineToObjDict (CO_Data* d, UNS8 line)
     size = d->transfers[line].count;
 
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
-    if (size > SDO_MAX_LENGTH_TRANSFER)
+    if (size > SDO_MAX_LENGTH_TRANSFER) // Use dynamic buffer, need to allocate memory
     {
         errorCode = setODentry(d, d->transfers[line].index, d->transfers[line].subIndex,
                 (void *) d->transfers[line].dynamicData, &size, 1);
     }
-    else
+    else // Use stack array, do not need dynamic allocation
     {
         errorCode = setODentry(d, d->transfers[line].index, d->transfers[line].subIndex,
                 (void *) d->transfers[line].data, &size, 1);
@@ -257,14 +267,7 @@ UNS32 SDOLineToObjDict (CO_Data* d, UNS8 line)
 
 }
 
-/*!
- **
- **
- ** @param d
- ** @param line
- **
- ** @return
- **/
+
 UNS32 objDictToSDOLine(CO_Data* d, UNS8 line)
 {
     UNS32  size = SDO_MAX_LENGTH_TRANSFER;
@@ -392,69 +395,66 @@ UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
 UNS8 SDOtoLine (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
 {
     UNS32 i = 0;
-    UNS32 offset = 0;
-    UNS32 requiredSize = 0;
+    UNS32 offset = d->transfers[line].offset;
+
 #ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
-    if ((d->transfers[line].offset + nbBytes) > SDO_MAX_LENGTH_TRANSFER)
+    if ((offset + nbBytes) > SDO_MAX_LENGTH_TRANSFER)
     {
         MSG_ERR(0x1A15,"SDO Size of data too large. Exceed SDO_MAX_LENGTH_TRANSFER", nbBytes);
         return 0xFF;
     }
-#endif //SDO_DYNAMIC_BUFFER_ALLOCATION
+#endif
 
-    offset = d->transfers[line].offset;
-    requiredSize = offset + nbBytes;
 
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
+    UNS32 requiredSize = offset + nbBytes;
+    UNS8* lineData = d->transfers[line].data;
+    UNS32 newDynamicDataSize = 0;
+    if (requiredSize > SDO_MAX_LENGTH_TRANSFER)
     {
-        UNS8* lineData = d->transfers[line].data;
-        UNS32 newDynamicDataSize = 0;
-        if (requiredSize > SDO_MAX_LENGTH_TRANSFER)
+        if (d->transfers[line].dynamicData == NULL)
         {
+            newDynamicDataSize = SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
+            if (newDynamicDataSize < requiredSize)
+            {
+                newDynamicDataSize = requiredSize;
+            }
+            d->transfers[line].dynamicData = (UNS8*) malloc(newDynamicDataSize);
+            d->transfers[line].dynamicDataSize = newDynamicDataSize;
+
             if (d->transfers[line].dynamicData == NULL)
             {
-                newDynamicDataSize = SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
-                if (newDynamicDataSize < requiredSize)
-                {
-                    newDynamicDataSize = requiredSize;
-                }
-                d->transfers[line].dynamicData = (UNS8*) malloc(newDynamicDataSize);
-                d->transfers[line].dynamicDataSize = newDynamicDataSize;
-
-                if (d->transfers[line].dynamicData == NULL)
-                {
-                    MSG_ERR(0x1A15,"SDO allocating dynamic buffer failed, size", d->transfers[line].dynamicDataSize);
-                    return 0xFF;
-                }
-                /* Copy present data */
-                memcpy(d->transfers[line].dynamicData, d->transfers[line].data, offset);
+                MSG_ERR(0x1A15,"SDO allocating dynamic buffer failed, size", d->transfers[line].dynamicDataSize);
+                return 0xFF;
             }
-            else if (requiredSize > d->transfers[line].dynamicDataSize)
-            {
-                UNS8* newDynamicBuffer = NULL;
-
-                newDynamicDataSize = d->transfers[line].dynamicDataSize+SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
-                if (newDynamicDataSize < requiredSize)
-                {
-                    newDynamicDataSize = requiredSize;
-                }
-
-                newDynamicBuffer = (UNS8*) realloc(d->transfers[line].dynamicData, newDynamicDataSize);
-                if (newDynamicBuffer == NULL)
-                {
-                    MSG_ERR(0x1A15,"SDO reallocating dynamic buffer failed, size", newDynamicDataSize);
-                    return 0xFF;
-                }
-                d->transfers[line].dynamicData = newDynamicBuffer;
-                d->transfers[line].dynamicDataSize = newDynamicDataSize;
-            }
-            lineData = d->transfers[line].dynamicData;
+            /* Copy present data */
+            memcpy(d->transfers[line].dynamicData, d->transfers[line].data, offset);
         }
-
-        for (i = 0; i < nbBytes; i++)
+        else if (requiredSize > d->transfers[line].dynamicDataSize)
         {
-            lineData[offset + i] = *(data + i);
+            UNS8* newDynamicBuffer = NULL;
+
+            newDynamicDataSize = d->transfers[line].dynamicDataSize+SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
+            if (newDynamicDataSize < requiredSize)
+            {
+                newDynamicDataSize = requiredSize;
+            }
+
+            newDynamicBuffer = (UNS8*) realloc(d->transfers[line].dynamicData, newDynamicDataSize);
+            if (newDynamicBuffer == NULL)
+            {
+                MSG_ERR(0x1A15,"SDO reallocating dynamic buffer failed, size", newDynamicDataSize);
+                return 0xFF;
+            }
+            d->transfers[line].dynamicData = newDynamicBuffer;
+            d->transfers[line].dynamicDataSize = newDynamicDataSize;
         }
+        lineData = d->transfers[line].dynamicData;
+    }
+
+    for (i = 0; i < nbBytes; i++)
+    {
+        lineData[offset + i] = *(data + i);
     }
 #else //SDO_DYNAMIC_BUFFER_ALLOCATION
     for (i = 0; i < nbBytes; i++)
@@ -463,6 +463,7 @@ UNS8 SDOtoLine (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
     }
 #endif //SDO_DYNAMIC_BUFFER_ALLOCATION
 
+    // Update offset 
     d->transfers[line].offset = d->transfers[line].offset + nbBytes;
     return 0;
 }
@@ -498,7 +499,7 @@ UNS8 failedSDO(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
 
     if ((!err) && (whoami == SDO_CLIENT))
     {
-        StopSDO_TIMER(line);
+        StopSDO_TIMER(d, line);
         d->transfers[line].state = SDO_ABORTED_INTERNAL;
         d->transfers[line].abortCode = abortCode;
     }
@@ -520,10 +521,9 @@ UNS8 failedSDO(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
  **/
 void resetSDOLine(CO_Data* d, UNS8 line)
 {
-    UNS32 i;
     MSG_WAR(0x3A25, "reset SDO line nb : ", line);
     initSDOLine(d, line, 0, 0, 0, SDO_RESET);
-    for (i = 0; i < SDO_MAX_LENGTH_TRANSFER; i++)
+    for (UNS32 i = 0; i < SDO_MAX_LENGTH_TRANSFER; i++)
     {
         d->transfers[line].data[i] = 0;
     }
@@ -549,11 +549,11 @@ UNS8 initSDOLine(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIn
     if (state == SDO_DOWNLOAD_IN_PROGRESS       || state == SDO_UPLOAD_IN_PROGRESS ||
         state == SDO_BLOCK_DOWNLOAD_IN_PROGRESS || state == SDO_BLOCK_UPLOAD_IN_PROGRESS)
     {
-        StartSDO_TIMER(line)
+        StartSDO_TIMER(d, line);
     }
     else
     {
-        StopSDO_TIMER(line)
+        StopSDO_TIMER(d, line);
     }
     d->transfers[line].CliServNbr = CliServNbr;
     d->transfers[line].index = index;
@@ -592,19 +592,19 @@ UNS8 initSDOLine(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIn
  **
  ** @return
  **/
-UNS8 getSDOFreeLine( CO_Data* d, UNS8 whoami, UNS8 *line )
+UNS8 getSDOFreeLine(CO_Data* d, UNS8 whoami, UNS8* line)
 {
-    UNS8 i = 0;
-    for (i = 0 ; i < SDO_MAX_SIMULTANEOUS_TRANSFERS ; i++)
+    for (UNS8 i = 0 ; i < SDO_MAX_SIMULTANEOUS_TRANSFERS ; i++)
     {
         if ( d->transfers[i].state == SDO_RESET )
         {
             *line = i;
             d->transfers[i].whoami = whoami;
             return 0;
-        } /* end if */
-    } /* end for */
-    MSG_ERR(0x1A25, "Too many SDO in progress. Aborted.", i);
+        }
+    }
+
+    MSG_ERR(0x1A25, "Too many SDO in progress. Aborted.", SDO_MAX_SIMULTANEOUS_TRANSFERS);
     return 0xFF;
 }
 
@@ -618,10 +618,9 @@ UNS8 getSDOFreeLine( CO_Data* d, UNS8 whoami, UNS8 *line )
  **
  ** @return
  **/
-UNS8 getSDOLineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
+UNS8 getSDOLineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
 {
-    UNS8 i = 0;
-    for (i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
+    for (UNS8 i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
     {
         if ( (d->transfers[i].state != SDO_RESET) &&
              (d->transfers[i].state != SDO_ABORTED_INTERNAL) &&
@@ -645,7 +644,7 @@ UNS8 getSDOLineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
  **
  ** @return
  **/
-UNS8 getSDOLineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
+UNS8 getSDOLineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
 {
     UNS8 i = 0;
     for (i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
@@ -675,9 +674,9 @@ UNS8 closeSDOTransfer(CO_Data* d, UNS8 nodeId, UNS8 whoami)
 {
     UNS8 err;
     UNS8 line;
-    UNS8 CliNbr;
+
     /* First let's find the corresponding SDO client in our OD  */
-    CliNbr = GetSDOClientFromNodeId(d, nodeId);
+    UNS8 CliNbr = GetSDOClientFromNodeId(d, nodeId);
     if(CliNbr >= 0xFE)
     {
         return SDO_ABORTED_INTERNAL;
@@ -752,7 +751,6 @@ UNS8 setSDOLineRestBytes(CO_Data* d, UNS8 line, UNS32 nbBytes)
 UNS8 sendSDO(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8* pData)
 {
     UNS16 offset;
-    UNS8 i;
     Message m;
 
     MSG_WAR(0x3A38, "sendSDO",0);
@@ -790,7 +788,7 @@ UNS8 sendSDO(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8* pData)
     m.rtr = NOT_A_REQUEST;
     /* the length of SDO must be 8 */
     m.len = 8;
-    for (i = 0 ; i < 8 ; i++)
+    for (UNS8 i = 0 ; i < 8 ; i++)
     {
         m.data[i] = pData[i];
     }
@@ -831,14 +829,77 @@ UNS8 sendSDOAbort(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 su
     return ret;
 }
 
-/*!
- **
- **
- ** @param d
- ** @param m
- **
- ** @return
- **/
+
+UNS8 getWhoAmI(CO_Data* d, UNS32 msgCobId, UNS8* CliServNbrPtr, UNS8* nodeIdPtr)
+{
+    UNS8 whoami = SDO_UNKNOWN;
+    UNS16 currentIndex = d->firstIndex->SDO_SVR;
+    UNS16 lastIndex = d->lastIndex->SDO_SVR;
+
+    if(currentIndex)
+    {
+        while (currentIndex <= lastIndex)
+        {
+            UNS16 numSRV = currentIndex - d->firstIndex->SDO_SVR;
+            if (d->objdict[currentIndex].bSubCount <= 1)
+            {
+                MSG_ERR(0x1A61, "Subindex 1 not found at index ", 0x1200 + numSRV);
+                return 0xFF;
+            }
+            /* Looking for the cobid received. */
+            if (READ_UNS32(d->objdict, currentIndex, 1) == msgCobId)
+            {
+                whoami = SDO_SERVER;
+                MSG_WAR(0x3A62, "proceedSDO. I am server. index : ", 0x1200 + numSRV);
+                /* Defining Server number = index minus 0x1200 where the cobid received is defined. */
+                *CliServNbrPtr = numSRV;
+                break;
+            }
+
+            currentIndex++;
+        } /* end while */
+    }
+
+    if (whoami == SDO_UNKNOWN)
+    {
+        /* Am-I client ? */
+        currentIndex = d->firstIndex->SDO_CLT;
+        lastIndex = d->lastIndex->SDO_CLT;
+        if(currentIndex)
+        {
+            while (currentIndex <= lastIndex)
+            {
+                UNS16 numCLT = currentIndex - d->firstIndex->SDO_CLT;
+                if (d->objdict[currentIndex].bSubCount <= 3)
+                {
+                    MSG_ERR(0x1A63, "Subindex 3 not found at index ", 0x1280 + numCLT);
+                    return 0xFF;
+                }
+                /* Looking for the cobid received. */
+                if (READ_UNS32(d->objdict, currentIndex, 2) == msgCobId)
+                {
+                    whoami = SDO_CLIENT;
+                    MSG_WAR(0x3A64, "proceedSDO. I am client index : ", 0x1280 + numCLT);
+                    /* Defining Client number = index minus 0x1280 where the cobid received is defined. */
+                    *CliServNbrPtr = numCLT;
+                    /* Reading the server node ID, if client it is mandatory in the OD */
+                    *nodeIdPtr = READ_UNS8(d->objdict, currentIndex, 3);
+                    break;
+                }
+
+                currentIndex++;
+            } /* end while */
+        } 
+    }
+
+    return whoami;
+}
+
+UNS8 serverDownloadSegData();
+UNS8 clientUploadSegData();
+
+
+
 UNS8 proceedSDO(CO_Data* d, Message* m)
 {
     UNS8 err;
@@ -854,76 +915,79 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
     UNS8 subIndex;
     UNS32 abortCode;
     UNS32 i;
-    UNS8 j;
-    UNS16 offset;
-    UNS16 lastIndex;
+    // UNS8 j;
+    // UNS16 offset;
+    // UNS16 lastIndex;
     UNS8 SubCommand;    /* Block transfer only */
     UNS8 SeqNo;         /* Sequence number in block transfer */
     UNS8 AckSeq;        /* Sequence number of last segment that was received successfully */
     UNS8 NbBytesNoData; /* Number of bytes that do not contain data in last segment of block transfer */ 
-
+    UNS32 msgCobId = UNS16_LE(m->cob_id);
+    UNS8 commandByte = m->data[0];
     MSG_WAR(0x3A60, "proceedSDO ", 0);
-    whoami = SDO_UNKNOWN;
+
     /* Looking for the cobId in the object dictionary. */
     /* Am-I a server ? */
-    offset = d->firstIndex->SDO_SVR;
-    lastIndex = d->lastIndex->SDO_SVR;
-    j = 0;
+    whoami = getWhoAmI(d, msgCobId, &CliServNbr, &nodeId);
 
-    if(offset)
-    {
-        while (offset <= lastIndex)
-        {
-            if (d->objdict[offset].bSubCount <= 1)
-            {
-                MSG_ERR(0x1A61, "Subindex 1  not found at index ", 0x1200 + j);
-                return 0xFF;
-            }
-            /* Looking for the cobid received. */
-            if (READ_UNS32(d->objdict, offset, 1) == UNS16_LE(m->cob_id) )
-            {
-                whoami = SDO_SERVER;
-                MSG_WAR(0x3A62, "proceedSDO. I am server. index : ", 0x1200 + j);
-                /* Defining Server number = index minus 0x1200 where the cobid received is defined. */
-                CliServNbr = j;
-                break;
-            }
-            j++;
-            offset++;
-        } /* end while */
-    }
+    // offset = d->firstIndex->SDO_SVR;
+    // lastIndex = d->lastIndex->SDO_SVR;
+    // j = 0;
 
-    if (whoami == SDO_UNKNOWN)
-    {
-        /* Am-I client ? */
-        offset = d->firstIndex->SDO_CLT;
-        lastIndex = d->lastIndex->SDO_CLT;
-        j = 0;
-        if(offset)
-        {
-            while (offset <= lastIndex)
-            {
-                if (d->objdict[offset].bSubCount <= 3)
-                {
-                    MSG_ERR(0x1A63, "Subindex 3  not found at index ", 0x1280 + j);
-                    return 0xFF;
-                }
-                /* Looking for the cobid received. */
-                if (READ_UNS32(d->objdict, offset, 2) == UNS16_LE(m->cob_id) )
-                {
-                    whoami = SDO_CLIENT;
-                    MSG_WAR(0x3A64, "proceedSDO. I am client index : ", 0x1280 + j);
-                    /* Defining Client number = index minus 0x1280 where the cobid received is defined. */
-                    CliServNbr = j;
-                    /* Reading the server node ID, if client it is mandatory in the OD */
-                    nodeId = READ_UNS8(d->objdict, offset, 3);
-                    break;
-                }
-                j++;
-                offset++;
-            } /* end while */
-        } 
-    }
+    // if(offset)
+    // {
+    //     while (offset <= lastIndex)
+    //     {
+    //         if (d->objdict[offset].bSubCount <= 1)
+    //         {
+    //             MSG_ERR(0x1A61, "Subindex 1  not found at index ", 0x1200 + j);
+    //             return 0xFF;
+    //         }
+    //         /* Looking for the cobid received. */
+    //         if (READ_UNS32(d->objdict, offset, 1) == msgCobId )
+    //         {
+    //             whoami = SDO_SERVER;
+    //             MSG_WAR(0x3A62, "proceedSDO. I am server. index : ", 0x1200 + j);
+    //             /* Defining Server number = index minus 0x1200 where the cobid received is defined. */
+    //             CliServNbr = j;
+    //             break;
+    //         }
+    //         j++;
+    //         offset++;
+    //     } /* end while */
+    // }
+
+    // if (whoami == SDO_UNKNOWN)
+    // {
+    //     /* Am-I client ? */
+    //     offset = d->firstIndex->SDO_CLT;
+    //     lastIndex = d->lastIndex->SDO_CLT;
+    //     j = 0;
+    //     if(offset)
+    //     {
+    //         while (offset <= lastIndex)
+    //         {
+    //             if (d->objdict[offset].bSubCount <= 3)
+    //             {
+    //                 MSG_ERR(0x1A63, "Subindex 3  not found at index ", 0x1280 + j);
+    //                 return 0xFF;
+    //             }
+    //             /* Looking for the cobid received. */
+    //             if (READ_UNS32(d->objdict, offset, 2) == msgCobId )
+    //             {
+    //                 whoami = SDO_CLIENT;
+    //                 MSG_WAR(0x3A64, "proceedSDO. I am client index : ", 0x1280 + j);
+    //                 /* Defining Client number = index minus 0x1280 where the cobid received is defined. */
+    //                 CliServNbr = j;
+    //                 /* Reading the server node ID, if client it is mandatory in the OD */
+    //                 nodeId = READ_UNS8(d->objdict, offset, 3);
+    //                 break;
+    //             }
+    //             j++;
+    //             offset++;
+    //         } /* end while */
+    //     } 
+    // }
     
     if (whoami == SDO_UNKNOWN)
     {
@@ -931,7 +995,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
     }
 
     /* Test if the size of the SDO is ok */
-    if ( (*m).len != 8)
+    if (m->len != 8)
     {
         MSG_ERR(0x1A67, "Error size SDO", 0);
         failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_GENERAL_ERROR);
@@ -958,7 +1022,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
         if (((whoami == SDO_SERVER) && (d->transfers[line].state == SDO_BLOCK_DOWNLOAD_IN_PROGRESS)) ||
             ((whoami == SDO_CLIENT) && (d->transfers[line].state == SDO_BLOCK_UPLOAD_IN_PROGRESS))) 
         {        
-            if(m->data[0] == 0x80)    /* If first byte is 0x80 it is an abort frame (seqno = 0 not allowed) */
+            if(commandByte == 0x80)    /* If first byte is 0x80 it is an abort frame (seqno = 0 not allowed) */
                 cs = 4;
             else
                 cs = 6;
@@ -967,7 +1031,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
     /* Other cases : cs is specified */
     if (cs == 0xFF)
     {
-        cs = getSDOcs(m->data[0]);
+        cs = getSDOcs(commandByte);
     }
 
 
@@ -993,12 +1057,13 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     return 0xFF;
                 }
                 /* Reset the wathdog */
-                RestartSDO_TIMER(line)
-                    MSG_WAR(0x3A71, "Received SDO download segment defined at index 0x1200 + ", CliServNbr);
+                RestartSDO_TIMER(d, line);
+                MSG_WAR(0x3A71, "Received SDO download segment defined at index 0x1200 + ", CliServNbr);
                 index = d->transfers[line].index;
                 subIndex = d->transfers[line].subIndex;
                 /* Toggle test. */
-                if (d->transfers[line].toggle != getSDOt(m->data[0])) {
+                if (d->transfers[line].toggle != getSDOt(m->data[0]))
+                {
                     MSG_ERR(0x1A72, "SDO error : Toggle error : ", getSDOt(m->data[0]));
                     failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
                     return 0xFF;
@@ -1007,14 +1072,18 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                 nbBytes = 7 - getSDOn3(m->data[0]);
                 /* Store the data in the transfer structure. */
                 err = SDOtoLine(d, line, nbBytes, (*m).data + 1);
-                if (err) {
+                if (err)
+                {
                     failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
                     return 0xFF;
                 }
                 /* Sending the SDO response, CS = 1 */
                 data[0] = (UNS8)((1 << 5) | (d->transfers[line].toggle << 4));
                 for (i = 1 ; i < 8 ; i++)
+                { 
                     data[i] = 0;
+                }
+
                 MSG_WAR(0x3A73, "SDO. Send response to download request defined at index 0x1200 + ", CliServNbr);
                 sendSDO(d, whoami, CliServNbr, data);
                 /* Inverting the toggle for the next segment. */
@@ -1051,7 +1120,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     return 0xFF;
                 }
                 /* Reset the wathdog */
-                RestartSDO_TIMER(line)
+                RestartSDO_TIMER(d, line);
                 index = d->transfers[line].index;
                 subIndex = d->transfers[line].subIndex;
                 /* test of the toggle; */
@@ -1073,12 +1142,12 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                 /* Inverting the toggle for the next segment. */
                 d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
                 /* If it was the last segment,*/
-                if ( getSDOc(m->data[0]))
+                if (getSDOc(m->data[0]))
                 {
                     /* Put in state finished */
                     /* The code is safe for the case e=s=0 in initiate frame. */
-                    StopSDO_TIMER(line)
-                        d->transfers[line].state = SDO_FINISHED;
+                    StopSDO_TIMER(d, line);
+                    d->transfers[line].state = SDO_FINISHED;
                     if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
 
                     MSG_WAR(0x3A77, "SDO. End of upload from node : ", nodeId);
@@ -1186,8 +1255,8 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     return 0xFF;
                 }
                 /* Reset the wathdog */
-                RestartSDO_TIMER(line)
-                    index = d->transfers[line].index;
+                RestartSDO_TIMER(d, line);
+                index = d->transfers[line].index;
                 subIndex = d->transfers[line].subIndex;
                 /* test of the toggle; */
                 if (d->transfers[line].toggle != getSDOt(m->data[0]))
@@ -1202,8 +1271,8 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                 if (nbBytes == 0)
                 {
                     MSG_WAR(0x3A87, "SDO End download. segment response received. OK. from nodeId", nodeId);
-                    StopSDO_TIMER(line)
-                        d->transfers[line].state = SDO_FINISHED;
+                    StopSDO_TIMER(d, line);
+                    d->transfers[line].state = SDO_FINISHED;
                     if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
                     return 0x00;
                 }
@@ -1332,8 +1401,8 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     return 0xFF;
                 }
                 /* Reset the wathdog */
-                RestartSDO_TIMER(line)
-                    index = d->transfers[line].index;
+                RestartSDO_TIMER(d, line);
+                index = d->transfers[line].index;
                 subIndex = d->transfers[line].subIndex;
 
                 if (getSDOe(m->data[0])) /* If SDO expedited */
@@ -1348,8 +1417,8 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     }
                     /* SDO expedited -> transfer finished. data are available via  getReadResultNetworkDict(). */
                     MSG_WAR(0x3A98, "SDO expedited upload finished. Response received from node : ", nodeId);
-                    StopSDO_TIMER(line)
-                        d->transfers[line].count = nbBytes;
+                    StopSDO_TIMER(d, line);
+                    d->transfers[line].count = nbBytes;
                     d->transfers[line].state = SDO_FINISHED;
                     if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
                     return 0;
@@ -1392,8 +1461,8 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     return 0xFF;
                 }
                 /* Reset the wathdog */
-                RestartSDO_TIMER(line)
-                    MSG_WAR(0x3AA1, "Received SDO upload segment defined at index 0x1200 + ", CliServNbr);
+                RestartSDO_TIMER(d, line);
+                MSG_WAR(0x3AA1, "Received SDO upload segment defined at index 0x1200 + ", CliServNbr);
                 index = d->transfers[line].index;
                 subIndex = d->transfers[line].subIndex;
                 /* Toggle test.*/
@@ -1454,7 +1523,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     return 0xFF;
                 }
                 /* Reset the watchdog */
-                RestartSDO_TIMER(line)
+                RestartSDO_TIMER(d, line);
                 index = d->transfers[line].index;
                 subIndex = d->transfers[line].subIndex;
                 /* End transmission or requesting  next segment. */
@@ -1462,7 +1531,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                 if (nbBytes == 0)
                 {
                     MSG_WAR(0x3AA6, "SDO End download expedited. Response received. from nodeId", nodeId);
-                    StopSDO_TIMER(line)
+                    StopSDO_TIMER(d, line);
                     d->transfers[line].state = SDO_FINISHED;
                     if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
                     return 0x00;
@@ -1525,7 +1594,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                 if (!err)
                 {
                     /* The line *must* be released by the core program. */
-                    StopSDO_TIMER(line)
+                    StopSDO_TIMER(d, line);
                     d->transfers[line].state = SDO_ABORTED_RCV;
                     d->transfers[line].abortCode = abortCode;
                     MSG_WAR(0x3AB0, "SD0. Received SDO abort. Line state ABORTED. Code : ", abortCode);
@@ -1628,7 +1697,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                         return 0xFF;
                     }
                     /* Reset the wathdog */
-                    RestartSDO_TIMER(line);
+                    RestartSDO_TIMER(d, line);
                     /* Uploading first or next block */
                     index = d->transfers[line].index;
                     subIndex = d->transfers[line].subIndex;
@@ -1673,7 +1742,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                         if (nbBytes > 7)
                         {
                             /* The segment to transfer is not the last one.*/
-                             data[0] = SeqNo;
+                            data[0] = SeqNo;
                             err = lineToSDO(d, line, 7, data + 1);
                             if (err)
                             {
@@ -1719,7 +1788,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     index = d->transfers[line].index;
                     subIndex = d->transfers[line].subIndex;
                     /* Reset the watchdog */
-                    RestartSDO_TIMER(line)
+                    RestartSDO_TIMER(d, line);
                     if (SubCommand == SDO_BSS_INITIATE_DOWNLOAD_RESPONSE)
                     {
                         if(m->data[4] > 127)
@@ -1803,7 +1872,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                 else if (SubCommand == SDO_BSS_END_DOWNLOAD_RESPONSE)
                 {
                     MSG_WAR(0x3AAC, "SDO End block download response from nodeId", nodeId);
-                    StopSDO_TIMER(line)
+                    StopSDO_TIMER(d, line);
                     d->transfers[line].state = SDO_FINISHED;
                     if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
                     return 0x00;
@@ -1860,7 +1929,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                 else if (d->transfers[line].rxstep == RXSTEP_STARTED)
                 {
                     MSG_WAR(0x3A9B, "Received SDO block download data segment - index 0x1200 + ", CliServNbr);
-                    RestartSDO_TIMER(line)
+                    RestartSDO_TIMER(d, line);
                     SeqNo = m->data[0] & 0x7F;
                     if (m->data[0] & 0x80) /* Last segment ? */
                     {
@@ -1915,7 +1984,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                         failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
                         return 0xFF;
                     }
-                    RestartSDO_TIMER(line)
+                    RestartSDO_TIMER(d, line);
                     NbBytesNoData = (UNS8)((m->data[0]>>2) & 0x07);
                     /* Store the data in the transfer structure. */
                     err = SDOtoLine(d, line, 7-NbBytesNoData, d->transfers[line].tmpData + 1);
@@ -1960,7 +2029,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
                     return 0xFF;
                 }
-                RestartSDO_TIMER(line)
+                RestartSDO_TIMER(d, line);
                 if (d->transfers[line].rxstep == RXSTEP_INIT)
                 {
                     if ((m->data[0] & 1) == SDO_BSS_INITIATE_UPLOAD_RESPONSE)
@@ -2056,7 +2125,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                     MSG_WAR(0x3AAF, "SDO. Sending block upload end request to node id ", nodeId);
                     sendSDO(d, whoami, CliServNbr, data);
                     MSG_WAR(0x3AAF, "SDO. End of block upload request", 0);
-                    StopSDO_TIMER(line)
+                    StopSDO_TIMER(d, line);
                     d->transfers[line].state = SDO_FINISHED;
                     if(d->transfers[line].Callback)
                     {
