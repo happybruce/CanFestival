@@ -34,6 +34,8 @@
 
 
 #include "sdo.h"
+#include "applicfg.h"
+#include "declaration.h"
 #include "def.h"
 #include "states.h"
 #include "sysdep.h"
@@ -238,7 +240,7 @@ UNS32 SDOLineToObjDict (CO_Data* d, UNS8 line)
     {
         d->transfers[line].count = d->transfers[line].offset;
     }
-        
+
     size = d->transfers[line].count;
 
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
@@ -252,10 +254,10 @@ UNS32 SDOLineToObjDict (CO_Data* d, UNS8 line)
         errorCode = setODentry(d, d->transfers[line].index, d->transfers[line].subIndex,
                 (void *) d->transfers[line].data, &size, 1);
     }
-#else //SDO_DYNAMIC_BUFFER_ALLOCATION
+#else
     errorCode = setODentry(d, d->transfers[line].index, d->transfers[line].subIndex,
             (void *) d->transfers[line].data, &size, 1);
-#endif //SDO_DYNAMIC_BUFFER_ALLOCATION
+#endif
 
     if (errorCode != OD_SUCCESSFUL)
     {
@@ -280,9 +282,9 @@ UNS32 objDictToSDOLine(CO_Data* d, UNS8 line)
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
     /* Try to use the static buffer.                                            */
     errorCode = getODentry(d, d->transfers[line].index,
-            d->transfers[line].subIndex,
-            (void *)d->transfers[line].data,
-            &size, &dataType, 1);
+                            d->transfers[line].subIndex,
+                            (void *)d->transfers[line].data,
+                            &size, &dataType, 1);
     if (errorCode == SDOABT_OUT_OF_MEMORY)
     {
         /* The static buffer is too small, try again using a dynamic buffer.      *
@@ -294,21 +296,21 @@ UNS32 objDictToSDOLine(CO_Data* d, UNS8 line)
             {
                 d->transfers[line].dynamicDataSize = size;
                 errorCode = getODentry(d,
-                d->transfers[line].index,
-                d->transfers[line].subIndex,
-                (void *) d->transfers[line].dynamicData,
-                &d->transfers[line].dynamicDataSize,
-                &dataType,
-                1);
+                    d->transfers[line].index,
+                    d->transfers[line].subIndex,
+                    (void *) d->transfers[line].dynamicData,
+                    &d->transfers[line].dynamicDataSize,
+                    &dataType,
+                    1);
             }
         }
     }
-#else //SDO_DYNAMIC_BUFFER_ALLOCATION
+#else
     errorCode = getODentry(d, d->transfers[line].index,
-                        d->transfers[line].subIndex,
-                        (void *)d->transfers[line].data,
-                        &size, &dataType, 1);
-#endif //SDO_DYNAMIC_BUFFER_ALLOCATION
+                            d->transfers[line].subIndex,
+                            (void *)d->transfers[line].data,
+                            &size, &dataType, 1);
+#endif
 
     if (errorCode != OD_SUCCESSFUL)
     {
@@ -342,7 +344,7 @@ UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
         MSG_ERR(0x1A10,"SDO Size of data too large. Exceed SDO_MAX_LENGTH_TRANSFER", nbBytes);
         return 0xFF;
     }
-#endif //SDO_DYNAMIC_BUFFER_ALLOCATION
+#endif
 
     if ((d->transfers[line].offset + nbBytes) > d->transfers[line].count)
     {
@@ -371,12 +373,12 @@ UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
             *(data + i) = d->transfers[line].dynamicData[offset + i];
         }
     }
-#else //SDO_DYNAMIC_BUFFER_ALLOCATION
+#else
     for (i = 0 ; i < nbBytes ; i++)
     {
         *(data + i) = d->transfers[line].data[offset + i];
     }
-#endif //SDO_DYNAMIC_BUFFER_ALLOCATION
+#endif
 
     d->transfers[line].offset = d->transfers[line].offset + nbBytes;
     return 0;
@@ -392,7 +394,7 @@ UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
  **
  ** @return
  **/
-UNS8 SDOtoLine (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
+UNS8 SDOtoLine(CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
 {
     UNS32 i = 0;
     UNS32 offset = d->transfers[line].offset;
@@ -456,12 +458,12 @@ UNS8 SDOtoLine (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
     {
         lineData[offset + i] = *(data + i);
     }
-#else //SDO_DYNAMIC_BUFFER_ALLOCATION
+#else
     for (i = 0; i < nbBytes; i++)
     {
         d->transfers[line].data[offset + i] = *(data + i);
     }
-#endif //SDO_DYNAMIC_BUFFER_ALLOCATION
+#endif
 
     // Update offset 
     d->transfers[line].offset = d->transfers[line].offset + nbBytes;
@@ -546,6 +548,12 @@ void resetSDOLine(CO_Data* d, UNS8 line)
 UNS8 initSDOLine(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS8 state)
 {
     MSG_WAR(0x3A25, "init SDO line nb : ", line);
+    if (line > SDO_MAX_SIMULTANEOUS_TRANSFERS)
+    {
+        MSG_ERR(0x3A26, "SDO line is invalid: ", line)
+        return 0xFF;
+    }
+
     if (state == SDO_DOWNLOAD_IN_PROGRESS       || state == SDO_UPLOAD_IN_PROGRESS ||
         state == SDO_BLOCK_DOWNLOAD_IN_PROGRESS || state == SDO_BLOCK_UPLOAD_IN_PROGRESS)
     {
@@ -594,9 +602,9 @@ UNS8 initSDOLine(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIn
  **/
 UNS8 getSDOFreeLine(CO_Data* d, UNS8 whoami, UNS8* line)
 {
-    for (UNS8 i = 0 ; i < SDO_MAX_SIMULTANEOUS_TRANSFERS ; i++)
+    for (UNS8 i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
     {
-        if ( d->transfers[i].state == SDO_RESET )
+        if (d->transfers[i].state == SDO_RESET)
         {
             *line = i;
             d->transfers[i].whoami = whoami;
@@ -627,7 +635,10 @@ UNS8 getSDOLineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
              (d->transfers[i].CliServNbr == CliServNbr) &&
              (d->transfers[i].whoami == whoami) ) 
         {
-            if (line) { *line = i; }
+            if (line)
+            { 
+                *line = i; // assign line value
+            }
             return 0;
         }
     }
@@ -646,14 +657,16 @@ UNS8 getSDOLineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
  **/
 UNS8 getSDOLineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
 {
-    UNS8 i = 0;
-    for (i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
+    for (UNS8 i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
     {
         if ( (d->transfers[i].state != SDO_RESET) &&
              (d->transfers[i].CliServNbr == CliServNbr) &&
              (d->transfers[i].whoami == whoami) ) 
         {
-            if (line) { *line = i; }
+            if (line)
+            {
+                *line = i;
+            }
             return 0;
         }
     }
@@ -732,7 +745,7 @@ UNS8 setSDOLineRestBytes(CO_Data* d, UNS8 line, UNS32 nbBytes)
         MSG_ERR(0x1A35,"SDO Size of data too large. Exceed SDO_MAX_LENGTH_TRANSFER", nbBytes);
         return 0xFF;
     }
-#endif //SDO_DYNAMIC_BUFFER_ALLOCATION
+#endif
 
     d->transfers[line].count = nbBytes;
     return 0;
@@ -836,6 +849,7 @@ UNS8 getWhoAmI(CO_Data* d, UNS32 msgCobId, UNS8* CliServNbrPtr, UNS8* nodeIdPtr)
     UNS16 currentIndex = d->firstIndex->SDO_SVR;
     UNS16 lastIndex = d->lastIndex->SDO_SVR;
 
+    // Search SDO server firstly
     if(currentIndex)
     {
         while (currentIndex <= lastIndex)
@@ -846,23 +860,25 @@ UNS8 getWhoAmI(CO_Data* d, UNS32 msgCobId, UNS8* CliServNbrPtr, UNS8* nodeIdPtr)
                 MSG_ERR(0x1A61, "Subindex 1 not found at index ", 0x1200 + numSRV);
                 return 0xFF;
             }
-            /* Looking for the cobid received. */
+
+            // Looking for the cobid received.
             if (READ_UNS32(d->objdict, currentIndex, 1) == msgCobId)
             {
                 whoami = SDO_SERVER;
                 MSG_WAR(0x3A62, "proceedSDO. I am server. index : ", 0x1200 + numSRV);
-                /* Defining Server number = index minus 0x1200 where the cobid received is defined. */
+                // Defining Server number = index minus 0x1200 where the cobid received is defined.
                 *CliServNbrPtr = numSRV;
                 break;
             }
 
             currentIndex++;
-        } /* end while */
+        }
     }
 
+    // Search SDO client if do not find cobid in SDO servers
     if (whoami == SDO_UNKNOWN)
     {
-        /* Am-I client ? */
+        // Am-I client ?
         currentIndex = d->firstIndex->SDO_CLT;
         lastIndex = d->lastIndex->SDO_CLT;
         if(currentIndex)
@@ -875,53 +891,1157 @@ UNS8 getWhoAmI(CO_Data* d, UNS32 msgCobId, UNS8* CliServNbrPtr, UNS8* nodeIdPtr)
                     MSG_ERR(0x1A63, "Subindex 3 not found at index ", 0x1280 + numCLT);
                     return 0xFF;
                 }
-                /* Looking for the cobid received. */
+
+                // Looking for the cobid received.
                 if (READ_UNS32(d->objdict, currentIndex, 2) == msgCobId)
                 {
                     whoami = SDO_CLIENT;
                     MSG_WAR(0x3A64, "proceedSDO. I am client index : ", 0x1280 + numCLT);
-                    /* Defining Client number = index minus 0x1280 where the cobid received is defined. */
+                    // Defining Client number = index minus 0x1280 where the cobid received is defined.
                     *CliServNbrPtr = numCLT;
-                    /* Reading the server node ID, if client it is mandatory in the OD */
+                    // Reading the server node ID, if client it is mandatory in the OD
                     *nodeIdPtr = READ_UNS8(d->objdict, currentIndex, 3);
                     break;
                 }
 
                 currentIndex++;
-            } /* end while */
+            }
         } 
     }
 
     return whoami;
 }
 
-UNS8 serverDownloadSegData();
-UNS8 clientUploadSegData();
 
+
+static UNS8 serverInitDomainDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+{
+    UNS16 index = (UNS16)getSDOindex(data_field[1], data_field[2]);
+    UNS8 subIndex = getSDOsubIndex(data_field[3]);
+    MSG_WAR(0x3A79, "Received SDO Initiate Download (to store data) defined at index 0x1200 + ", CliServNbr);
+    MSG_WAR(0x3A80, "Writing at index : ", index);
+    MSG_WAR(0x3A80, "Writing at subIndex : ", subIndex);
+
+    // Check if a SDO transfer has already been initiated
+    if (line < SDO_MAX_SIMULTANEOUS_TRANSFERS)
+    {
+        MSG_ERR(0x1A81, "SDO error : Transmission already started.", 0);
+        failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    // No line on use. Great !  Try to open a new line.
+    UNS8 ret = getSDOFreeLine(d, SDO_SERVER, &line);
+    if (ret)
+    {
+        MSG_ERR(0x1A82, "SDO error : No line free, too many SDO in progress. Aborted.", 0);
+        failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    initSDOLine(d, line, CliServNbr, index, subIndex, SDO_DOWNLOAD_IN_PROGRESS);
+
+    if (getSDOe(data_field[0])) // If SDO expedited, only need trans one time
+    {
+        /* nb of data to be downloaded */
+        UNS32 nbBytes = 4 - getSDOn2(data_field[0]);
+        /* Storing the data in the line structure. */
+        d->transfers[line].count = nbBytes;
+        ret = SDOtoLine(d, line, nbBytes, data_field+4);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+
+        /* SDO expedited -> transfer finished. Data can be stored in the dictionary. */
+        /*The line will be reseted when it is downloading in the dictionary. */
+        MSG_WAR(0x3A83, "SDO Initiate Download is an expedited transfer. Finished. ", 0);
+        /* Transfering line data to object dictionary. */
+        /* error code while reading or writing in the local object dictionary. */
+        UNS32 errorCode = SDOLineToObjDict(d, line);
+        if (errorCode)
+        {
+            MSG_ERR(0x1A84, "SDO error : Unable to copy the data in the object dictionary", 0);
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, errorCode);
+            return 0xFF;
+        }
+        /* Release of the line. */
+        resetSDOLine(d, line);
+    }
+    else // It is not an expedited transfer, need trans multi times
+    {
+        if (getSDOs(data_field[0]))
+        {
+            UNS32 nbBytes = (data_field[4]) + ((UNS32)(data_field[5])<<8) + ((UNS32)(data_field[6])<<16) + ((UNS32)(data_field[7])<<24);
+            ret = setSDOLineRestBytes(d, line, nbBytes);
+            if (ret)
+            {
+                failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
+                return 0xFF;
+            }
+        }
+    }
+
+    // Sending a SDO, cs=3
+    UNS8 resp_data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    resp_data[0] = 3 << 5;
+    resp_data[1] = (UNS8)(index & 0xFF);        /* LSB */
+    resp_data[2] = (UNS8)((index >> 8) & 0xFF); /* MSB */
+    resp_data[3] = subIndex;
+    for (UNS8 i = 4 ; i < 8 ; i++)
+        resp_data[i] = 0;
+    sendSDO(d, SDO_SERVER, CliServNbr, resp_data);
+
+    return 0;
+}
+
+static UNS8 serverDownloadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+{
+    /* Receiving a download segment data : a SDO transfer should have already been initiated. */
+    if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
+         (d->transfers[line].state != SDO_DOWNLOAD_IN_PROGRESS) )
+    {
+        MSG_ERR(0x1A70, "SDO error : Received download segment for unstarted trans. index 0x1200 + ",
+                CliServNbr);
+        failedSDO(d, CliServNbr, SDO_SERVER, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    /* Reset the wathdog */
+    RestartSDO_TIMER(d, line);
+    MSG_WAR(0x3A71, "Received SDO download segment defined at index 0x1200 + ", CliServNbr);
+    UNS16 index = d->transfers[line].index;
+    UNS8 subIndex = d->transfers[line].subIndex;
+    /* Check Toggle bit. */
+    if (d->transfers[line].toggle != getSDOt(data_field[0]))
+    {
+        MSG_ERR(0x1A72, "SDO error : Toggle error : ", getSDOt(data_field[0]));
+        failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
+        return 0xFF;
+    }
+    /* Nb of data to be downloaded */
+    UNS32 nbBytes = 7 - getSDOn3(data_field[0]);
+    /* Store the data in the transfer structure. */
+    UNS8 ret = SDOtoLine(d, line, nbBytes, data_field + 1);
+    if (ret)
+    {
+        failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
+        return 0xFF;
+    }
+    /* Sending the SDO response, CS = 1 */
+    UNS8 resp_data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    resp_data[0] = (UNS8)((1 << 5) | (d->transfers[line].toggle << 4));
+    for (UNS8 i = 1; i < 8; i++)
+    { 
+        resp_data[i] = 0;
+    }
+
+    MSG_WAR(0x3A73, "SDO. Send response to download request defined at index 0x1200 + ", CliServNbr);
+    sendSDO(d, SDO_SERVER, CliServNbr, resp_data);
+
+    /* Inverting the toggle for the next segment. */
+    d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
+
+    /* If it was the last segment, */
+    if (getSDOc(data_field[0]))
+    {
+        /* Transfering line data to object dictionary. */
+        /* The code does not use the "d" of initiate frame. So it is safe if e=s=0 */
+        /* error code while reading or writing in the local object dictionary. */
+        UNS32 errorCode = SDOLineToObjDict(d, line);
+        if (errorCode)
+        {
+            MSG_ERR(0x1A54, "SDO error : Unable to copy the data in the object dictionary", 0);
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, errorCode);
+            return 0xFF;
+        }
+        /* Release of the line */
+        resetSDOLine(d, line);
+        MSG_WAR(0x3A74, "SDO. End of download defined at index 0x1200 + ", CliServNbr);
+    }
+
+    return 0;
+}
+
+
+static UNS8 serverInitDomainUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+{
+    UNS16 index = (UNS16)getSDOindex(data_field[1], data_field[2]);
+    UNS8 subIndex = getSDOsubIndex(data_field[3]);
+    MSG_WAR(0x3A89, "Received SDO Initiate upload (to send data) defined at index 0x1200 + ", CliServNbr);
+    MSG_WAR(0x3A90, "Reading at index : ", index);
+    MSG_WAR(0x3A91, "Reading at subIndex : ", subIndex);
+    
+    // Check if a SDO transfer has already yet initiated
+    if (line < SDO_MAX_SIMULTANEOUS_TRANSFERS)
+    {
+        MSG_ERR(0x1A92, "SDO error : Transmission already started at line : ", line);
+        MSG_WAR(0x3A93, "Server Nbr = ", CliServNbr);
+        failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    /* No line on use. Great !*/
+    /* Try to open a new line.*/
+    UNS8 ret = getSDOFreeLine(d, SDO_SERVER, &line);
+    if (ret)
+    {
+        MSG_ERR(0x1A71, "SDO error : No line free, too many SDO in progress. Aborted.", 0);
+        failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+    initSDOLine(d, line, CliServNbr, index, subIndex, SDO_UPLOAD_IN_PROGRESS);
+    /* Transfer data from dictionary to the line structure. */
+    /* error code while reading or writing in the local object dictionary. */
+    UNS32 errorCode = objDictToSDOLine(d, line);
+    if (errorCode)
+    {
+        MSG_ERR(0x1A94, "SDO error : Unable to copy the data from object dictionary. Err code : ",
+                errorCode);
+        failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, errorCode);
+        return 0xFF;
+    }
+    /* Preparing the response.*/
+    UNS8 resp_data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    UNS32 nbBytes = 0;
+    getSDOLineRestBytes(d, line, &nbBytes);  /* Nb bytes to transfer ? */
+    if (nbBytes > 4)
+    {
+        /* normal transfer. (segmented). */
+        /* code to send the initiate upload response. (cs = 2) */
+        resp_data[0] = (UNS8)((2 << 5) | 1);
+        resp_data[1] = (UNS8)(index & 0xFF);        /* LSB */
+        resp_data[2] = (UNS8)((index >> 8) & 0xFF); /* MSB */
+        resp_data[3] = subIndex;
+        resp_data[4] = (UNS8) nbBytes;
+        resp_data[5] = (UNS8) (nbBytes >> 8);
+        resp_data[6] = (UNS8) (nbBytes >> 16);
+        resp_data[7] = (UNS8) (nbBytes >> 24);
+            MSG_WAR(0x3A95, "SDO. Sending normal upload initiate response defined at index 0x1200 + ", nodeId);
+        sendSDO(d, SDO_SERVER, CliServNbr, resp_data);
+    }
+    else
+    {
+        /* Expedited upload. (cs = 2 ; e = 1) */
+        resp_data[0] = (UNS8)((2 << 5) | ((4 - nbBytes) << 2) | 3);
+        resp_data[1] = (UNS8)(index & 0xFF);        /* LSB */
+        resp_data[2] = (UNS8)((index >> 8) & 0xFF); /* MSB */
+        resp_data[3] = subIndex;
+        ret = lineToSDO(d, line, nbBytes, resp_data + 4);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+
+        for (UNS8 i = 4 + nbBytes ; i < 8 ; i++)
+            resp_data[i] = 0;
+        MSG_WAR(0x3A96, "SDO. Sending expedited upload initiate response defined at index 0x1200 + ",
+                CliServNbr);
+        sendSDO(d, SDO_SERVER, CliServNbr, resp_data);
+        // Release the line.
+        resetSDOLine(d, line);
+    }
+
+    return 0;
+}
+
+static UNS8 serverUploadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+{
+    if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) || 
+         (d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS))
+    {
+        MSG_ERR(0x1AA0, "SDO error : Received upload segment for unstarted trans. index 0x1200 + ", CliServNbr);
+        failedSDO(d, CliServNbr, SDO_SERVER, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    // Reset the wathdog
+    RestartSDO_TIMER(d, line);
+    MSG_WAR(0x3AA1, "Received SDO upload segment defined at index 0x1200 + ", CliServNbr);
+    UNS16 index = d->transfers[line].index;
+    UNS8 subIndex = d->transfers[line].subIndex;
+
+    // Toggle test
+    if (d->transfers[line].toggle != getSDOt(data_field[0]))
+    {
+        MSG_ERR(0x1AA2, "SDO error : Toggle error : ", getSDOt(data_field[0]));
+        failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
+        return 0xFF;
+    }
+
+    /* Uploading next segment. We need to know if it will be the last one. */
+    UNS8 resp_data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    UNS32 nbBytes = 0;
+    getSDOLineRestBytes(d, line, &nbBytes);
+    if (nbBytes > 7)
+    {
+        /* The segment to transfer is not the last one.*/
+        /* code to send the next segment. (cs = 0; c = 0) */
+        resp_data[0] = (UNS8)(d->transfers[line].toggle << 4);
+        UNS8 ret = lineToSDO(d, line, 7, resp_data + 1);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+        /* Inverting the toggle for the next tranfert. */
+        d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
+        MSG_WAR(0x3AA3, "SDO. Sending upload segment defined at index 0x1200 + ", CliServNbr);
+        sendSDO(d, SDO_SERVER, CliServNbr, resp_data);
+    }
+    else
+    {
+        /* Last segment. */
+        /* code to send the last segment. (cs = 0; c = 1) */
+        resp_data[0] = (UNS8)((d->transfers[line].toggle << 4) | ((7 - nbBytes) << 1) | 1);
+        UNS8 ret = lineToSDO(d, line, nbBytes, resp_data + 1);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+        for (UNS8 i = nbBytes + 1 ; i < 8 ; i++)
+            resp_data[i] = 0;
+        MSG_WAR(0x3AA4, "SDO. Sending last upload segment defined at index 0x1200 + ", CliServNbr);
+        sendSDO(d, SDO_SERVER, CliServNbr, resp_data);
+        // Release the line
+        resetSDOLine(d, line);
+    }
+
+    return 0;
+}
+
+
+static UNS8 serverBlockUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+{
+    UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    UNS8 SubCommand = getSDOblockSC(data_field[0]);
+    if (SubCommand == SDO_BCS_INITIATE_UPLOAD_REQUEST)
+    {
+        UNS16 index = (UNS16)getSDOindex(data_field[1], data_field[2]);
+        UNS8 subIndex = getSDOsubIndex(data_field[3]);
+        MSG_WAR(0x3AB2, "Received SDO Initiate block upload defined at index 0x1200 + ",
+            CliServNbr);
+        MSG_WAR(0x3AB3, "Reading at index : ", index);
+        MSG_WAR(0x3AB4, "Reading at subIndex : ", subIndex);
+
+        // Check if a SDO transfer have already been initiated
+        if (line < SDO_MAX_SIMULTANEOUS_TRANSFERS)
+        {
+            MSG_ERR(0x1A93, "SDO error : Transmission yet started at line : ", line);
+            MSG_WAR(0x3AB5, "Server Nbr = ", CliServNbr);
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+
+        // Check block size
+        if(data_field[4] > 127)
+        {
+            MSG_ERR(0x1A96, "SDO error : invalid block size", 0);
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_INVALID_BLOCK_SIZE);
+            return 0xFF;
+        }
+
+        // No line on use. Great ! Try to open a new line.
+        UNS8 ret = getSDOFreeLine(d, SDO_SERVER, &line);
+        if (ret)
+        {
+            MSG_ERR(0x1A73, "SDO error : No line free, too many SDO in progress. Aborted.", 0);
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+        initSDOLine(d, line, CliServNbr, index, subIndex, SDO_BLOCK_UPLOAD_IN_PROGRESS);
+        d->transfers[line].peerCRCsupport = (UNS8)(((data_field[0])>>2) & 1);
+        d->transfers[line].blksize = data_field[4];
+        /* Transfer data from dictionary to the line structure. */
+        /* error code while reading or writing in the local object dictionary. */
+        UNS32 errorCode = objDictToSDOLine(d, line);
+        if (errorCode)
+        {
+            MSG_ERR(0x1A95, "SDO error : Unable to copy the data from object dictionary. Err code : ",
+                errorCode);
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, errorCode);
+            return 0xFF;
+        }
+        // Preparing the response.
+        UNS32 nbBytes = 0;
+        getSDOLineRestBytes(d, line, &nbBytes);    /* get Nb bytes to transfer */
+        d->transfers[line].objsize = nbBytes;
+        data[0] = (6 << 5) | (1 << 1) | SDO_BSS_INITIATE_UPLOAD_RESPONSE;
+        data[1] = (UNS8)(index & 0xFF);        /* LSB */
+        data[2] = (UNS8)((index >> 8) & 0xFF); /* MSB */
+        data[3] = subIndex;
+        data[4] = (UNS8) nbBytes;
+        data[5] = (UNS8) (nbBytes >> 8);
+        data[6] = (UNS8) (nbBytes >> 16);
+        data[7] = (UNS8) (nbBytes >> 24);
+        MSG_WAR(0x3A9A, "SDO. Sending normal block upload initiate response defined at index 0x1200 + ", nodeId);
+        sendSDO(d, SDO_SERVER, CliServNbr, data);
+    }
+    else if (SubCommand == SDO_BCS_END_UPLOAD_REQUEST)
+    {
+        MSG_WAR(0x3AA2, "Received SDO block END upload request defined at index 0x1200 + ", CliServNbr);
+        // A SDO transfer should have already been initiated.
+        if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
+             (d->transfers[line].state != SDO_BLOCK_UPLOAD_IN_PROGRESS) )
+        {
+            MSG_ERR(0x1AA1, "SDO error : Received block upload request for unstarted trans. index 0x1200 + ",
+                    CliServNbr);
+            failedSDO(d, CliServNbr, SDO_SERVER, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+        // Release the line
+        resetSDOLine(d, line);
+    }
+    else if ((SubCommand == SDO_BCS_UPLOAD_RESPONSE) || (SubCommand == SDO_BCS_START_UPLOAD))
+    {
+        // A SDO transfer should have already been initiated.
+        if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
+             (d->transfers[line].state != SDO_BLOCK_UPLOAD_IN_PROGRESS) )
+        {
+            MSG_ERR(0x1AA1, "SDO error : Received block upload response for unstarted trans. index 0x1200 + ",
+                    CliServNbr);
+            failedSDO(d, CliServNbr, SDO_SERVER, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+        // Reset the wathdog
+        RestartSDO_TIMER(d, line);
+        // Uploading first or next block
+        UNS16 index = d->transfers[line].index;
+        UNS8 subIndex = d->transfers[line].subIndex;
+        if (SubCommand == SDO_BCS_UPLOAD_RESPONSE)
+        {
+            MSG_WAR(0x3AA2, "Received SDO block upload response defined at index 0x1200 + ", CliServNbr);
+            d->transfers[line].blksize = data_field[2];
+            // Sequence number of last segment that was received successfully
+            UNS8 AckSeq = (data_field[1]) & 0x7f;
+            UNS32 nbBytes = 0;
+            getSDOLineRestBytes(d, line, &nbBytes);
+            // If everything have been sent and aknowledged we send a block end upload
+            if((nbBytes == 0) && (AckSeq == d->transfers[line].seqno))
+            {
+                data[0] = (UNS8)((6 << 5) | ((d->transfers[line].endfield) << 2) | SDO_BSS_END_UPLOAD_RESPONSE);
+                for (UNS8 i = 1; i < 8; i++)
+                    data[i] = 0;
+                MSG_WAR(0x3AA5, "SDO. Sending block END upload response defined at index 0x1200 + ", CliServNbr);
+                sendSDO(d, SDO_SERVER, CliServNbr, data);
+                return 0;
+            }
+            else
+            {
+                d->transfers[line].offset = d->transfers[line].lastblockoffset + (7 * AckSeq);
+            }
+
+            if(d->transfers[line].offset > d->transfers[line].count) /* Bad AckSeq reveived (too high) */
+            {
+                MSG_ERR(0x1AA1, "SDO error : Received upload response with bad ackseq index 0x1200 + ",
+                    CliServNbr);
+                failedSDO(d, CliServNbr, SDO_SERVER, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+                return 0xFF;
+            }
+        }
+        else
+        {
+            MSG_WAR(0x3AA2, "Received SDO block START upload defined at index 0x1200 + ", CliServNbr);
+        }
+
+        d->transfers[line].lastblockoffset = d->transfers[line].offset;
+        for(UNS8 SeqNo = 1; SeqNo <= d->transfers[line].blksize; SeqNo++)
+        {
+            d->transfers[line].seqno = SeqNo;
+            UNS32 nbBytes = 0;
+            getSDOLineRestBytes(d, line, &nbBytes);
+            if (nbBytes > 7)
+            {
+                // The segment to transfer is not the last one
+                data[0] = SeqNo;
+                UNS8 ret = lineToSDO(d, line, 7, data + 1);
+                if (ret)
+                {
+                    failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
+                    return 0xFF;
+                }
+                MSG_WAR(0x3AA5, "SDO. Sending upload segment defined at index 0x1200 + ", CliServNbr);
+                sendSDO(d, SDO_SERVER, CliServNbr, data);
+            }
+            else
+            {
+                // Last segment is in this block
+                data[0] = 0x80 | SeqNo;
+                UNS8 ret = lineToSDO(d, line, nbBytes, data + 1);
+                if (ret)
+                {
+                    failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
+                    return 0xFF;
+                }
+                for (UNS8 i = nbBytes + 1; i < 8; i++)
+                    data[i] = 0;
+                MSG_WAR(0x3AA5, "SDO. Sending last upload segment defined at index 0x1200 + ", CliServNbr);
+                sendSDO(d, SDO_SERVER, CliServNbr, data);
+                d->transfers[line].endfield = (UNS8) (7 - nbBytes);
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
+
+
+static UNS8 serverBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+{
+    UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    if (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS)
+    {
+        // Nothing already started, no SDO trans initiated
+        UNS8 SubCommand = (data_field[0]) & 1;
+        if (SubCommand != SDO_BCS_INITIATE_DOWNLOAD_REQUEST)
+        {
+            MSG_ERR(0x1AAC, "SDO error block download : Received wrong subcommand from node id", nodeId);
+            failedSDO(d, CliServNbr, SDO_SERVER, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+        UNS16 index = getSDOindex(data_field[1], data_field[2]);
+        UNS8 subIndex = getSDOsubIndex(data_field[3]);
+        MSG_WAR(0x3A9B, "Received SDO block download initiate defined at index 0x1200 + ", CliServNbr);
+        MSG_WAR(0x3A9B, "Writing at index : ", index);
+        MSG_WAR(0x3A9B, "Writing at subIndex : ", subIndex);
+        /* Try to open a new line. */
+        UNS8 ret = getSDOFreeLine( d, SDO_SERVER, &line );
+        if (ret)
+        {
+            MSG_ERR(0x1A89, "SDO error : No line free, too many SDO in progress. Aborted.", 0);
+            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+        initSDOLine(d, line, CliServNbr, index, subIndex, SDO_BLOCK_DOWNLOAD_IN_PROGRESS);
+        d->transfers[line].rxstep = RXSTEP_STARTED;
+        d->transfers[line].peerCRCsupport = (UNS8)(((data_field[0])>>2) & 1);
+        if (data_field[0] & 2)    /* if data set size is indicated */
+            d->transfers[line].objsize = (UNS32)data_field[4] + (UNS32)data_field[5]*256 + (UNS32)data_field[6]*256*256 + (UNS32)data_field[7]*256*256*256;
+        data[0] = (5 << 5) | SDO_BSS_INITIATE_DOWNLOAD_RESPONSE;
+        data[1] = (UNS8) index;        /* LSB */
+        data[2] = (UNS8) (index >> 8); /* MSB */
+        data[3] = subIndex;
+        data[4] = SDO_BLOCK_SIZE;
+        data[5] = data[6] = data[7] = 0;
+        MSG_WAR(0x3AAD, "SDO. Sending block download initiate response - index 0x1200 + ", CliServNbr);
+        sendSDO(d, SDO_SERVER, CliServNbr, data);
+    }
+    else if (d->transfers[line].rxstep == RXSTEP_STARTED)
+    {
+        MSG_WAR(0x3A9B, "Received SDO block download data segment - index 0x1200 + ", CliServNbr);
+        RestartSDO_TIMER(d, line);
+        UNS8 SeqNo = data_field[0] & 0x7F;
+        if (data_field[0] & 0x80) /* Last segment ? */
+        {
+            if(SeqNo == (d->transfers[line].seqno + 1))
+            {
+                d->transfers[line].rxstep = RXSTEP_END;
+                d->transfers[line].seqno = SeqNo;
+                /* Store the data temporary because we don't know yet how many bytes do not contain data */
+                memcpy(d->transfers[line].tmpData, data_field, 8);
+            }
+            data[0] = (5 << 5) | SDO_BSS_DOWNLOAD_RESPONSE;
+            data[1] = d->transfers[line].seqno;
+            data[2] = SDO_BLOCK_SIZE;
+            data[3] = data[4] = data[5] = data[6] = data[7] = 0;
+            MSG_WAR(0x3AAE, "SDO. Sending block download response - index 0x1200 + ", CliServNbr);
+            sendSDO(d, SDO_SERVER, CliServNbr, data);
+            d->transfers[line].seqno = 0;
+        }
+        else
+        {
+            if (SeqNo == (d->transfers[line].seqno + 1))
+            {    
+                d->transfers[line].seqno = SeqNo;
+                /* Store the data in the transfer structure. */
+                UNS8 ret = SDOtoLine(d, line, 7, data_field + 1);
+                if (ret)
+                {
+                    failedSDO(d, CliServNbr, SDO_SERVER, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
+                    return 0xFF;
+                }
+            }
+
+            if (SeqNo == SDO_BLOCK_SIZE)
+            {
+                data[0] = (5 << 5) | SDO_BSS_DOWNLOAD_RESPONSE;
+                data[1] = d->transfers[line].seqno;
+                data[2] = SDO_BLOCK_SIZE;
+                data[3] = data[4] = data[5] = data[6] = data[7] = 0;
+                MSG_WAR(0x3AAE, "SDO. Sending block download response - index 0x1200 + ", CliServNbr);
+                sendSDO(d, SDO_SERVER, CliServNbr, data);
+                d->transfers[line].seqno = 0;
+            }
+        }
+    }
+    else if (d->transfers[line].rxstep == RXSTEP_END) /* endphase */
+    {
+        MSG_WAR(0x3A9B, "Received SDO block download end request - index 0x1200 + ", CliServNbr);
+        /* here store remaining bytes in tmpData to line, check size and confirm or abort */
+        if ((data_field[0] & 1) != SDO_BCS_END_DOWNLOAD_REQUEST)
+        {
+            MSG_ERR(0x1AAD, "SDO error block download : Received wrong subcommand - index 0x1200 + ", CliServNbr);
+            failedSDO(d, CliServNbr, SDO_SERVER, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+        RestartSDO_TIMER(d, line);
+        /* Number of bytes that do not contain data in last segment of block transfer */ 
+        UNS8 NbBytesNoData = (UNS8)((data_field[0]>>2) & 0x07);
+        /* Store the data in the transfer structure. */
+        UNS8 ret = SDOtoLine(d, line, 7-NbBytesNoData, d->transfers[line].tmpData + 1);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_SERVER, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+        if(d->transfers[line].objsize) /* If size was indicated in the initiate request */
+        { 
+            if (d->transfers[line].objsize != d->transfers[line].offset)
+            {
+                MSG_ERR(0x1AAE, "SDO error block download : sizes do not match - index 0x1200 + ", CliServNbr);
+                failedSDO(d, CliServNbr, SDO_SERVER, d->transfers[line].index, d->transfers[line].subIndex, SDOABT_LOCAL_CTRL_ERROR);
+                return 0xFF;
+            }
+        }
+        data[0] = (5 << 5) | SDO_BSS_END_DOWNLOAD_RESPONSE;
+        for (UNS8 i = 1; i < 8; i++)
+            data[i] = 0;
+        MSG_WAR(0x3AAF, "SDO. Sending block download end response - index 0x1200 + ", CliServNbr);
+        sendSDO(d, SDO_SERVER, CliServNbr, data);
+        /* Transfering line data to object dictionary. */
+        /* error code while reading or writing in the local object dictionary. */
+        UNS32 errorCode = SDOLineToObjDict(d, line);
+        if (errorCode)
+        {
+            MSG_ERR(0x1AAF, "SDO error : Unable to copy the data in the object dictionary", 0);
+            failedSDO(d, CliServNbr, SDO_SERVER, d->transfers[line].index, d->transfers[line].subIndex, errorCode);
+            return 0xFF;
+        }
+        /* Release of the line */
+        resetSDOLine(d, line);
+        MSG_WAR(0x3AAF, "SDO. End of block download defined at index 0x1200 + ", CliServNbr);
+    }
+
+    return 0;
+}
+
+
+static UNS8 clientUploadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+{
+    if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
+         (d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS) )
+    {
+        MSG_ERR(0x1A75, "SDO error : Received segment response for unknown trans. from nodeId", nodeId);
+        failedSDO(d, CliServNbr, SDO_CLIENT, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    // Reset the wathdog
+    RestartSDO_TIMER(d, line);
+    UNS16 index = d->transfers[line].index;
+    UNS8 subIndex = d->transfers[line].subIndex;
+    // test of the toggle
+    if (d->transfers[line].toggle != getSDOt(data_field[0]))
+    {
+        MSG_ERR(0x1A76, "SDO error : Received segment response Toggle error. from nodeId", nodeId);
+        failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
+        return 0xFF;
+    }
+
+    // nb of data to be uploaded
+    UNS32 nbBytes = 7 - getSDOn3(data_field[0]);
+    // Storing the data in the line structure.
+    UNS8 ret = SDOtoLine(d, line, nbBytes, data_field + 1);
+    if (ret)
+    {
+        failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+        return 0xFF;
+    }
+
+    // Inverting the toggle for the next segment.
+    d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
+    // If it was the last segment
+    if (getSDOc(data_field[0]))
+    {
+        /* Put in state finished */
+        /* The code is safe for the case e=s=0 in initiate frame. */
+        StopSDO_TIMER(d, line);
+        d->transfers[line].state = SDO_FINISHED;
+        if(d->transfers[line].Callback)
+        {
+            (*d->transfers[line].Callback)(d, nodeId);
+        }
+
+        MSG_WAR(0x3A77, "SDO. End of upload from node : ", nodeId);
+    }
+    else // more segments to receive
+    {
+        // Sending the request for the next segment.
+        UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        data[0] = (UNS8)((3 << 5) | (d->transfers[line].toggle << 4));
+        for (UNS8 i = 1; i < 8; i++)
+            data[i] = 0;
+        sendSDO(d, SDO_CLIENT, CliServNbr, data);
+        MSG_WAR(0x3A78, "SDO send upload segment request to nodeId", nodeId);
+    }
+
+    return 0;
+}
+
+static UNS8 clientDownloadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+{
+    if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
+         (d->transfers[line].state != SDO_DOWNLOAD_IN_PROGRESS))
+    {
+        MSG_ERR(0x1A85, "SDO error : Received segment response for unknown trans. from nodeId", nodeId);
+        failedSDO(d, CliServNbr, SDO_CLIENT, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+    /* Reset the wathdog */
+    RestartSDO_TIMER(d, line);
+    UNS16 index = d->transfers[line].index;
+    UNS8 subIndex = d->transfers[line].subIndex;
+    /* test of the toggle; */
+    if (d->transfers[line].toggle != getSDOt(data_field[0]))
+    {
+        MSG_ERR(0x1A86, "SDO error : Received segment response Toggle error. from nodeId", nodeId);
+        failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
+        return 0xFF;
+    }
+
+    /* End transmission or downloading next segment. We need to know if it will be the last one. */
+    UNS32 nbBytes = 0;
+    getSDOLineRestBytes(d, line, &nbBytes);
+    if (nbBytes == 0)
+    {
+        MSG_WAR(0x3A87, "SDO End download. segment response received. OK. from nodeId", nodeId);
+        StopSDO_TIMER(d, line);
+        d->transfers[line].state = SDO_FINISHED;
+        if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d, nodeId);
+        return 0x00;
+    }
+
+    UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    /* At least one transfer to send. */
+    if (nbBytes > 7)
+    {
+        /* several segments to download.*/
+        /* code to send the next segment. (cs = 0; c = 0) */
+        d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
+        data[0] = (UNS8)(d->transfers[line].toggle << 4);
+        UNS8 ret = lineToSDO(d, line, 7, data + 1);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+    }
+    else
+    {
+        /* Last segment. */
+        /* code to send the last segment. (cs = 0; c = 1)*/
+        d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
+        data[0] = (UNS8)((d->transfers[line].toggle << 4) | ((7 - nbBytes) << 1) | 1);
+        UNS8 ret = lineToSDO(d, line, nbBytes, data + 1);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+        for (UNS8 i = nbBytes + 1; i < 8; i++)
+            data[i] = 0;
+    }
+    MSG_WAR(0x3A88, "SDO sending download segment to nodeId", nodeId);
+    sendSDO(d, SDO_CLIENT, CliServNbr, data);
+
+    return 0;
+}
+
+
+static UNS8 clientInitiateDomainUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+{
+    if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
+         (d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS) )
+    {
+        MSG_ERR(0x1A97, "SDO error : Received response for unknown upload request from nodeId", nodeId);
+        failedSDO(d, CliServNbr, SDO_CLIENT, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+    /* Reset the wathdog */
+    RestartSDO_TIMER(d, line);
+    UNS16 index = d->transfers[line].index;
+    UNS8 subIndex = d->transfers[line].subIndex;
+
+    if (getSDOe(data_field[0])) /* If SDO expedited */
+    {
+        /* nb of data to be uploaded */
+        UNS32 nbBytes = 4 - getSDOn2(data_field[0]);
+        /* Storing the data in the line structure. */
+        UNS8 ret = SDOtoLine(d, line, nbBytes, data_field + 4);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+        /* SDO expedited -> transfer finished. data are available via  getReadResultNetworkDict(). */
+        MSG_WAR(0x3A98, "SDO expedited upload finished. Response received from node : ", nodeId);
+        StopSDO_TIMER(d, line);
+        d->transfers[line].count = nbBytes;
+        d->transfers[line].state = SDO_FINISHED;
+        if(d->transfers[line].Callback)
+        {
+            (*d->transfers[line].Callback)(d,nodeId);
+        }
+
+        return 0;
+    }
+    else /* So, if it is not an expedited transfer */
+    {
+        /* Storing the nb of data to receive. */
+        if (getSDOs(data_field[0]))
+        {
+            UNS32 nbBytes = data_field[4] + ((UNS32)(data_field[5])<<8) + ((UNS32)(data_field[6])<<16) + ((UNS32)(data_field[7])<<24);
+            UNS8 ret = setSDOLineRestBytes(d, line, nbBytes);
+            if (ret)
+            {
+                failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+                return 0xFF;
+            }
+        }
+        UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        /* Requesting next segment. (cs = 3) */
+        data[0] = 3 << 5;
+        for (UNS8 i = 1; i < 8; i++)
+            data[i] = 0;
+        MSG_WAR(0x3A99, "SDO. Sending upload segment request to node : ", nodeId);
+        sendSDO(d, SDO_CLIENT, CliServNbr, data);
+    }
+
+    return 0;
+}
+
+static UNS8 clientInitiateDomainDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+{
+    if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
+         (d->transfers[line].state != SDO_DOWNLOAD_IN_PROGRESS) )
+    {
+        MSG_ERR(0x1AA5, "SDO error : Received response for unknown download request from nodeId", nodeId);
+        failedSDO(d, CliServNbr, SDO_CLIENT, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    /* Reset the watchdog */
+    RestartSDO_TIMER(d, line);
+
+    /* End transmission or requesting  next segment. */
+    UNS32 nbBytes = 0;
+    getSDOLineRestBytes(d, line, &nbBytes);
+    if (nbBytes == 0)
+    {
+        MSG_WAR(0x3AA6, "SDO End download expedited. Response received. from nodeId", nodeId);
+        StopSDO_TIMER(d, line);
+        d->transfers[line].state = SDO_FINISHED;
+        if(d->transfers[line].Callback)
+        {
+            (*d->transfers[line].Callback)(d,nodeId);
+        }
+        return 0x00;
+    }
+
+    UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    UNS16 index = d->transfers[line].index;
+    UNS8 subIndex = d->transfers[line].subIndex;
+    if (nbBytes > 7)
+    {
+        /* more than one request to send */
+        /* code to send the next segment. (cs = 0; c = 0)    */
+        data[0] = (UNS8)(d->transfers[line].toggle << 4);
+        UNS8 ret = lineToSDO(d, line, 7, data + 1);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+    }
+    else
+    {
+        /* Last segment.*/
+        /* code to send the last segment. (cs = 0; c = 1)    */
+        data[0] = (UNS8)((d->transfers[line].toggle << 4) | ((7 - nbBytes) << 1) | 1);
+        UNS8 ret = lineToSDO(d, line, nbBytes, data + 1);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+        for (UNS8 i = nbBytes + 1 ; i < 8 ; i++)
+            data[i] = 0;
+    }
+    MSG_WAR(0x3AA7, "SDO sending download segment to nodeId", nodeId);
+    sendSDO(d, SDO_CLIENT, CliServNbr, data);
+    
+    return 0;
+}
+
+
+static UNS8 clientBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+{
+    UNS8 SubCommand = getSDOblockSC(data_field[0]);
+    if ((SubCommand == SDO_BSS_INITIATE_DOWNLOAD_RESPONSE) || (SubCommand == SDO_BSS_DOWNLOAD_RESPONSE))
+    {
+        // We should find a line opened for this
+        if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
+             (d->transfers[line].state != SDO_BLOCK_DOWNLOAD_IN_PROGRESS))
+        {
+            MSG_ERR(0x1AAA, "SDO error : Received response for unknown block download request from node id", nodeId);
+            failedSDO(d, CliServNbr, SDO_CLIENT, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+        UNS16 index = d->transfers[line].index;
+        UNS8 subIndex = d->transfers[line].subIndex;
+        // Reset the watchdog
+        RestartSDO_TIMER(d, line);
+        if (SubCommand == SDO_BSS_INITIATE_DOWNLOAD_RESPONSE)
+        {
+            if(data_field[4] > 127)
+            {
+                MSG_ERR(0x1A98, "SDO error : invalid block size", 0);
+                failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_INVALID_BLOCK_SIZE);
+                return 0xFF;
+            }
+            d->transfers[line].peerCRCsupport = ((data_field[0])>>2) & 1;
+            d->transfers[line].blksize = data_field[4];
+        }
+        else
+        {
+            if(data_field[2] > 127)
+            {
+                MSG_ERR(0x1A99, "SDO error : invalid block size", 0);
+                failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_INVALID_BLOCK_SIZE);
+                return 0xFF;
+            }
+            d->transfers[line].blksize = data_field[2];
+            /* Sequence number of last segment that was received successfully */
+            UNS8 AckSeq = (data_field[1]) & 0x7f;
+            UNS32 nbBytes = 0;
+            getSDOLineRestBytes(d, line, &nbBytes);
+            /* If everything have been sent and aknowledged we send a block end upload */
+            if((nbBytes == 0) && (AckSeq == d->transfers[line].seqno))
+            {
+                UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                data[0] = (UNS8)((6 << 5) | ((d->transfers[line].endfield) << 2) | SDO_BCS_END_DOWNLOAD_REQUEST);
+                for (UNS8 i = 1 ; i < 8 ; i++)
+                    data[i] = 0;
+                MSG_WAR(0x3AA5, "SDO. Sending block END download request defined at index 0x1200 + ", CliServNbr);
+                sendSDO(d, SDO_CLIENT, CliServNbr, data);
+                return 0;
+            }
+            else
+                d->transfers[line].offset = d->transfers[line].lastblockoffset + (7 * AckSeq);
+            
+            if(d->transfers[line].offset > d->transfers[line].count) /* Bad AckSeq reveived (too high) */
+            {
+                MSG_ERR(0x1AA1, "SDO error : Received upload segment with bad ackseq index 0x1200 + ",
+                    CliServNbr);
+                failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
+                return 0xFF;
+            }
+        }
+
+        d->transfers[line].lastblockoffset = d->transfers[line].offset;
+        for(UNS8 SeqNo = 1; SeqNo <= d->transfers[line].blksize; SeqNo++)
+        {
+            d->transfers[line].seqno = SeqNo;
+            UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+            UNS32 nbBytes = 0;
+            getSDOLineRestBytes(d, line, &nbBytes);
+            if (nbBytes > 7)
+            {
+                /* The segment to transfer is not the last one.*/
+                data[0] = SeqNo;
+                UNS8 ret = lineToSDO(d, line, 7, data + 1);
+                if (ret)
+                {
+                    failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+                    return 0xFF;
+                }
+                MSG_WAR(0x3AAB, "SDO. Sending download segment to node id ", nodeId);
+                sendSDO(d, SDO_CLIENT, CliServNbr, data);
+            }
+            else
+            {
+                /* Last segment is in this block */
+                data[0] = 0x80 | SeqNo;
+                UNS8 ret = lineToSDO(d, line, nbBytes, data + 1);
+                if (ret)
+                {
+                    failedSDO(d, CliServNbr, SDO_CLIENT, index, subIndex, SDOABT_GENERAL_ERROR);
+                    return 0xFF;
+                }
+                for (UNS8 i = nbBytes + 1 ; i < 8 ; i++)
+                    data[i] = 0;
+                MSG_WAR(0x3AAB, "SDO. Sending last download segment to node id ", nodeId);
+                sendSDO(d, SDO_CLIENT, CliServNbr, data);
+                d->transfers[line].endfield = (UNS8) (7 - nbBytes);
+                return 0;
+            }
+        }
+    }
+    else if (SubCommand == SDO_BSS_END_DOWNLOAD_RESPONSE)
+    {
+        MSG_WAR(0x3AAC, "SDO End block download response from nodeId", nodeId);
+        StopSDO_TIMER(d, line);
+        d->transfers[line].state = SDO_FINISHED;
+        if(d->transfers[line].Callback)
+        {
+            (*d->transfers[line].Callback)(d, nodeId);
+        }
+    }
+    else
+    {
+        MSG_ERR(0x1AAB, "SDO error block download : Received wrong subcommand from nodeId", nodeId);
+        failedSDO(d, CliServNbr, SDO_CLIENT, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    return 0;
+}
+
+
+static UNS8 clientBlockUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+{
+    if (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS)
+    {
+        // Nothing already started
+        MSG_ERR(0x1AAD, "SDO error block upload : no transmission started", nodeId);
+        failedSDO(d, CliServNbr, SDO_CLIENT, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+        return 0xFF;
+    }
+
+    UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    RestartSDO_TIMER(d, line);
+    if (d->transfers[line].rxstep == RXSTEP_INIT)
+    {
+        if ((data_field[0] & 1) == SDO_BSS_INITIATE_UPLOAD_RESPONSE)
+        {
+            MSG_WAR(0x3A9C, "Received SDO block upload response from node id ", nodeId);
+            d->transfers[line].rxstep = RXSTEP_STARTED;
+            d->transfers[line].peerCRCsupport = (UNS8)(((data_field[0])>>2) & 1);
+            if ((data_field[0]) & 2)    // if data set size is indicated
+                d->transfers[line].objsize = (UNS32)data_field[4] + (UNS32)data_field[5]*256 + (UNS32)data_field[6]*256*256 + (UNS32)data_field[7]*256*256*256;
+
+            data[0] = (5 << 5) | SDO_BCS_START_UPLOAD;
+            for (UNS8 i = 1 ; i < 8 ; i++)
+                data[i] = 0;
+            MSG_WAR(0x3AB6, "SDO. Sending block upload start to node id ", nodeId);
+            sendSDO(d, SDO_CLIENT, CliServNbr, data);
+        }
+    }
+    else if (d->transfers[line].rxstep == RXSTEP_STARTED)
+    {
+        UNS8 SeqNo = data_field[0] & 0x7F;
+        if (data_field[0] & 0x80) // Last segment ?
+        {
+            if(SeqNo == (d->transfers[line].seqno + 1))
+            {
+                d->transfers[line].rxstep = RXSTEP_END;
+                d->transfers[line].seqno = SeqNo;
+                // Store the data temporary because we don't know yet how many bytes do not contain data
+                memcpy(d->transfers[line].tmpData, data_field, 8);
+            }
+            data[0] = (5 << 5) | SDO_BCS_UPLOAD_RESPONSE;
+            data[1] = d->transfers[line].seqno;
+            data[2] = SDO_BLOCK_SIZE;
+            data[3] = data[4] = data[5] = data[6] = data[7] = 0;
+            MSG_WAR(0x3AB7, "SDO. Sending block upload response to node id ", nodeId);
+            sendSDO(d, SDO_CLIENT, CliServNbr, data);
+            d->transfers[line].seqno = 0;
+        }
+        else
+        {
+            if (SeqNo == (d->transfers[line].seqno + 1))
+            {
+                d->transfers[line].seqno = SeqNo;
+                // Store the data in the transfer structure.
+                UNS8 ret = SDOtoLine(d, line, 7, data_field + 1);
+                if (ret)
+                {
+                    failedSDO(d, CliServNbr, SDO_CLIENT, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
+                    return 0xFF;
+                }
+            }
+            if (SeqNo == SDO_BLOCK_SIZE)
+            {
+                data[0] = (5 << 5) | SDO_BCS_UPLOAD_RESPONSE;
+                data[1] = d->transfers[line].seqno;
+                data[2] = SDO_BLOCK_SIZE;
+                data[3] = data[4] = data[5] = data[6] = data[7] = 0;
+                MSG_WAR(0x3AAE, "SDO. Sending block upload response to node id ", nodeId);
+                sendSDO(d, SDO_CLIENT, CliServNbr, data);
+                d->transfers[line].seqno = 0;
+            }
+        }
+    }
+    else if (d->transfers[line].rxstep == RXSTEP_END) /* endphase */
+    {
+        // here store remaining bytes in tmpData to line, check size and confirm or abort
+        if ((data_field[0] & 1) != SDO_BSS_END_UPLOAD_RESPONSE)
+        {
+            MSG_ERR(0x1AAD, "SDO error block upload : Received wrong subcommand from node id ", nodeId);
+            failedSDO(d, CliServNbr, SDO_CLIENT, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
+            return 0xFF;
+        }
+        // Number of bytes that do not contain data in last segment of block transfer
+        UNS8 NbBytesNoData = (UNS8)((data_field[0]>>2) & 0x07);
+        // Store the data in the transfer structure.
+        UNS8 ret = SDOtoLine(d, line, 7-NbBytesNoData, d->transfers[line].tmpData + 1);
+        if (ret)
+        {
+            failedSDO(d, CliServNbr, SDO_CLIENT, d->transfers[line].index, d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
+            return 0xFF;
+        }
+        
+        if(d->transfers[line].objsize) // If size was indicated in the initiate request
+        { 
+            if (d->transfers[line].objsize != d->transfers[line].offset)
+            {
+                MSG_ERR(0x1AAE, "SDO error block download : sizes do not match - from node id ", nodeId);
+                failedSDO(d, CliServNbr, SDO_CLIENT, d->transfers[line].index, d->transfers[line].subIndex, SDOABT_LOCAL_CTRL_ERROR);
+                return 0xFF;
+            }
+        }
+
+        data[0] = (5 << 5) | SDO_BCS_END_UPLOAD_REQUEST;
+        for (UNS8 i = 1; i < 8; i++)
+            data[i] = 0;
+        MSG_WAR(0x3AAF, "SDO. Sending block upload end request to node id ", nodeId);
+        sendSDO(d, SDO_CLIENT, CliServNbr, data);
+        MSG_WAR(0x3AAF, "SDO. End of block upload request", 0);
+        StopSDO_TIMER(d, line);
+        d->transfers[line].state = SDO_FINISHED;
+        if(d->transfers[line].Callback)
+        {
+            (*d->transfers[line].Callback)(d,nodeId);
+        }
+    }
+
+    return 0;
+}
 
 
 UNS8 proceedSDO(CO_Data* d, Message* m)
 {
-    UNS8 err;
-    UNS8 cs;
+    UNS8 ret = 0;
+    UNS8 cs = 0xFF; // Command Specifier
     UNS8 line = 0;
-    UNS32 nbBytes;        /* received or to be transmited. */
     UNS8 nodeId = 0;      /* The node Id of the server if client otherwise unused */
-    UNS8 CliServNbr;
+    UNS8 CliServNbr = 0;
     UNS8 whoami = SDO_UNKNOWN;  /* SDO_SERVER or SDO_CLIENT.*/
-    UNS32 errorCode; /* while reading or writing in the local object dictionary.*/
-    UNS8 data[8];    /* data for SDO to transmit */
-    UNS16 index;
-    UNS8 subIndex;
-    UNS32 abortCode;
-    UNS32 i;
-    // UNS8 j;
-    // UNS16 offset;
-    // UNS16 lastIndex;
-    UNS8 SubCommand;    /* Block transfer only */
-    UNS8 SeqNo;         /* Sequence number in block transfer */
-    UNS8 AckSeq;        /* Sequence number of last segment that was received successfully */
-    UNS8 NbBytesNoData; /* Number of bytes that do not contain data in last segment of block transfer */ 
+
     UNS32 msgCobId = UNS16_LE(m->cob_id);
     UNS8 commandByte = m->data[0];
     MSG_WAR(0x3A60, "proceedSDO ", 0);
@@ -929,69 +2049,18 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
     /* Looking for the cobId in the object dictionary. */
     /* Am-I a server ? */
     whoami = getWhoAmI(d, msgCobId, &CliServNbr, &nodeId);
-
-    // offset = d->firstIndex->SDO_SVR;
-    // lastIndex = d->lastIndex->SDO_SVR;
-    // j = 0;
-
-    // if(offset)
-    // {
-    //     while (offset <= lastIndex)
-    //     {
-    //         if (d->objdict[offset].bSubCount <= 1)
-    //         {
-    //             MSG_ERR(0x1A61, "Subindex 1  not found at index ", 0x1200 + j);
-    //             return 0xFF;
-    //         }
-    //         /* Looking for the cobid received. */
-    //         if (READ_UNS32(d->objdict, offset, 1) == msgCobId )
-    //         {
-    //             whoami = SDO_SERVER;
-    //             MSG_WAR(0x3A62, "proceedSDO. I am server. index : ", 0x1200 + j);
-    //             /* Defining Server number = index minus 0x1200 where the cobid received is defined. */
-    //             CliServNbr = j;
-    //             break;
-    //         }
-    //         j++;
-    //         offset++;
-    //     } /* end while */
-    // }
-
-    // if (whoami == SDO_UNKNOWN)
-    // {
-    //     /* Am-I client ? */
-    //     offset = d->firstIndex->SDO_CLT;
-    //     lastIndex = d->lastIndex->SDO_CLT;
-    //     j = 0;
-    //     if(offset)
-    //     {
-    //         while (offset <= lastIndex)
-    //         {
-    //             if (d->objdict[offset].bSubCount <= 3)
-    //             {
-    //                 MSG_ERR(0x1A63, "Subindex 3  not found at index ", 0x1280 + j);
-    //                 return 0xFF;
-    //             }
-    //             /* Looking for the cobid received. */
-    //             if (READ_UNS32(d->objdict, offset, 2) == msgCobId )
-    //             {
-    //                 whoami = SDO_CLIENT;
-    //                 MSG_WAR(0x3A64, "proceedSDO. I am client index : ", 0x1280 + j);
-    //                 /* Defining Client number = index minus 0x1280 where the cobid received is defined. */
-    //                 CliServNbr = j;
-    //                 /* Reading the server node ID, if client it is mandatory in the OD */
-    //                 nodeId = READ_UNS8(d->objdict, offset, 3);
-    //                 break;
-    //             }
-    //             j++;
-    //             offset++;
-    //         } /* end while */
-    //     } 
-    // }
-    
-    if (whoami == SDO_UNKNOWN)
+    if (whoami == SDO_CLIENT)
     {
-        return 0xFF;/* This SDO was not for us ! */
+        MSG_WAR(0x3A68, "I am CLIENT number ", CliServNbr);
+    }
+    else if (whoami == SDO_SERVER)
+    {
+        MSG_WAR(0x3A69, "I am SERVER number ", CliServNbr);
+    }
+    else
+    {
+        MSG_ERR(0x3A70, "Unknown SERVER/CLIENT", 0);
+        return 0xFF; // This SDO was not for us !
     }
 
     /* Test if the size of the SDO is ok */
@@ -1002,22 +2071,13 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
         return 0xFF;
     }
 
-    if (whoami == SDO_CLIENT)
-    {
-        MSG_WAR(0x3A68, "I am CLIENT number ", CliServNbr);
-    }
-    else
-    {
-        MSG_WAR(0x3A69, "I am SERVER number ", CliServNbr);
-    }
-
     /* Look for an SDO transfer already initiated. */
-    err = getSDOLineOnUse( d, CliServNbr, whoami, &line );
+    ret = getSDOLineOnUse(d, CliServNbr, whoami, &line);
 
     /* Let's find cs value, first it is set as "not valid" */
     cs = 0xFF; 
     /* Special cases for block transfer : in frames with segment data cs is not spécified */
-    if (!err)
+    if (!ret) // line on use
     {
         if (((whoami == SDO_SERVER) && (d->transfers[line].state == SDO_BLOCK_DOWNLOAD_IN_PROGRESS)) ||
             ((whoami == SDO_CLIENT) && (d->transfers[line].state == SDO_BLOCK_UPLOAD_IN_PROGRESS))) 
@@ -1028,6 +2088,11 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
                 cs = 6;
         }
     }
+    else
+    {
+        line = SDO_MAX_SIMULTANEOUS_TRANSFERS; // assign invalid value, means line not used
+    }
+
     /* Other cases : cs is specified */
     if (cs == 0xFF)
     {
@@ -1038,1113 +2103,117 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
     /* Testing the command specifier */
     /* Allowed : cs = 0, 1, 2, 3, 4, 5, 6 */
     /* cs = other : Not allowed -> abort. */
-    switch (cs)
+    if (whoami == SDO_SERVER)
     {
-        case 0:
-            /* I am SERVER */
-            if (whoami == SDO_SERVER)
-            {
-                /* Receiving a download segment data : an SDO transfer should have been yet initiated. */
-                if (!err)
-                {
-                    err = (UNS8)(d->transfers[line].state != SDO_DOWNLOAD_IN_PROGRESS);
-                }
-                if (err)
-                {
-                    MSG_ERR(0x1A70, "SDO error : Received download segment for unstarted trans. index 0x1200 + ",
-                            CliServNbr);
-                    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                /* Reset the wathdog */
-                RestartSDO_TIMER(d, line);
-                MSG_WAR(0x3A71, "Received SDO download segment defined at index 0x1200 + ", CliServNbr);
-                index = d->transfers[line].index;
-                subIndex = d->transfers[line].subIndex;
-                /* Toggle test. */
-                if (d->transfers[line].toggle != getSDOt(m->data[0]))
-                {
-                    MSG_ERR(0x1A72, "SDO error : Toggle error : ", getSDOt(m->data[0]));
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
-                    return 0xFF;
-                }
-                /* Nb of data to be downloaded */
-                nbBytes = 7 - getSDOn3(m->data[0]);
-                /* Store the data in the transfer structure. */
-                err = SDOtoLine(d, line, nbBytes, (*m).data + 1);
-                if (err)
-                {
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                    return 0xFF;
-                }
-                /* Sending the SDO response, CS = 1 */
-                data[0] = (UNS8)((1 << 5) | (d->transfers[line].toggle << 4));
-                for (i = 1 ; i < 8 ; i++)
-                { 
-                    data[i] = 0;
-                }
-
-                MSG_WAR(0x3A73, "SDO. Send response to download request defined at index 0x1200 + ", CliServNbr);
-                sendSDO(d, whoami, CliServNbr, data);
-                /* Inverting the toggle for the next segment. */
-                d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
-                /* If it was the last segment, */
-                if (getSDOc(m->data[0]))
-                {
-                    /* Transfering line data to object dictionary. */
-                    /* The code does not use the "d" of initiate frame. So it is safe if e=s=0 */
-                    errorCode = SDOLineToObjDict(d, line);
-                    if (errorCode)
-                    {
-                        MSG_ERR(0x1A54, "SDO error : Unable to copy the data in the object dictionary", 0);
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, errorCode);
-                        return 0xFF;
-                    }
-                    /* Release of the line */
-                    resetSDOLine(d, line);
-                    MSG_WAR(0x3A74, "SDO. End of download defined at index 0x1200 + ", CliServNbr);
-                }
-            } /* end if SERVER */
-            else /* if CLIENT */
-            {
-                /* I am CLIENT */
-                /* It is a request for a previous upload segment. We should find a line opened for this.*/
-                if (!err)
-                {
-                    err = (UNS8)(d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS);
-                }
-                if (err)
-                {
-                    MSG_ERR(0x1A75, "SDO error : Received segment response for unknown trans. from nodeId", nodeId);
-                    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                /* Reset the wathdog */
-                RestartSDO_TIMER(d, line);
-                index = d->transfers[line].index;
-                subIndex = d->transfers[line].subIndex;
-                /* test of the toggle; */
-                if (d->transfers[line].toggle != getSDOt(m->data[0]))
-                {
-                    MSG_ERR(0x1A76, "SDO error : Received segment response Toggle error. from nodeId", nodeId);
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
-                    return 0xFF;
-                }
-                /* nb of data to be uploaded */
-                nbBytes = 7 - getSDOn3(m->data[0]);
-                /* Storing the data in the line structure. */
-                err = SDOtoLine(d, line, nbBytes, (*m).data + 1);
-                if (err)
-                {
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                    return 0xFF;
-                }
-                /* Inverting the toggle for the next segment. */
-                d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
-                /* If it was the last segment,*/
-                if (getSDOc(m->data[0]))
-                {
-                    /* Put in state finished */
-                    /* The code is safe for the case e=s=0 in initiate frame. */
-                    StopSDO_TIMER(d, line);
-                    d->transfers[line].state = SDO_FINISHED;
-                    if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
-
-                    MSG_WAR(0x3A77, "SDO. End of upload from node : ", nodeId);
-                }
-                else // more segments to receive
-                {
-                    /* Sending the request for the next segment. */
-                    data[0] = (UNS8)((3 << 5) | (d->transfers[line].toggle << 4));
-                    for (i = 1 ; i < 8 ; i++)
-                        data[i] = 0;
-                    sendSDO(d, whoami, CliServNbr, data);
-                    MSG_WAR(0x3A78, "SDO send upload segment request to nodeId", nodeId);
-                }
-            } /* End if CLIENT */
-            break;
-
-        case 1:
-            /* I am SERVER */
+        if (cs == 0)
+        {
+            /* Receiving a download segment data : an SDO transfer should have already been initiated. */
+            ret = serverDownloadDomainSegment(d, line, CliServNbr, m->data);
+        }
+        else if (cs == 1)
+        {
             /* Receive of an initiate download */
-            if (whoami == SDO_SERVER)
-            {
-                index = (UNS16)getSDOindex(m->data[1],m->data[2]);
-                subIndex = getSDOsubIndex(m->data[3]);
-                MSG_WAR(0x3A79, "Received SDO Initiate Download (to store data) defined at index 0x1200 + ",
-                        CliServNbr);
-                MSG_WAR(0x3A80, "Writing at index : ", index);
-                MSG_WAR(0x3A80, "Writing at subIndex : ", subIndex);
-
-                /* Search if a SDO transfer have been yet initiated */
-                if (! err)
-                {
-                    MSG_ERR(0x1A81, "SDO error : Transmission yet started.", 0);
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                /* No line on use. Great ! */
-                /* Try to open a new line. */
-                err = getSDOFreeLine( d, whoami, &line );
-                if (err)
-                {
-                    MSG_ERR(0x1A82, "SDO error : No line free, too many SDO in progress. Aborted.", 0);
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                initSDOLine(d, line, CliServNbr, index, subIndex, SDO_DOWNLOAD_IN_PROGRESS);
-
-                if (getSDOe(m->data[0])) // If SDO expedited
-                {
-                    /* nb of data to be downloaded */
-                    nbBytes = 4 - getSDOn2(m->data[0]);
-                    /* Storing the data in the line structure. */
-                    d->transfers[line].count = nbBytes;
-                    err = SDOtoLine(d, line, nbBytes, (*m).data + 4);
-
-                    if (err) {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-
-                    /* SDO expedited -> transfer finished. Data can be stored in the dictionary. */
-                    /*The line will be reseted when it is downloading in the dictionary. */
-                    MSG_WAR(0x3A83, "SDO Initiate Download is an expedited transfer. Finished. ", 0);
-                    /* Transfering line data to object dictionary. */
-                    errorCode = SDOLineToObjDict(d, line);
-                    if (errorCode) {
-                        MSG_ERR(0x1A84, "SDO error : Unable to copy the data in the object dictionary", 0);
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, errorCode);
-                        return 0xFF;
-                    }
-                    /* Release of the line. */
-                    resetSDOLine(d, line);
-                }
-                else // So, if it is not an expedited transfer
-                {
-                    if (getSDOs(m->data[0]))
-                    {
-                        nbBytes = (m->data[4]) + ((UNS32)(m->data[5])<<8) + ((UNS32)(m->data[6])<<16) + ((UNS32)(m->data[7])<<24);
-                        err = setSDOLineRestBytes(d, line, nbBytes);
-                        if (err)
-                        {
-                            failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                            return 0xFF;
-                        }
-                    }
-                }
-                /*Sending a SDO, cs=3*/
-                data[0] = 3 << 5;
-                data[1] = (UNS8)(index & 0xFF);        /* LSB */
-                data[2] = (UNS8)((index >> 8) & 0xFF); /* MSB */
-                data[3] = subIndex;
-                for (i = 4 ; i < 8 ; i++)
-                    data[i] = 0;
-                sendSDO(d, whoami, CliServNbr, data);
-            }
-            else // end if I am SERVER
-            {
-                /* I am CLIENT */
-                /* It is a response for a previous download segment. We should find a line opened for this. */
-                if (!err)
-                    err = (UNS8)(d->transfers[line].state != SDO_DOWNLOAD_IN_PROGRESS);
-                if (err)
-                {
-                    MSG_ERR(0x1A85, "SDO error : Received segment response for unknown trans. from nodeId", nodeId);
-                    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                /* Reset the wathdog */
-                RestartSDO_TIMER(d, line);
-                index = d->transfers[line].index;
-                subIndex = d->transfers[line].subIndex;
-                /* test of the toggle; */
-                if (d->transfers[line].toggle != getSDOt(m->data[0]))
-                {
-                    MSG_ERR(0x1A86, "SDO error : Received segment response Toggle error. from nodeId", nodeId);
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
-                    return 0xFF;
-                }
-
-                /* End transmission or downloading next segment. We need to know if it will be the last one. */
-                getSDOLineRestBytes(d, line, &nbBytes);
-                if (nbBytes == 0)
-                {
-                    MSG_WAR(0x3A87, "SDO End download. segment response received. OK. from nodeId", nodeId);
-                    StopSDO_TIMER(d, line);
-                    d->transfers[line].state = SDO_FINISHED;
-                    if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
-                    return 0x00;
-                }
-                /* At least one transfer to send. */
-                if (nbBytes > 7)
-                {
-                    /* several segments to download.*/
-                    /* code to send the next segment. (cs = 0; c = 0) */
-                    d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
-                    data[0] = (UNS8)(d->transfers[line].toggle << 4);
-                    err = lineToSDO(d, line, 7, data + 1);
-                    if (err)
-                    {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                }
-                else
-                {
-                    /* Last segment. */
-                    /* code to send the last segment. (cs = 0; c = 1)*/
-                    d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
-                    data[0] = (UNS8)((d->transfers[line].toggle << 4) | ((7 - nbBytes) << 1) | 1);
-                    err = lineToSDO(d, line, nbBytes, data + 1);
-                    if (err) {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                    for (i = nbBytes + 1 ; i < 8 ; i++)
-                        data[i] = 0;
-                }
-                MSG_WAR(0x3A88, "SDO sending download segment to nodeId", nodeId);
-                sendSDO(d, whoami, CliServNbr, data);
-            } /* end if I am a CLIENT */
-            break;
-
-        case 2:
-            /* I am SERVER */
+            ret = serverInitDomainDownload(d, line, CliServNbr, m->data);
+        }
+        else if (cs == 2)
+        {
             /* Receive of an initiate upload.*/
-            if (whoami == SDO_SERVER)
-            {
-                index = (UNS16)getSDOindex(m->data[1],m->data[2]);
-                subIndex = getSDOsubIndex(m->data[3]);
-                MSG_WAR(0x3A89, "Received SDO Initiate upload (to send data) defined at index 0x1200 + ",
-                        CliServNbr);
-                MSG_WAR(0x3A90, "Reading at index : ", index);
-                MSG_WAR(0x3A91, "Reading at subIndex : ", subIndex);
-                /* Search if a SDO transfer have been yet initiated*/
-                if (! err)
-                {
-                    MSG_ERR(0x1A92, "SDO error : Transmission yet started at line : ", line);
-                    MSG_WAR(0x3A93, "Server Nbr = ", CliServNbr);
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                /* No line on use. Great !*/
-                /* Try to open a new line.*/
-                err = getSDOFreeLine( d, whoami, &line );
-                if (err)
-                {
-                    MSG_ERR(0x1A71, "SDO error : No line free, too many SDO in progress. Aborted.", 0);
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                initSDOLine(d, line, CliServNbr, index, subIndex, SDO_UPLOAD_IN_PROGRESS);
-                /* Transfer data from dictionary to the line structure. */
-                errorCode = objDictToSDOLine(d, line);
-
-                if (errorCode)
-                {
-                    MSG_ERR(0x1A94, "SDO error : Unable to copy the data from object dictionary. Err code : ",
-                            errorCode);
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, errorCode);
-                    return 0xFF;
-                }
-                /* Preparing the response.*/
-                getSDOLineRestBytes(d, line, &nbBytes);  /* Nb bytes to transfer ? */
-                if (nbBytes > 4)
-                {
-                    /* normal transfer. (segmented). */
-                    /* code to send the initiate upload response. (cs = 2) */
-                    data[0] = (UNS8)((2 << 5) | 1);
-                    data[1] = (UNS8)(index & 0xFF);        /* LSB */
-                    data[2] = (UNS8)((index >> 8) & 0xFF); /* MSB */
-                    data[3] = subIndex;
-                    data[4] = (UNS8) nbBytes;
-                    data[5] = (UNS8) (nbBytes >> 8);
-                    data[6] = (UNS8) (nbBytes >> 16);
-                    data[7] = (UNS8) (nbBytes >> 24);
-                     MSG_WAR(0x3A95, "SDO. Sending normal upload initiate response defined at index 0x1200 + ", nodeId);
-                    sendSDO(d, whoami, CliServNbr, data);
-                }
-                else
-                {
-                    /* Expedited upload. (cs = 2 ; e = 1) */
-                    data[0] = (UNS8)((2 << 5) | ((4 - nbBytes) << 2) | 3);
-                    data[1] = (UNS8)(index & 0xFF);        /* LSB */
-                    data[2] = (UNS8)((index >> 8) & 0xFF); /* MSB */
-                    data[3] = subIndex;
-                    err = lineToSDO(d, line, nbBytes, data + 4);
-                    if (err)
-                    {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                    for (i = 4 + nbBytes ; i < 8 ; i++)
-                        data[i] = 0;
-                    MSG_WAR(0x3A96, "SDO. Sending expedited upload initiate response defined at index 0x1200 + ",
-                            CliServNbr);
-                    sendSDO(d, whoami, CliServNbr, data);
-                    /* Release the line.*/
-                    resetSDOLine(d, line);
-                }
-            } /* end if I am SERVER*/
-            else
-            {
-                /* I am CLIENT */
-                /* It is the response for the previous initiate upload request.*/
-                /* We should find a line opened for this. */
-                if (!err)
-                    err = (UNS8)(d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS);
-                if (err)
-                {
-                    MSG_ERR(0x1A97, "SDO error : Received response for unknown upload request from nodeId", nodeId);
-                    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                /* Reset the wathdog */
-                RestartSDO_TIMER(d, line);
-                index = d->transfers[line].index;
-                subIndex = d->transfers[line].subIndex;
-
-                if (getSDOe(m->data[0])) /* If SDO expedited */
-                {
-                    /* nb of data to be uploaded */
-                    nbBytes = 4 - getSDOn2(m->data[0]);
-                    /* Storing the data in the line structure. */
-                    err = SDOtoLine(d, line, nbBytes, (*m).data + 4);
-                    if (err) {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                    /* SDO expedited -> transfer finished. data are available via  getReadResultNetworkDict(). */
-                    MSG_WAR(0x3A98, "SDO expedited upload finished. Response received from node : ", nodeId);
-                    StopSDO_TIMER(d, line);
-                    d->transfers[line].count = nbBytes;
-                    d->transfers[line].state = SDO_FINISHED;
-                    if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
-                    return 0;
-                }
-                else /* So, if it is not an expedited transfer */
-                {
-                    /* Storing the nb of data to receive. */
-                    if (getSDOs(m->data[0]))
-                    {
-                        nbBytes = m->data[4] + ((UNS32)(m->data[5])<<8) + ((UNS32)(m->data[6])<<16) + ((UNS32)(m->data[7])<<24);
-                        err = setSDOLineRestBytes(d, line, nbBytes);
-                        if (err)
-                        {
-                            failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                            return 0xFF;
-                        }
-                    }
-                    /* Requesting next segment. (cs = 3) */
-                    data[0] = 3 << 5;
-                    for (i = 1 ; i < 8 ; i++)
-                        data[i] = 0;
-                    MSG_WAR(0x3A99, "SDO. Sending upload segment request to node : ", nodeId);
-                    sendSDO(d, whoami, CliServNbr, data);
-                }
-            } /* End if CLIENT */
-            break;
-
-        case 3:
-            /* I am SERVER */
-            if (whoami == SDO_SERVER)
-            {
-                /* Receiving a upload segment. */
-                /* A SDO transfer should have been yet initiated. */
-                if (!err)
-                    err = (UNS8)(d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS);
-                if (err) {
-                    MSG_ERR(0x1AA0, "SDO error : Received upload segment for unstarted trans. index 0x1200 + ",
-                            CliServNbr);
-                    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                /* Reset the wathdog */
-                RestartSDO_TIMER(d, line);
-                MSG_WAR(0x3AA1, "Received SDO upload segment defined at index 0x1200 + ", CliServNbr);
-                index = d->transfers[line].index;
-                subIndex = d->transfers[line].subIndex;
-                /* Toggle test.*/
-                if (d->transfers[line].toggle != getSDOt(m->data[0]))
-                {
-                    MSG_ERR(0x1AA2, "SDO error : Toggle error : ", getSDOt(m->data[0]));
-                    failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_TOGGLE_NOT_ALTERNED);
-                    return 0xFF;
-                }
-                /* Uploading next segment. We need to know if it will be the last one. */
-                getSDOLineRestBytes(d, line, &nbBytes);
-                if (nbBytes > 7)
-                {
-                    /* The segment to transfer is not the last one.*/
-                    /* code to send the next segment. (cs = 0; c = 0) */
-                    data[0] = (UNS8)(d->transfers[line].toggle << 4);
-                    err = lineToSDO(d, line, 7, data + 1);
-                    if (err)
-                    {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                    /* Inverting the toggle for the next tranfert. */
-                    d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
-                    MSG_WAR(0x3AA3, "SDO. Sending upload segment defined at index 0x1200 + ", CliServNbr);
-                    sendSDO(d, whoami, CliServNbr, data);
-                }
-                else
-                {
-                    /* Last segment. */
-                    /* code to send the last segment. (cs = 0; c = 1) */
-                    data[0] = (UNS8)((d->transfers[line].toggle << 4) | ((7 - nbBytes) << 1) | 1);
-                    err = lineToSDO(d, line, nbBytes, data + 1);
-                    if (err)
-                    {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                    for (i = nbBytes + 1 ; i < 8 ; i++)
-                        data[i] = 0;
-                    MSG_WAR(0x3AA4, "SDO. Sending last upload segment defined at index 0x1200 + ", CliServNbr);
-                    sendSDO(d, whoami, CliServNbr, data);
-                    /* Release the line */
-                    resetSDOLine(d, line);
-                }
-            } /* end if SERVER*/
-            else
-            {
-                /* I am CLIENT */
-                /* It is the response for the previous initiate download request. */
-                /* We should find a line opened for this. */
-                if (!err)
-                    err = (UNS8)(d->transfers[line].state != SDO_DOWNLOAD_IN_PROGRESS);
-                if (err)
-                {
-                    MSG_ERR(0x1AA5, "SDO error : Received response for unknown download request from nodeId", nodeId);
-                    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                /* Reset the watchdog */
-                RestartSDO_TIMER(d, line);
-                index = d->transfers[line].index;
-                subIndex = d->transfers[line].subIndex;
-                /* End transmission or requesting  next segment. */
-                getSDOLineRestBytes(d, line, &nbBytes);
-                if (nbBytes == 0)
-                {
-                    MSG_WAR(0x3AA6, "SDO End download expedited. Response received. from nodeId", nodeId);
-                    StopSDO_TIMER(d, line);
-                    d->transfers[line].state = SDO_FINISHED;
-                    if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
-                    return 0x00;
-                }
-                if (nbBytes > 7)
-                {
-                    /* more than one request to send */
-                    /* code to send the next segment. (cs = 0; c = 0)    */
-                    data[0] = (UNS8)(d->transfers[line].toggle << 4);
-                    err = lineToSDO(d, line, 7, data + 1);
-                    if (err)
-                    {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                }
-                else
-                {
-                    /* Last segment.*/
-                    /* code to send the last segment. (cs = 0; c = 1)    */
-                    data[0] = (UNS8)((d->transfers[line].toggle << 4) | ((7 - nbBytes) << 1) | 1);
-                    err = lineToSDO(d, line, nbBytes, data + 1);
-                    if (err)
-                    {
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                    for (i = nbBytes + 1 ; i < 8 ; i++)
-                        data[i] = 0;
-                }
-                MSG_WAR(0x3AA7, "SDO sending download segment to nodeId", nodeId);
-                sendSDO(d, whoami, CliServNbr, data);
-
-            } /* end if I am a CLIENT        */
-            break;
-
-        case 4:
-            abortCode =
-                (UNS32)m->data[4] |
-                ((UNS32)m->data[5] << 8) |
-                ((UNS32)m->data[6] << 16) |
-                ((UNS32)m->data[7] << 24);
+            ret = serverInitDomainUpload(d, line, CliServNbr, m->data);
+        }
+        else if (cs == 3)
+        {
+            /* Receiving a upload segment. */
+            /* A SDO transfer should have been yet initiated. */
+            ret = serverUploadDomainSegment(d, line, CliServNbr, m->data);
+        }
+        else if (cs == 4)
+        {
             /* Received SDO abort. */
-            if (whoami == SDO_SERVER)
+            UNS32 abortCode = (UNS32)m->data[4] | ((UNS32)m->data[5] << 8) | ((UNS32)m->data[6] << 16) | ((UNS32)m->data[7] << 24);
+            if (line < SDO_MAX_SIMULTANEOUS_TRANSFERS)
             {
-                if (!err)
-                {
-                    resetSDOLine( d, line );
-                    MSG_WAR(0x3AA8, "SD0. Received SDO abort. Line released. Code : ", abortCode);
-                }
-                else
-                {
-                    MSG_WAR(0x3AA9, "SD0. Received SDO abort. No line found. Code : ", abortCode);
-                }
-                /* Tips : The end user has no way to know that the server node has received an abort SDO. */
-                /* Its is ok, I think.*/
+                resetSDOLine(d, line);
+                MSG_WAR(0x3AA8, "SD0. Received SDO abort. Line released. Code : ", abortCode);
             }
-            else /* If I am CLIENT */
-            {
-                if (!err)
-                {
-                    /* The line *must* be released by the core program. */
-                    StopSDO_TIMER(d, line);
-                    d->transfers[line].state = SDO_ABORTED_RCV;
-                    d->transfers[line].abortCode = abortCode;
-                    MSG_WAR(0x3AB0, "SD0. Received SDO abort. Line state ABORTED. Code : ", abortCode);
-                    if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
-                }
-                else
-                {
-                    MSG_WAR(0x3AB1, "SD0. Received SDO abort. No line found. Code : ", abortCode);
-                }
-            }
-            break;
-        case 5: /* Command specifier for data transmission - the client or server is the data producer */
-            SubCommand = getSDOblockSC(m->data[0]);
-            if (whoami == SDO_SERVER) /* Server block upload */
-            {
-                if (SubCommand == SDO_BCS_INITIATE_UPLOAD_REQUEST)
-                {
-                    index = (UNS16)getSDOindex(m->data[1],m->data[2]);
-                    subIndex = getSDOsubIndex(m->data[3]);
-                    MSG_WAR(0x3AB2, "Received SDO Initiate block upload defined at index 0x1200 + ",
-                        CliServNbr);
-                    MSG_WAR(0x3AB3, "Reading at index : ", index);
-                    MSG_WAR(0x3AB4, "Reading at subIndex : ", subIndex);
-                    /* Search if a SDO transfer have been yet initiated */
-                    if (! err)
-                    {
-                        MSG_ERR(0x1A93, "SDO error : Transmission yet started at line : ", line);
-                        MSG_WAR(0x3AB5, "Server Nbr = ", CliServNbr);
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    /* Check block size */
-                    if(m->data[4] > 127)
-                    {
-                        MSG_ERR(0x1A96, "SDO error : invalid block size", 0);
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_INVALID_BLOCK_SIZE);
-                        return 0xFF;
-                    }
-                    /* No line on use. Great !*/
-                    /* Try to open a new line.*/
-                    err = getSDOFreeLine( d, whoami, &line );
-                    if (err)
-                    {
-                        MSG_ERR(0x1A73, "SDO error : No line free, too many SDO in progress. Aborted.", 0);
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    initSDOLine(d, line, CliServNbr, index, subIndex, SDO_BLOCK_UPLOAD_IN_PROGRESS);
-                    d->transfers[line].peerCRCsupport = (UNS8)(((m->data[0])>>2) & 1);
-                    d->transfers[line].blksize = m->data[4];
-                    /* Transfer data from dictionary to the line structure. */
-                    errorCode = objDictToSDOLine(d, line);
-                    if (errorCode)
-                    {
-                        MSG_ERR(0x1A95, "SDO error : Unable to copy the data from object dictionary. Err code : ",
-                            errorCode);
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, errorCode);
-                        return 0xFF;
-                    }
-                     /* Preparing the response.*/
-                    getSDOLineRestBytes(d, line, &nbBytes);    /* get Nb bytes to transfer */
-                    d->transfers[line].objsize = nbBytes;
-                    data[0] = (6 << 5) | (1 << 1) | SDO_BSS_INITIATE_UPLOAD_RESPONSE;
-                    data[1] = (UNS8)(index & 0xFF);        /* LSB */
-                    data[2] = (UNS8)((index >> 8) & 0xFF); /* MSB */
-                    data[3] = subIndex;
-                    data[4] = (UNS8) nbBytes;
-                    data[5] = (UNS8) (nbBytes >> 8);
-                    data[6] = (UNS8) (nbBytes >> 16);
-                    data[7] = (UNS8) (nbBytes >> 24);
-                    MSG_WAR(0x3A9A, "SDO. Sending normal block upload initiate response defined at index 0x1200 + ", nodeId);
-                    sendSDO(d, whoami, CliServNbr, data);
-                }
-                else if (SubCommand == SDO_BCS_END_UPLOAD_REQUEST)
-                {
-                    MSG_WAR(0x3AA2, "Received SDO block END upload request defined at index 0x1200 + ", CliServNbr);
-                     /* A SDO transfer should have been yet initiated. */
-                    if (!err)
-                        err = (UNS8)(d->transfers[line].state != SDO_BLOCK_UPLOAD_IN_PROGRESS);
-                    if (err)
-                    {
-                        MSG_ERR(0x1AA1, "SDO error : Received block upload request for unstarted trans. index 0x1200 + ",
-                                CliServNbr);
-                        failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    /* Release the line */
-                    resetSDOLine(d, line);
-                }
-                else if ((SubCommand == SDO_BCS_UPLOAD_RESPONSE) || (SubCommand == SDO_BCS_START_UPLOAD))
-                {
-                     /* A SDO transfer should have been yet initiated. */
-                    if (!err)
-                        err = (UNS8)(d->transfers[line].state != SDO_BLOCK_UPLOAD_IN_PROGRESS);
-                    if (err)
-                    {
-                        MSG_ERR(0x1AA1, "SDO error : Received block upload response for unstarted trans. index 0x1200 + ",
-                                CliServNbr);
-                        failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    /* Reset the wathdog */
-                    RestartSDO_TIMER(d, line);
-                    /* Uploading first or next block */
-                    index = d->transfers[line].index;
-                    subIndex = d->transfers[line].subIndex;
-                    if (SubCommand == SDO_BCS_UPLOAD_RESPONSE)
-                    {
-                        MSG_WAR(0x3AA2, "Received SDO block upload response defined at index 0x1200 + ", CliServNbr);
-                        d->transfers[line].blksize = m->data[2];
-                        AckSeq = (m->data[1]) & 0x7f;
-                        getSDOLineRestBytes(d, line, &nbBytes);
-                        /* If everything have been sent and aknowledged we send a block end upload */
-                        if((nbBytes == 0) && (AckSeq == d->transfers[line].seqno))
-                        {
-                            data[0] = (UNS8)((6 << 5) | ((d->transfers[line].endfield) << 2) | SDO_BSS_END_UPLOAD_RESPONSE);
-                            for (i = 1 ; i < 8 ; i++)
-                                data[i] = 0;
-                            MSG_WAR(0x3AA5, "SDO. Sending block END upload response defined at index 0x1200 + ", CliServNbr);
-                            sendSDO(d, whoami, CliServNbr, data);
-                            break;
-                        }
-                        else
-                        {
-                            d->transfers[line].offset = d->transfers[line].lastblockoffset + (7 * AckSeq);
-                        }
-
-                        if(d->transfers[line].offset > d->transfers[line].count) /* Bad AckSeq reveived (too high) */
-                        {
-                            MSG_ERR(0x1AA1, "SDO error : Received upload response with bad ackseq index 0x1200 + ",
-                                CliServNbr);
-                            failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                            return 0xFF;
-                        }
-                    }
-                    else
-                    {
-                        MSG_WAR(0x3AA2, "Received SDO block START upload defined at index 0x1200 + ", CliServNbr);
-            		}
-                    d->transfers[line].lastblockoffset = d->transfers[line].offset;
-                    for(SeqNo = 1 ; SeqNo <= d->transfers[line].blksize ; SeqNo++)
-                    {
-                        d->transfers[line].seqno = SeqNo;
-                        getSDOLineRestBytes(d, line, &nbBytes);
-                        if (nbBytes > 7)
-                        {
-                            /* The segment to transfer is not the last one.*/
-                            data[0] = SeqNo;
-                            err = lineToSDO(d, line, 7, data + 1);
-                            if (err)
-                            {
-                                failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                                return 0xFF;
-                            }
-                            MSG_WAR(0x3AA5, "SDO. Sending upload segment defined at index 0x1200 + ", CliServNbr);
-                            sendSDO(d, whoami, CliServNbr, data);
-                        }
-                        else
-                        {
-                            /* Last segment is in this block */
-                            data[0] = 0x80 | SeqNo;
-                            err = lineToSDO(d, line, nbBytes, data + 1);
-                            if (err)
-                            {
-                                failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                                return 0xFF;
-                            }
-                            for (i = nbBytes + 1 ; i < 8 ; i++)
-                                data[i] = 0;
-                            MSG_WAR(0x3AA5, "SDO. Sending last upload segment defined at index 0x1200 + ", CliServNbr);
-                            sendSDO(d, whoami, CliServNbr, data);
-                            d->transfers[line].endfield = (UNS8) (7 - nbBytes);
-                            break;
-                        }
-                    }
-                }
-            }      /* end if SERVER */
-            else /* if CLIENT (block download) */
-            {
-                if ((SubCommand == SDO_BSS_INITIATE_DOWNLOAD_RESPONSE) || (SubCommand == SDO_BSS_DOWNLOAD_RESPONSE))
-                {
-                    /* We should find a line opened for this. */
-                    if (!err)
-                        err = (UNS8)(d->transfers[line].state != SDO_BLOCK_DOWNLOAD_IN_PROGRESS);
-                    if (err)
-                    {
-                        MSG_ERR(0x1AAA, "SDO error : Received response for unknown block download request from node id", nodeId);
-                        failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    index = d->transfers[line].index;
-                    subIndex = d->transfers[line].subIndex;
-                    /* Reset the watchdog */
-                    RestartSDO_TIMER(d, line);
-                    if (SubCommand == SDO_BSS_INITIATE_DOWNLOAD_RESPONSE)
-                    {
-                        if(m->data[4] > 127)
-                        {
-                            MSG_ERR(0x1A98, "SDO error : invalid block size", 0);
-                            failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_INVALID_BLOCK_SIZE);
-                            return 0xFF;
-                        }
-                        d->transfers[line].peerCRCsupport = ((m->data[0])>>2) & 1;
-                        d->transfers[line].blksize = m->data[4];
-                    }
-                    else
-                    {
-                        if(m->data[2] > 127)
-                        {
-                            MSG_ERR(0x1A99, "SDO error : invalid block size", 0);
-                            failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_INVALID_BLOCK_SIZE);
-                            return 0xFF;
-                        }
-                        d->transfers[line].blksize = m->data[2];
-                        AckSeq = (m->data[1]) & 0x7f;
-                        getSDOLineRestBytes(d, line, &nbBytes);
-                        /* If everything have been sent and aknowledged we send a block end upload */
-                        if((nbBytes == 0) && (AckSeq == d->transfers[line].seqno))
-                        {
-                            data[0] = (UNS8)((6 << 5) | ((d->transfers[line].endfield) << 2) | SDO_BCS_END_DOWNLOAD_REQUEST);
-                            for (i = 1 ; i < 8 ; i++)
-                                data[i] = 0;
-                            MSG_WAR(0x3AA5, "SDO. Sending block END download request defined at index 0x1200 + ", CliServNbr);
-                            sendSDO(d, whoami, CliServNbr, data);
-                            break;
-                        }
-                        else
-                            d->transfers[line].offset = d->transfers[line].lastblockoffset + (7 * AckSeq);
-                        
-                        if(d->transfers[line].offset > d->transfers[line].count) /* Bad AckSeq reveived (too high) */
-                        {
-                            MSG_ERR(0x1AA1, "SDO error : Received upload segment with bad ackseq index 0x1200 + ",
-                                CliServNbr);
-                            failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                            return 0xFF;
-                        }
-                    }
-                    d->transfers[line].lastblockoffset = d->transfers[line].offset;
-                    for(SeqNo = 1 ; SeqNo <= d->transfers[line].blksize ; SeqNo++)
-                    {
-                        d->transfers[line].seqno = SeqNo;
-                        getSDOLineRestBytes(d, line, &nbBytes);
-                        if (nbBytes > 7)
-                        {
-                            /* The segment to transfer is not the last one.*/
-                             data[0] = SeqNo;
-                            err = lineToSDO(d, line, 7, data + 1);
-                            if (err)
-                            {
-                                failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                                return 0xFF;
-                            }
-                            MSG_WAR(0x3AAB, "SDO. Sending download segment to node id ", nodeId);
-                            sendSDO(d, whoami, CliServNbr, data);
-                        }
-                        else
-                        {
-                            /* Last segment is in this block */
-                            data[0] = 0x80 | SeqNo;
-                            err = lineToSDO(d, line, nbBytes, data + 1);
-                            if (err)
-                            {
-                                failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_GENERAL_ERROR);
-                                return 0xFF;
-                            }
-                            for (i = nbBytes + 1 ; i < 8 ; i++)
-                                data[i] = 0;
-                            MSG_WAR(0x3AAB, "SDO. Sending last download segment to node id ", nodeId);
-                            sendSDO(d, whoami, CliServNbr, data);
-                            d->transfers[line].endfield = (UNS8) (7 - nbBytes);
-                            break;
-                        }
-                    }
-                }
-                else if (SubCommand == SDO_BSS_END_DOWNLOAD_RESPONSE)
-                {
-                    MSG_WAR(0x3AAC, "SDO End block download response from nodeId", nodeId);
-                    StopSDO_TIMER(d, line);
-                    d->transfers[line].state = SDO_FINISHED;
-                    if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
-                    return 0x00;
-                }
-                else
-                {
-                    MSG_ERR(0x1AAB, "SDO error block download : Received wrong subcommand from nodeId", nodeId);
-                    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-            }      /* end if CLIENT */
-            break;
-        case 6: /* Command specifier for data reception - the client or server is the data consumer */
-            if (whoami == SDO_SERVER) /* Server block download */
-            {
-                if (err)
-                {
-                    /* Nothing already started */
-                    SubCommand = (m->data[0]) & 1;
-                    if (SubCommand != SDO_BCS_INITIATE_DOWNLOAD_REQUEST)
-                    {
-                        MSG_ERR(0x1AAC, "SDO error block download : Received wrong subcommand from node id", nodeId);
-                        failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    index = getSDOindex(m->data[1],m->data[2]);
-                    subIndex = getSDOsubIndex(m->data[3]);
-                    MSG_WAR(0x3A9B, "Received SDO block download initiate defined at index 0x1200 + ",
-                        CliServNbr);
-                    MSG_WAR(0x3A9B, "Writing at index : ", index);
-                    MSG_WAR(0x3A9B, "Writing at subIndex : ", subIndex);
-                    /* Try to open a new line. */
-                    err = getSDOFreeLine( d, whoami, &line );
-                    if (err)
-                    {
-                        MSG_ERR(0x1A89, "SDO error : No line free, too many SDO in progress. Aborted.", 0);
-                        failedSDO(d, CliServNbr, whoami, index, subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    initSDOLine(d, line, CliServNbr, index, subIndex, SDO_BLOCK_DOWNLOAD_IN_PROGRESS);
-                    d->transfers[line].rxstep = RXSTEP_STARTED;
-                    d->transfers[line].peerCRCsupport = (UNS8)(((m->data[0])>>2) & 1);
-                    if ((m->data[0]) & 2)    /* if data set size is indicated */
-                        d->transfers[line].objsize = (UNS32)m->data[4] + (UNS32)m->data[5]*256 + (UNS32)m->data[6]*256*256 + (UNS32)m->data[7]*256*256*256;
-                    data[0] = (5 << 5) | SDO_BSS_INITIATE_DOWNLOAD_RESPONSE;
-                    data[1] = (UNS8) index;        /* LSB */
-                    data[2] = (UNS8) (index >> 8); /* MSB */
-                    data[3] = subIndex;
-                    data[4] = SDO_BLOCK_SIZE;
-                    data[5] = data[6] = data[7] = 0;
-                    MSG_WAR(0x3AAD, "SDO. Sending block download initiate response - index 0x1200 + ", CliServNbr);
-                    sendSDO(d, whoami, CliServNbr, data);
-                }
-                else if (d->transfers[line].rxstep == RXSTEP_STARTED)
-                {
-                    MSG_WAR(0x3A9B, "Received SDO block download data segment - index 0x1200 + ", CliServNbr);
-                    RestartSDO_TIMER(d, line);
-                    SeqNo = m->data[0] & 0x7F;
-                    if (m->data[0] & 0x80) /* Last segment ? */
-                    {
-                        if(SeqNo == (d->transfers[line].seqno + 1))
-                        {
-                            d->transfers[line].rxstep = RXSTEP_END;
-                            d->transfers[line].seqno = SeqNo;
-                            /* Store the data temporary because we don't know yet how many bytes do not contain data */
-                            memcpy(d->transfers[line].tmpData, m->data, 8);
-                        }
-                        data[0] = (5 << 5) | SDO_BSS_DOWNLOAD_RESPONSE;
-                        data[1] = d->transfers[line].seqno;
-                        data[2] = SDO_BLOCK_SIZE;
-                        data[3] = data[4] = data[5] = data[6] = data[7] = 0;
-                        MSG_WAR(0x3AAE, "SDO. Sending block download response - index 0x1200 + ", CliServNbr);
-                        sendSDO(d, whoami, CliServNbr, data);
-                        d->transfers[line].seqno = 0;
-                    }
-                    else
-                    {
-                        if (SeqNo == (d->transfers[line].seqno + 1))
-                        {    
-                            d->transfers[line].seqno = SeqNo;
-                            /* Store the data in the transfer structure. */
-                            err = SDOtoLine(d, line, 7, (*m).data + 1);
-                            if (err)
-                            {
-                                failedSDO(d, CliServNbr, whoami, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
-                                return 0xFF;
-                            }
-                        }
-
-                        if (SeqNo == SDO_BLOCK_SIZE)
-                        {
-                            data[0] = (5 << 5) | SDO_BSS_DOWNLOAD_RESPONSE;
-                            data[1] = d->transfers[line].seqno;
-                            data[2] = SDO_BLOCK_SIZE;
-                            data[3] = data[4] = data[5] = data[6] = data[7] = 0;
-                            MSG_WAR(0x3AAE, "SDO. Sending block download response - index 0x1200 + ", CliServNbr);
-                            sendSDO(d, whoami, CliServNbr, data);
-                            d->transfers[line].seqno = 0;
-                        }
-                    }
-                }
-                else if (d->transfers[line].rxstep == RXSTEP_END) /* endphase */
-                {
-                    MSG_WAR(0x3A9B, "Received SDO block download end request - index 0x1200 + ", CliServNbr);
-                    /* here store remaining bytes in tmpData to line, check size and confirm or abort */
-                    if ((m->data[0] & 1) != SDO_BCS_END_DOWNLOAD_REQUEST)
-                    {
-                        MSG_ERR(0x1AAD, "SDO error block download : Received wrong subcommand - index 0x1200 + ", CliServNbr);
-                        failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    RestartSDO_TIMER(d, line);
-                    NbBytesNoData = (UNS8)((m->data[0]>>2) & 0x07);
-                    /* Store the data in the transfer structure. */
-                    err = SDOtoLine(d, line, 7-NbBytesNoData, d->transfers[line].tmpData + 1);
-                    if (err)
-                    {
-                        failedSDO(d, CliServNbr, whoami, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                    if(d->transfers[line].objsize) /* If size was indicated in the initiate request */
-                    { 
-                        if (d->transfers[line].objsize != d->transfers[line].offset)
-                        {
-                                MSG_ERR(0x1AAE, "SDO error block download : sizes do not match - index 0x1200 + ", CliServNbr);
-                                failedSDO(d, CliServNbr, whoami, d->transfers[line].index, d->transfers[line].subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                                return 0xFF;
-                        }
-                    }
-                    data[0] = (5 << 5) | SDO_BSS_END_DOWNLOAD_RESPONSE;
-                    for (i = 1 ; i < 8 ; i++)
-                        data[i] = 0;
-                    MSG_WAR(0x3AAF, "SDO. Sending block download end response - index 0x1200 + ", CliServNbr);
-                    sendSDO(d, whoami, CliServNbr, data);
-                    /* Transfering line data to object dictionary. */
-                    errorCode = SDOLineToObjDict(d, line);
-                    if (errorCode)
-                    {
-                        MSG_ERR(0x1AAF, "SDO error : Unable to copy the data in the object dictionary", 0);
-                        failedSDO(d, CliServNbr, whoami, d->transfers[line].index, d->transfers[line].subIndex, errorCode);
-                        return 0xFF;
-                    }
-                    /* Release of the line */
-                    resetSDOLine(d, line);
-                    MSG_WAR(0x3AAF, "SDO. End of block download defined at index 0x1200 + ", CliServNbr);
-                }
-            }      /* end if SERVER */
-            else /* if CLIENT (block upload) */
-            {
-                if (err)
-                {
-                       /* Nothing already started */
-                    MSG_ERR(0x1AAD, "SDO error block upload : no transmission started", nodeId);
-                    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                    return 0xFF;
-                }
-                RestartSDO_TIMER(d, line);
-                if (d->transfers[line].rxstep == RXSTEP_INIT)
-                {
-                    if ((m->data[0] & 1) == SDO_BSS_INITIATE_UPLOAD_RESPONSE)
-                    {
-                        MSG_WAR(0x3A9C, "Received SDO block upload response from node id ", nodeId);
-                        d->transfers[line].rxstep = RXSTEP_STARTED;
-                        d->transfers[line].peerCRCsupport = (UNS8)(((m->data[0])>>2) & 1);
-                        if ((m->data[0]) & 2)    /* if data set size is indicated */
-                            d->transfers[line].objsize = (UNS32)m->data[4] + (UNS32)m->data[5]*256 + (UNS32)m->data[6]*256*256 + (UNS32)m->data[7]*256*256*256;
-                        data[0] = (5 << 5) | SDO_BCS_START_UPLOAD;
-                        for (i = 1 ; i < 8 ; i++)
-                            data[i] = 0;
-                        MSG_WAR(0x3AB6, "SDO. Sending block upload start to node id ", nodeId);
-                        sendSDO(d, whoami, CliServNbr, data);
-                    }
-                }
-                else if (d->transfers[line].rxstep == RXSTEP_STARTED)
-                {
-                    SeqNo = m->data[0] & 0x7F;
-                    if (m->data[0] & 0x80) /* Last segment ? */
-                    {
-                        if(SeqNo == (d->transfers[line].seqno + 1))
-                        {
-                            d->transfers[line].rxstep = RXSTEP_END;
-                            d->transfers[line].seqno = SeqNo;
-                            /* Store the data temporary because we don't know yet how many bytes do not contain data */
-                            memcpy(d->transfers[line].tmpData, m->data, 8);
-                        }
-                        data[0] = (5 << 5) | SDO_BCS_UPLOAD_RESPONSE;
-                        data[1] = d->transfers[line].seqno;
-                        data[2] = SDO_BLOCK_SIZE;
-                        data[3] = data[4] = data[5] = data[6] = data[7] = 0;
-                        MSG_WAR(0x3AB7, "SDO. Sending block upload response to node id ", nodeId);
-                        sendSDO(d, whoami, CliServNbr, data);
-                        d->transfers[line].seqno = 0;
-                    }
-                    else
-                    {
-                        if (SeqNo == (d->transfers[line].seqno + 1))
-                        {
-                            d->transfers[line].seqno = SeqNo;
-                            /* Store the data in the transfer structure. */
-                            err = SDOtoLine(d, line, 7, (*m).data + 1);
-                            if (err)
-                            {
-                                failedSDO(d, CliServNbr, whoami, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
-                                return 0xFF;
-                            }
-                        }
-                        if (SeqNo == SDO_BLOCK_SIZE)
-                        {
-                            data[0] = (5 << 5) | SDO_BCS_UPLOAD_RESPONSE;
-                            data[1] = d->transfers[line].seqno;
-                            data[2] = SDO_BLOCK_SIZE;
-                            data[3] = data[4] = data[5] = data[6] = data[7] = 0;
-                            MSG_WAR(0x3AAE, "SDO. Sending block upload response to node id ", nodeId);
-                            sendSDO(d, whoami, CliServNbr, data);
-                            d->transfers[line].seqno = 0;
-                        }
-                    }
-                }
-                else if (d->transfers[line].rxstep == RXSTEP_END) /* endphase */
-                {
-                    /* here store remaining bytes in tmpData to line, check size and confirm or abort */
-                    if ((m->data[0] & 1) != SDO_BSS_END_UPLOAD_RESPONSE)
-                    {
-                        MSG_ERR(0x1AAD, "SDO error block upload : Received wrong subcommand from node id ", nodeId);
-                        failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
-                        return 0xFF;
-                    }
-                    NbBytesNoData = (UNS8)((m->data[0]>>2) & 0x07);
-                    /* Store the data in the transfer structure. */
-                    err = SDOtoLine(d, line, 7-NbBytesNoData, d->transfers[line].tmpData + 1);
-                    if (err)
-                    {
-                        failedSDO(d, CliServNbr, whoami, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
-                        return 0xFF;
-                    }
-                    
-                    if(d->transfers[line].objsize) /* If size was indicated in the initiate request */
-                    { 
-                        if (d->transfers[line].objsize != d->transfers[line].offset)
-                        {
-                            MSG_ERR(0x1AAE, "SDO error block download : sizes do not match - from node id ", nodeId);
-                            failedSDO(d, CliServNbr, whoami, d->transfers[line].index, d->transfers[line].subIndex, SDOABT_LOCAL_CTRL_ERROR);
-                            return 0xFF;
-                        }
-                    }
-
-                    data[0] = (5 << 5) | SDO_BCS_END_UPLOAD_REQUEST;
-                    for (i = 1 ; i < 8 ; i++)
-                        data[i] = 0;
-                    MSG_WAR(0x3AAF, "SDO. Sending block upload end request to node id ", nodeId);
-                    sendSDO(d, whoami, CliServNbr, data);
-                    MSG_WAR(0x3AAF, "SDO. End of block upload request", 0);
-                    StopSDO_TIMER(d, line);
-                    d->transfers[line].state = SDO_FINISHED;
-                    if(d->transfers[line].Callback)
-                    {
-                        (*d->transfers[line].Callback)(d,nodeId);
-                    }
-                }
-            }      /* end if CLIENT */
-            break;
-        default:
-            /* Error : Unknown cs */
-            if (!err)
-                failedSDO(d, CliServNbr, whoami, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_CS_NOT_VALID);
             else
-                failedSDO(d, CliServNbr, whoami, 0,  0, SDOABT_CS_NOT_VALID);
-            MSG_ERR(0x1AB2, "SDO. Received unknown command specifier : ", cs);
-            return 0xFF;
+            {
+                MSG_WAR(0x3AA9, "SD0. Received SDO abort. No line found. Code : ", abortCode);
+            }
+            /* Tips : The end user has no way to know that the server node has received an abort SDO. */
+            /* Its is ok, I think.*/
+        }
+        else if (cs == 5)
+        {
+            ret = serverBlockUpload(d, line, CliServNbr, m->data);
+        }
+        else if (cs == 6)
+        {
+            ret = serverBlockDownload(d, line, CliServNbr, m->data, nodeId);
+        }
+    }
+    else // Client
+    {
+        if (cs == 0)
+        {
+            /* It is a request for a previous upload segment. We should find a line opened for this.*/
+            ret = clientUploadDomainSegment(d, line, CliServNbr, m->data, nodeId);
+        }
+        else if (cs == 1)
+        {
+            /* It is a response for a previous download segment. We should find a line opened for this. */
+            ret = clientDownloadDomainSegment(d, line, CliServNbr, m->data, nodeId);
+        }
+        else if (cs == 2)
+        {
+            /* It is the response for the previous initiate upload request.*/
+            /* We should find a line opened for this. */
+            ret = clientInitiateDomainUpload(d, line, CliServNbr, m->data, nodeId);
+        }
+        else if (cs == 3)
+        {
+            /* It is the response for the previous initiate download request. */
+            /* We should find a line opened for this. */
+            ret = clientInitiateDomainDownload(d, line, CliServNbr, m->data, nodeId);
+        }
+        else if (cs == 4)
+        {
+            /* Received SDO abort. */
+            UNS32 abortCode = (UNS32)m->data[4] | ((UNS32)m->data[5] << 8) | ((UNS32)m->data[6] << 16) | ((UNS32)m->data[7] << 24);
+            if (line < SDO_MAX_SIMULTANEOUS_TRANSFERS)
+            {
+                /* The line *must* be released by the core program. */
+                StopSDO_TIMER(d, line);
+                d->transfers[line].state = SDO_ABORTED_RCV;
+                d->transfers[line].abortCode = abortCode;
+                MSG_WAR(0x3AB0, "SD0. Received SDO abort. Line state ABORTED. Code : ", abortCode);
+                if(d->transfers[line].Callback) (*d->transfers[line].Callback)(d,nodeId);
+            }
+            else
+            {
+                MSG_WAR(0x3AB1, "SD0. Received SDO abort. No line found. Code : ", abortCode);
+            }
+        }
+        else if (cs == 5)
+        {
+            ret = clientBlockDownload(d, line, CliServNbr, m->data, nodeId);
+        }
+        else if (cs == 6)
+        {
+            ret = clientBlockUpload(d, line, CliServNbr, m->data, nodeId);
+        }
+    }
 
-    } /* End switch */
-    return 0;
+    if (cs > 6) // Error : Unknown cs
+    {
+        if (line < SDO_MAX_SIMULTANEOUS_TRANSFERS)
+            failedSDO(d, CliServNbr, whoami, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_CS_NOT_VALID);
+        else
+            failedSDO(d, CliServNbr, whoami, 0,  0, SDOABT_CS_NOT_VALID);
+        MSG_ERR(0x1AB2, "SDO. Received unknown command specifier : ", cs);
+        ret = 0xFF;
+    }
+
+    return ret;
 }
 
 
