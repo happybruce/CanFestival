@@ -11,5 +11,7 @@ Makefile
 build
 Debug/
 .vs/
+.cache/
 CMakeFiles/
 CMakeCache.txt
+build/
