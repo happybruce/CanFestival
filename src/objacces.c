@@ -293,7 +293,7 @@ UNS32 _setODentry( CO_Data* d,
         }
 
         /* Store value if requested with user defined function
-	     Function should return OD_ACCES_FAILED in case of store error */
+         Function should return OD_ACCES_FAILED in case of store error */
         if (ptrTable->pSubindex[bSubindex].bAccessType & TO_BE_SAVE)
         {
             return (*d->storeODSubIndex)(d, wIndex, bSubindex);

@@ -78,7 +78,7 @@ typedef struct {
                               */
   UNS8           data[SDO_MAX_LENGTH_TRANSFER];
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
-  UNS8           *dynamicData;
+  UNS8*          dynamicData;
   UNS32          dynamicDataSize;
 #endif //SDO_DYNAMIC_BUFFER_ALLOCATION
                                     
