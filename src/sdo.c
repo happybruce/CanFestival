@@ -37,24 +37,16 @@
 #include "applicfg.h"
 #include "declaration.h"
 #include "def.h"
+#include "objdictdef.h"
 #include "states.h"
 #include "sysdep.h"
 #include "canfestival.h"
 #include "objaccessinternal.h"
 
-/* Uncomment if your compiler does not support inline functions */
-#define NO_INLINE
-
-#ifdef NO_INLINE
-#define INLINE
-#else
-#define INLINE inline
-#endif
-
 
 /*Internals prototypes*/
 
-UNS8 GetSDOClientFromNodeId( CO_Data* d, UNS8 nodeId );
+UNS8 getSDOClientFromNodeId( CO_Data *d, UNS8 nodeId );
 
 /*!
  ** Called by writeNetworkDict
@@ -72,7 +64,7 @@ UNS8 GetSDOClientFromNodeId( CO_Data* d, UNS8 nodeId );
  **
  ** @return
  **/
-INLINE UNS8 _writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
+UNS8 _writeNetworkDict (CO_Data *d, UNS8 nodeId, UNS16 index,
         UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, SDOCallback_t Callback, UNS8 endianize, UNS8 useBlockMode);
 
 /*!
@@ -88,7 +80,7 @@ INLINE UNS8 _writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
  **
  ** @return
  **/
-INLINE UNS8 _readNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIndex,
+UNS8 _readNetworkDict (CO_Data *d, UNS8 nodeId, UNS16 index, UNS8 subIndex,
         UNS8 dataType, SDOCallback_t Callback, UNS8 useBlockMode);
 
 
@@ -142,46 +134,47 @@ INLINE UNS8 _readNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subInde
  ** @param d
  ** @param id
  **/
-void SDOTimeoutAlarm(CO_Data* d, UNS32 id)
+void SDOTimeoutAlarm(CO_Data *d, UNS32 id)
 {
     UNS16 offset;
     UNS8 nodeId;
+    UNS8 line = (UNS8)(id);
     /* Get the client->server cobid.*/
     offset = d->firstIndex->SDO_CLT;
-    if ((offset == 0) || ((offset+d->transfers[id].CliServNbr) > d->lastIndex->SDO_CLT))
+    if ((offset == 0) || ((offset+d->transfers[line].CliServNbr) > d->lastIndex->SDO_CLT))
     {
         return ;
     }
-    nodeId = READ_UNS8(d->objdict, offset+d->transfers[id].CliServNbr, 3);
+    nodeId = READ_UNS8(d->objdict, offset+d->transfers[line].CliServNbr, 3);
     MSG_ERR(0x1A01, "SDO timeout. SDO response not received.", 0);
     MSG_WAR(0x2A02, "server node id : ", nodeId);
-    MSG_WAR(0x2A02, "         index : ", d->transfers[id].index);
-    MSG_WAR(0x2A02, "      subIndex : ", d->transfers[id].subIndex);
+    MSG_WAR(0x2A02, "         index : ", d->transfers[line].index);
+    MSG_WAR(0x2A02, "      subIndex : ", d->transfers[line].subIndex);
     /* Reset timer handler */
-    d->transfers[id].timer = TIMER_NONE;
+    d->transfers[line].timer = TIMER_NONE;
     /*Set aborted state*/
-    d->transfers[id].state = SDO_ABORTED_INTERNAL;
+    d->transfers[line].state = SDO_ABORTED_INTERNAL;
     /* Sending a SDO abort */
-    sendSDOAbort(d, d->transfers[id].whoami, d->transfers[id].CliServNbr,
-            d->transfers[id].index, d->transfers[id].subIndex, SDOABT_TIMED_OUT);
+    sendSDOAbort(d, d->transfers[line].whoami, d->transfers[line].CliServNbr,
+            d->transfers[line].index, d->transfers[line].subIndex, SDOABT_TIMED_OUT);
     
-    d->transfers[id].abortCode = SDOABT_TIMED_OUT;
+    d->transfers[line].abortCode = SDOABT_TIMED_OUT;
     /* Call the user function to inform of the problem.*/
-    if(d->transfers[id].Callback)
+    if(d->transfers[line].Callback)
     {
         /*If ther is a callback, it is responsible to close SDO transfer (client)*/
-        (*d->transfers[id].Callback)(d, nodeId);
+        (*d->transfers[line].Callback)(d, nodeId);
     }
 
     /*Reset the line if (whoami == SDO_SERVER) or the callback did not close the line.
       Otherwise this sdo transfer would never be closed. */
-    if(d->transfers[id].abortCode == SDOABT_TIMED_OUT)
+    if(d->transfers[line].abortCode == SDOABT_TIMED_OUT)
     {
-        resetSDOLine(d, (UNS8)id);
+        resetSDOLine(d, line);
     }
 }
 
-void StopSDO_TIMER(CO_Data* d, UNS8 line)
+void StopSDO_TIMER(CO_Data *d, UNS8 line)
 {
     if (d)
     {
@@ -191,7 +184,7 @@ void StopSDO_TIMER(CO_Data* d, UNS8 line)
 }
 
 
-void StartSDO_TIMER(CO_Data* d, UNS8 line)
+void StartSDO_TIMER(CO_Data *d, UNS8 line)
 {
     if (d)
     {
@@ -201,7 +194,7 @@ void StartSDO_TIMER(CO_Data* d, UNS8 line)
 }
 
 
-void RestartSDO_TIMER(CO_Data* d, UNS8 line)
+void RestartSDO_TIMER(CO_Data *d, UNS8 line)
 {
     if (d)
     {
@@ -220,7 +213,7 @@ void RestartSDO_TIMER(CO_Data* d, UNS8 line)
  **
  ** @param d
  **/
-void resetSDO (CO_Data* d)
+void resetSDO (CO_Data *d)
 {
     /* transfer structure initialization */
     for (UNS8 j = 0 ; j < SDO_MAX_SIMULTANEOUS_TRANSFERS ; j++)
@@ -230,7 +223,7 @@ void resetSDO (CO_Data* d)
 }
 
 
-UNS32 SDOLineToObjDict (CO_Data* d, UNS8 line)
+UNS32 SDOLineToObjDict (CO_Data *d, UNS8 line)
 {
     UNS32 size;
     UNS32 errorCode;
@@ -270,7 +263,7 @@ UNS32 SDOLineToObjDict (CO_Data* d, UNS8 line)
 }
 
 
-UNS32 objDictToSDOLine(CO_Data* d, UNS8 line)
+UNS32 objDictToSDOLine(CO_Data *d, UNS8 line)
 {
     UNS32  size = SDO_MAX_LENGTH_TRANSFER;
     UNS8  dataType;
@@ -333,7 +326,7 @@ UNS32 objDictToSDOLine(CO_Data* d, UNS8 line)
  **
  ** @return
  **/
-UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
+UNS8 lineToSDO (CO_Data *d, UNS8 line, UNS32 nbBytes, UNS8 *data)
 {
     UNS32 i = 0;
     UNS32 offset = 0;
@@ -394,76 +387,90 @@ UNS8 lineToSDO (CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
  **
  ** @return
  **/
-UNS8 SDOtoLine(CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
+UNS8 SDOtoLine(CO_Data *d, UNS8 line, UNS32 nbBytes, UNS8 *data)
 {
     UNS32 i = 0;
     UNS32 offset = d->transfers[line].offset;
 
-#ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
-    if ((offset + nbBytes) > SDO_MAX_LENGTH_TRANSFER)
+    if (d->transfers[line].dataType == domain)
     {
-        MSG_ERR(0x1A15,"SDO Size of data too large. Exceed SDO_MAX_LENGTH_TRANSFER", nbBytes);
-        return 0xFF;
+        if (d->onWrDomainInd)
+        {
+            (d->onWrDomainInd)(d, d->transfers[line].index, d->transfers[line].subIndex, offset, nbBytes, data);
+        }
+        else
+        {
+            MSG_ERR(0x1A15,"Domain func is invalid", nbBytes);
+        }
     }
+    else
+    {
+#ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
+        if ((offset + nbBytes) > SDO_MAX_LENGTH_TRANSFER)
+        {
+            MSG_ERR(0x1A15,"SDO Size of data too large. Exceed SDO_MAX_LENGTH_TRANSFER", nbBytes);
+            return 0xFF;
+        }
 #endif
 
 
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
-    UNS32 requiredSize = offset + nbBytes;
-    UNS8* lineData = d->transfers[line].data;
-    UNS32 newDynamicDataSize = 0;
-    if (requiredSize > SDO_MAX_LENGTH_TRANSFER)
-    {
-        if (d->transfers[line].dynamicData == NULL)
+        UNS32 requiredSize = offset + nbBytes;
+        UNS8* lineData = d->transfers[line].data;
+        UNS32 newDynamicDataSize = 0;
+        if (requiredSize > SDO_MAX_LENGTH_TRANSFER)
         {
-            newDynamicDataSize = SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
-            if (newDynamicDataSize < requiredSize)
-            {
-                newDynamicDataSize = requiredSize;
-            }
-            d->transfers[line].dynamicData = (UNS8*) malloc(newDynamicDataSize);
-            d->transfers[line].dynamicDataSize = newDynamicDataSize;
-
             if (d->transfers[line].dynamicData == NULL)
             {
-                MSG_ERR(0x1A15,"SDO allocating dynamic buffer failed, size", d->transfers[line].dynamicDataSize);
-                return 0xFF;
+                newDynamicDataSize = SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
+                if (newDynamicDataSize < requiredSize)
+                {
+                    newDynamicDataSize = requiredSize;
+                }
+                d->transfers[line].dynamicData = (UNS8*) malloc(newDynamicDataSize);
+                d->transfers[line].dynamicDataSize = newDynamicDataSize;
+
+                if (d->transfers[line].dynamicData == NULL)
+                {
+                    MSG_ERR(0x1A15,"SDO allocating dynamic buffer failed, size", d->transfers[line].dynamicDataSize);
+                    return 0xFF;
+                }
+                /* Copy present data */
+                memcpy(d->transfers[line].dynamicData, d->transfers[line].data, offset);
             }
-            /* Copy present data */
-            memcpy(d->transfers[line].dynamicData, d->transfers[line].data, offset);
+            else if (requiredSize > d->transfers[line].dynamicDataSize)
+            {
+                UNS8* newDynamicBuffer = NULL;
+
+                newDynamicDataSize = d->transfers[line].dynamicDataSize+SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
+                if (newDynamicDataSize < requiredSize)
+                {
+                    newDynamicDataSize = requiredSize;
+                }
+
+                newDynamicBuffer = (UNS8*) realloc(d->transfers[line].dynamicData, newDynamicDataSize);
+                if (newDynamicBuffer == NULL)
+                {
+                    MSG_ERR(0x1A15,"SDO reallocating dynamic buffer failed, size", newDynamicDataSize);
+                    return 0xFF;
+                }
+                d->transfers[line].dynamicData = newDynamicBuffer;
+                d->transfers[line].dynamicDataSize = newDynamicDataSize;
+            }
+            lineData = d->transfers[line].dynamicData;
         }
-        else if (requiredSize > d->transfers[line].dynamicDataSize)
+
+        for (i = 0; i < nbBytes; i++)
         {
-            UNS8* newDynamicBuffer = NULL;
-
-            newDynamicDataSize = d->transfers[line].dynamicDataSize+SDO_DYNAMIC_BUFFER_ALLOCATION_SIZE;
-            if (newDynamicDataSize < requiredSize)
-            {
-                newDynamicDataSize = requiredSize;
-            }
-
-            newDynamicBuffer = (UNS8*) realloc(d->transfers[line].dynamicData, newDynamicDataSize);
-            if (newDynamicBuffer == NULL)
-            {
-                MSG_ERR(0x1A15,"SDO reallocating dynamic buffer failed, size", newDynamicDataSize);
-                return 0xFF;
-            }
-            d->transfers[line].dynamicData = newDynamicBuffer;
-            d->transfers[line].dynamicDataSize = newDynamicDataSize;
+            lineData[offset + i] = *(data + i);
         }
-        lineData = d->transfers[line].dynamicData;
-    }
-
-    for (i = 0; i < nbBytes; i++)
-    {
-        lineData[offset + i] = *(data + i);
-    }
 #else
-    for (i = 0; i < nbBytes; i++)
-    {
-        d->transfers[line].data[offset + i] = *(data + i);
-    }
+        for (i = 0; i < nbBytes; i++)
+        {
+            d->transfers[line].data[offset + i] = *(data + i);
+        }
 #endif
+    }
 
     // Update offset 
     d->transfers[line].offset = d->transfers[line].offset + nbBytes;
@@ -482,7 +489,7 @@ UNS8 SDOtoLine(CO_Data* d, UNS8 line, UNS32 nbBytes, UNS8* data)
  **
  ** @return
  **/
-UNS8 failedSDO(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
+UNS8 failedSDO(CO_Data *d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
         UNS8 subIndex, UNS32 abortCode)
 {
     UNS8 err;
@@ -521,7 +528,7 @@ UNS8 failedSDO(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
  ** @param d
  ** @param line
  **/
-void resetSDOLine(CO_Data* d, UNS8 line)
+void resetSDOLine(CO_Data *d, UNS8 line)
 {
     MSG_WAR(0x3A25, "reset SDO line nb : ", line);
     initSDOLine(d, line, 0, 0, 0, SDO_RESET);
@@ -545,7 +552,7 @@ void resetSDOLine(CO_Data* d, UNS8 line)
  **
  ** @return
  **/
-UNS8 initSDOLine(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS8 state)
+UNS8 initSDOLine(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS8 state)
 {
     MSG_WAR(0x3A25, "init SDO line nb : ", line);
     if (line > SDO_MAX_SIMULTANEOUS_TRANSFERS)
@@ -578,7 +585,20 @@ UNS8 initSDOLine(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIn
     d->transfers[line].seqno = 0;
     d->transfers[line].endfield = 0;
     d->transfers[line].rxstep = RXSTEP_INIT;
-    d->transfers[line].dataType = 0;
+    {
+        UNS32 errorCode;
+        ODCallback_t *Callback;
+        const indextable *pTable = (*d->scanIndexOD)(index, &errorCode, &Callback);
+        if (errorCode != OD_SUCCESSFUL)
+        {
+            d->transfers[line].dataType = 0;
+        }
+        else
+        {
+            d->transfers[line].dataType = pTable->pSubindex[subIndex].bDataType;
+        }
+    }
+
     d->transfers[line].Callback = NULL;
 #ifdef SDO_DYNAMIC_BUFFER_ALLOCATION
     if (d->transfers[line].dynamicData)
@@ -600,7 +620,7 @@ UNS8 initSDOLine(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS16 index, UNS8 subIn
  **
  ** @return
  **/
-UNS8 getSDOFreeLine(CO_Data* d, UNS8 whoami, UNS8* line)
+UNS8 getSDOFreeLine(CO_Data *d, UNS8 whoami, UNS8 *line)
 {
     for (UNS8 i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
     {
@@ -626,7 +646,7 @@ UNS8 getSDOFreeLine(CO_Data* d, UNS8 whoami, UNS8* line)
  **
  ** @return
  **/
-UNS8 getSDOLineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
+UNS8 getSDOLineOnUse(CO_Data *d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
 {
     for (UNS8 i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
     {
@@ -655,7 +675,7 @@ UNS8 getSDOLineOnUse(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
  **
  ** @return
  **/
-UNS8 getSDOLineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
+UNS8 getSDOLineToClose(CO_Data *d, UNS8 CliServNbr, UNS8 whoami, UNS8 *line)
 {
     for (UNS8 i = 0; i < SDO_MAX_SIMULTANEOUS_TRANSFERS; i++)
     {
@@ -683,13 +703,13 @@ UNS8 getSDOLineToClose(CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS8* line)
  **
  ** @return
  **/
-UNS8 closeSDOTransfer(CO_Data* d, UNS8 nodeId, UNS8 whoami)
+UNS8 closeSDOTransfer(CO_Data *d, UNS8 nodeId, UNS8 whoami)
 {
     UNS8 err;
     UNS8 line;
 
     /* First let's find the corresponding SDO client in our OD  */
-    UNS8 CliNbr = GetSDOClientFromNodeId(d, nodeId);
+    UNS8 CliNbr = getSDOClientFromNodeId(d, nodeId);
     if(CliNbr >= 0xFE)
     {
         return SDO_ABORTED_INTERNAL;
@@ -714,7 +734,7 @@ UNS8 closeSDOTransfer(CO_Data* d, UNS8 nodeId, UNS8 whoami)
  **
  ** @return
  **/
-UNS8 getSDOLineRestBytes(CO_Data* d, UNS8 line, UNS32* nbBytes)
+UNS8 getSDOLineRestBytes(CO_Data *d, UNS8 line, UNS32 *nbBytes)
 {
     /* SDO initiated with e=0 and s=0 have count set to null */
     if (d->transfers[line].count == 0)
@@ -737,15 +757,18 @@ UNS8 getSDOLineRestBytes(CO_Data* d, UNS8 line, UNS32* nbBytes)
  **
  ** @return
  **/
-UNS8 setSDOLineRestBytes(CO_Data* d, UNS8 line, UNS32 nbBytes)
+UNS8 setSDOLineRestBytes(CO_Data *d, UNS8 line, UNS32 nbBytes)
 {
-#ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
-    if (nbBytes > SDO_MAX_LENGTH_TRANSFER)
+    if (d->transfers[line].dataType != domain)
     {
-        MSG_ERR(0x1A35,"SDO Size of data too large. Exceed SDO_MAX_LENGTH_TRANSFER", nbBytes);
-        return 0xFF;
-    }
+#ifndef SDO_DYNAMIC_BUFFER_ALLOCATION
+        if (nbBytes > SDO_MAX_LENGTH_TRANSFER)
+        {
+            MSG_ERR(0x1A35,"SDO Size of data too large. Exceed SDO_MAX_LENGTH_TRANSFER", nbBytes);
+            return 0xFF;
+        }
 #endif
+    }
 
     d->transfers[line].count = nbBytes;
     return 0;
@@ -761,9 +784,9 @@ UNS8 setSDOLineRestBytes(CO_Data* d, UNS8 line, UNS32 nbBytes)
  **
  ** @return
  **/
-UNS8 sendSDO(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8* pData)
+UNS8 sendSDO(CO_Data *d, UNS8 whoami, UNS8 CliServNbr, UNS8 *pData)
 {
-    UNS16 offset;
+    UNS16 offset = 0;
     Message m;
 
     MSG_WAR(0x3A38, "sendSDO",0);
@@ -820,7 +843,7 @@ UNS8 sendSDO(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS8* pData)
  **
  ** @return
  **/
-UNS8 sendSDOAbort(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS32 abortCode)
+UNS8 sendSDOAbort(CO_Data *d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 subIndex, UNS32 abortCode)
 {
     UNS8 data[8];
     UNS8 ret;
@@ -843,7 +866,7 @@ UNS8 sendSDOAbort(CO_Data* d, UNS8 whoami, UNS8 CliServNbr, UNS16 index, UNS8 su
 }
 
 
-UNS8 getWhoAmI(CO_Data* d, UNS32 msgCobId, UNS8* CliServNbrPtr, UNS8* nodeIdPtr)
+static UNS8 getWhoAmI(CO_Data *d, UNS32 msgCobId, UNS8 *CliServNbrPtr, UNS8 *nodeIdPtr)
 {
     UNS8 whoami = SDO_UNKNOWN;
     UNS16 currentIndex = d->firstIndex->SDO_SVR;
@@ -914,7 +937,7 @@ UNS8 getWhoAmI(CO_Data* d, UNS32 msgCobId, UNS8* CliServNbrPtr, UNS8* nodeIdPtr)
 
 
 
-static UNS8 serverInitDomainDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+static UNS8 serverInitDomainDownload(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field)
 {
     UNS16 index = (UNS16)getSDOindex(data_field[1], data_field[2]);
     UNS8 subIndex = getSDOsubIndex(data_field[3]);
@@ -996,7 +1019,7 @@ static UNS8 serverInitDomainDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS
     return 0;
 }
 
-static UNS8 serverDownloadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+static UNS8 serverDownloadDomainSegment(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field)
 {
     /* Receiving a download segment data : a SDO transfer should have already been initiated. */
     if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
@@ -1029,6 +1052,7 @@ static UNS8 serverDownloadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, 
         failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, SDOABT_GENERAL_ERROR);
         return 0xFF;
     }
+
     /* Sending the SDO response, CS = 1 */
     UNS8 resp_data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     resp_data[0] = (UNS8)((1 << 5) | (d->transfers[line].toggle << 4));
@@ -1046,16 +1070,20 @@ static UNS8 serverDownloadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, 
     /* If it was the last segment, */
     if (getSDOc(data_field[0]))
     {
-        /* Transfering line data to object dictionary. */
-        /* The code does not use the "d" of initiate frame. So it is safe if e=s=0 */
-        /* error code while reading or writing in the local object dictionary. */
-        UNS32 errorCode = SDOLineToObjDict(d, line);
-        if (errorCode)
+        if (d->transfers[line].dataType != domain)
         {
-            MSG_ERR(0x1A54, "SDO error : Unable to copy the data in the object dictionary", 0);
-            failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, errorCode);
-            return 0xFF;
+            /* Transfering line data to object dictionary. */
+            /* The code does not use the "d" of initiate frame. So it is safe if e=s=0 */
+            /* error code while reading or writing in the local object dictionary. */
+            UNS32 errorCode = SDOLineToObjDict(d, line);
+            if (errorCode)
+            {
+                MSG_ERR(0x1A54, "SDO error : Unable to copy the data in the object dictionary", 0);
+                failedSDO(d, CliServNbr, SDO_SERVER, index, subIndex, errorCode);
+                return 0xFF;
+            }
         }
+
         /* Release of the line */
         resetSDOLine(d, line);
         MSG_WAR(0x3A74, "SDO. End of download defined at index 0x1200 + ", CliServNbr);
@@ -1065,7 +1093,7 @@ static UNS8 serverDownloadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, 
 }
 
 
-static UNS8 serverInitDomainUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+static UNS8 serverInitDomainUpload(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field)
 {
     UNS16 index = (UNS16)getSDOindex(data_field[1], data_field[2]);
     UNS8 subIndex = getSDOsubIndex(data_field[3]);
@@ -1147,7 +1175,7 @@ static UNS8 serverInitDomainUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8*
     return 0;
 }
 
-static UNS8 serverUploadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+static UNS8 serverUploadDomainSegment(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field)
 {
     if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) || 
          (d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS))
@@ -1214,7 +1242,7 @@ static UNS8 serverUploadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UN
 }
 
 
-static UNS8 serverBlockUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field)
+static UNS8 serverBlockUpload(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field)
 {
     UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     UNS8 SubCommand = getSDOblockSC(data_field[0]);
@@ -1390,7 +1418,7 @@ static UNS8 serverBlockUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data
 }
 
 
-static UNS8 serverBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+static UNS8 serverBlockDownload(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field, UNS8 nodeId)
 {
     UNS8 data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     if (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS)
@@ -1488,6 +1516,7 @@ static UNS8 serverBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* da
             failedSDO(d, CliServNbr, SDO_SERVER, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
             return 0xFF;
         }
+
         RestartSDO_TIMER(d, line);
         /* Number of bytes that do not contain data in last segment of block transfer */ 
         UNS8 NbBytesNoData = (UNS8)((data_field[0]>>2) & 0x07);
@@ -1498,6 +1527,7 @@ static UNS8 serverBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* da
             failedSDO(d, CliServNbr, SDO_SERVER, d->transfers[line].index,  d->transfers[line].subIndex, SDOABT_GENERAL_ERROR);
             return 0xFF;
         }
+
         if(d->transfers[line].objsize) /* If size was indicated in the initiate request */
         { 
             if (d->transfers[line].objsize != d->transfers[line].offset)
@@ -1507,20 +1537,26 @@ static UNS8 serverBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* da
                 return 0xFF;
             }
         }
+
         data[0] = (5 << 5) | SDO_BSS_END_DOWNLOAD_RESPONSE;
         for (UNS8 i = 1; i < 8; i++)
             data[i] = 0;
         MSG_WAR(0x3AAF, "SDO. Sending block download end response - index 0x1200 + ", CliServNbr);
         sendSDO(d, SDO_SERVER, CliServNbr, data);
-        /* Transfering line data to object dictionary. */
-        /* error code while reading or writing in the local object dictionary. */
-        UNS32 errorCode = SDOLineToObjDict(d, line);
-        if (errorCode)
+        
+        if (d->transfers[line].dataType != domain)
         {
-            MSG_ERR(0x1AAF, "SDO error : Unable to copy the data in the object dictionary", 0);
-            failedSDO(d, CliServNbr, SDO_SERVER, d->transfers[line].index, d->transfers[line].subIndex, errorCode);
-            return 0xFF;
+            /* Transfering line data to object dictionary. */
+            /* error code while reading or writing in the local object dictionary. */
+            UNS32 errorCode = SDOLineToObjDict(d, line);
+            if (errorCode)
+            {
+                MSG_ERR(0x1AAF, "SDO error : Unable to copy the data in the object dictionary", 0);
+                failedSDO(d, CliServNbr, SDO_SERVER, d->transfers[line].index, d->transfers[line].subIndex, errorCode);
+                return 0xFF;
+            }
         }
+
         /* Release of the line */
         resetSDOLine(d, line);
         MSG_WAR(0x3AAF, "SDO. End of block download defined at index 0x1200 + ", CliServNbr);
@@ -1530,7 +1566,7 @@ static UNS8 serverBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* da
 }
 
 
-static UNS8 clientUploadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+static UNS8 clientUploadDomainSegment(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field, UNS8 nodeId)
 {
     if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
          (d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS) )
@@ -1592,7 +1628,7 @@ static UNS8 clientUploadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UN
     return 0;
 }
 
-static UNS8 clientDownloadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+static UNS8 clientDownloadDomainSegment(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field, UNS8 nodeId)
 {
     if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
          (d->transfers[line].state != SDO_DOWNLOAD_IN_PROGRESS))
@@ -1662,7 +1698,7 @@ static UNS8 clientDownloadDomainSegment(CO_Data* d, UNS8 line, UNS8 CliServNbr, 
 }
 
 
-static UNS8 clientInitiateDomainUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+static UNS8 clientInitiateDomainUpload(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field, UNS8 nodeId)
 {
     if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
          (d->transfers[line].state != SDO_UPLOAD_IN_PROGRESS) )
@@ -1724,7 +1760,7 @@ static UNS8 clientInitiateDomainUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, U
     return 0;
 }
 
-static UNS8 clientInitiateDomainDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+static UNS8 clientInitiateDomainDownload(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field, UNS8 nodeId)
 {
     if ( (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS) ||
          (d->transfers[line].state != SDO_DOWNLOAD_IN_PROGRESS) )
@@ -1788,7 +1824,7 @@ static UNS8 clientInitiateDomainDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr,
 }
 
 
-static UNS8 clientBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+static UNS8 clientBlockDownload(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field, UNS8 nodeId)
 {
     UNS8 SubCommand = getSDOblockSC(data_field[0]);
     if ((SubCommand == SDO_BSS_INITIATE_DOWNLOAD_RESPONSE) || (SubCommand == SDO_BSS_DOWNLOAD_RESPONSE))
@@ -1912,7 +1948,7 @@ static UNS8 clientBlockDownload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* da
 }
 
 
-static UNS8 clientBlockUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data_field, UNS8 nodeId)
+static UNS8 clientBlockUpload(CO_Data *d, UNS8 line, UNS8 CliServNbr, UNS8 *data_field, UNS8 nodeId)
 {
     if (line >= SDO_MAX_SIMULTANEOUS_TRANSFERS)
     {
@@ -2033,7 +2069,7 @@ static UNS8 clientBlockUpload(CO_Data* d, UNS8 line, UNS8 CliServNbr, UNS8* data
 }
 
 
-UNS8 proceedSDO(CO_Data* d, Message* m)
+UNS8 proceedSDO(CO_Data *d, Message *m)
 {
     UNS8 ret = 0;
     UNS8 cs = 0xFF; // Command Specifier
@@ -2130,6 +2166,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
         {
             /* Received SDO abort. */
             UNS32 abortCode = (UNS32)m->data[4] | ((UNS32)m->data[5] << 8) | ((UNS32)m->data[6] << 16) | ((UNS32)m->data[7] << 24);
+            (void)abortCode;
             if (line < SDO_MAX_SIMULTANEOUS_TRANSFERS)
             {
                 resetSDOLine(d, line);
@@ -2228,7 +2265,7 @@ UNS8 proceedSDO(CO_Data* d, Message* m)
  **     0xFE : Not found
  **     otherwise : SDO client number
  **/
-UNS8 GetSDOClientFromNodeId( CO_Data* d, UNS8 nodeId )
+UNS8 getSDOClientFromNodeId( CO_Data *d, UNS8 nodeId )
 {
     UNS8 SDOfound = 0;
     UNS8 CliNbr;
@@ -2280,12 +2317,12 @@ UNS8 GetSDOClientFromNodeId( CO_Data* d, UNS8 nodeId )
  ** @param d
  ** @param nodeId
  **/
-void resetClientSDOLineFromNodeId(CO_Data* d, UNS8 nodeId)
+void resetClientSDOLineFromNodeId(CO_Data *d, UNS8 nodeId)
 {
     UNS8 line;
     UNS8 CliNbr;
     /* First let's find the corresponding SDO client in our OD  */
-    CliNbr = GetSDOClientFromNodeId( d, nodeId);
+    CliNbr = getSDOClientFromNodeId( d, nodeId);
     if(CliNbr >= 0xFE)
         return;
     /* Get the line */
@@ -2310,7 +2347,7 @@ void resetClientSDOLineFromNodeId(CO_Data* d, UNS8 nodeId)
  **
  ** @return
  **/
-INLINE UNS8 _writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
+UNS8 _writeNetworkDict (CO_Data *d, UNS8 nodeId, UNS16 index,
         UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, SDOCallback_t Callback, UNS8 endianize, UNS8 useBlockMode)
 {
     (void)endianize;
@@ -2336,7 +2373,7 @@ INLINE UNS8 _writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
 #endif
 
     /* First let's find the corresponding SDO client in our OD  */
-    CliNbr = GetSDOClientFromNodeId( d, nodeId);
+    CliNbr = getSDOClientFromNodeId( d, nodeId);
     if(CliNbr >= 0xFE)
     {
         return CliNbr;
@@ -2472,7 +2509,7 @@ INLINE UNS8 _writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
  **
  ** @return
  **/
-UNS8 writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
+UNS8 writeNetworkDict (CO_Data *d, UNS8 nodeId, UNS16 index,
         UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, UNS8 useBlockMode)
 {
     return _writeNetworkDict (d, nodeId, index, subIndex, count, dataType, data, NULL, 1, useBlockMode);
@@ -2493,13 +2530,13 @@ UNS8 writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
  **
  ** @return
  **/
-UNS8 writeNetworkDictCallBack (CO_Data* d, UNS8 nodeId, UNS16 index,
+UNS8 writeNetworkDictCallBack (CO_Data *d, UNS8 nodeId, UNS16 index,
         UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, SDOCallback_t Callback, UNS8 useBlockMode)
 {
     return _writeNetworkDict (d, nodeId, index, subIndex, count, dataType, data, Callback, 1, useBlockMode);
 }
 
-UNS8 writeNetworkDictCallBackAI (CO_Data* d, UNS8 nodeId, UNS16 index,
+UNS8 writeNetworkDictCallBackAI (CO_Data *d, UNS8 nodeId, UNS16 index,
         UNS8 subIndex, UNS32 count, UNS8 dataType, void *data, SDOCallback_t Callback, UNS8 endianize, UNS8 useBlockMode)
 {
     UNS8 ret;
@@ -2562,7 +2599,7 @@ UNS8 writeNetworkDictCallBackAI (CO_Data* d, UNS8 nodeId, UNS16 index,
  **
  ** @return
  **/
-INLINE UNS8 _readNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, SDOCallback_t Callback, UNS8 useBlockMode)
+UNS8 _readNetworkDict (CO_Data *d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, SDOCallback_t Callback, UNS8 useBlockMode)
 {
     UNS8 err;
     UNS8 i;
@@ -2575,7 +2612,7 @@ INLINE UNS8 _readNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subInde
     MSG_WAR(0x3AD7, "                                  subIndex : ", subIndex);
 
     /* First let's find the corresponding SDO client in our OD  */
-    CliNbr = GetSDOClientFromNodeId(d, nodeId);
+    CliNbr = getSDOClientFromNodeId(d, nodeId);
     if(CliNbr >= 0xFE)
     {
         return CliNbr;
@@ -2650,7 +2687,7 @@ INLINE UNS8 _readNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subInde
  **
  ** @return
  **/
-UNS8 readNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, UNS8 useBlockMode)
+UNS8 readNetworkDict (CO_Data *d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, UNS8 useBlockMode)
 {
     return _readNetworkDict (d, nodeId, index, subIndex, dataType, NULL, useBlockMode);
 }
@@ -2668,12 +2705,12 @@ UNS8 readNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 
  **
  ** @return
  **/
-UNS8 readNetworkDictCallback (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, SDOCallback_t Callback, UNS8 useBlockMode)
+UNS8 readNetworkDictCallback (CO_Data *d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, SDOCallback_t Callback, UNS8 useBlockMode)
 {
     return _readNetworkDict (d, nodeId, index, subIndex, dataType, Callback, useBlockMode);
 }
 
-UNS8 readNetworkDictCallbackAI (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, SDOCallback_t Callback, UNS8 useBlockMode)
+UNS8 readNetworkDictCallbackAI (CO_Data *d, UNS8 nodeId, UNS16 index, UNS8 subIndex, UNS8 dataType, SDOCallback_t Callback, UNS8 useBlockMode)
 {
     UNS8 ret;
     UNS16 lastIndex;
@@ -2736,8 +2773,8 @@ UNS8 readNetworkDictCallbackAI (CO_Data* d, UNS8 nodeId, UNS16 index, UNS8 subIn
  **    SDO_PROVIDED_BUFFER_TOO_SMALL if *data is not big enough
  **    or any transmission status value.
  **/
-UNS8 getReadResultNetworkDict (CO_Data* d, UNS8 nodeId, void* data, UNS32 *size,
-        UNS32 * abortCode)
+UNS8 getReadResultNetworkDict (CO_Data *d, UNS8 nodeId, void *data, UNS32 *size,
+        UNS32 *abortCode)
 {
     UNS32 i;
     UNS8 err;
@@ -2746,7 +2783,7 @@ UNS8 getReadResultNetworkDict (CO_Data* d, UNS8 nodeId, void* data, UNS32 *size,
     * abortCode = 0;
 
     /* First let's find the corresponding SDO client in our OD  */
-    CliNbr = GetSDOClientFromNodeId(d, nodeId);
+    CliNbr = getSDOClientFromNodeId(d, nodeId);
     if(CliNbr >= 0xFE)
     {
         *size = 0;
@@ -2836,7 +2873,7 @@ UNS8 getReadResultNetworkDict (CO_Data* d, UNS8 nodeId, void* data, UNS32 *size,
  **
  ** @return
  **/
-UNS8 getWriteResultNetworkDict(CO_Data* d, UNS8 nodeId, UNS32 * abortCode)
+UNS8 getWriteResultNetworkDict(CO_Data *d, UNS8 nodeId, UNS32 *abortCode)
 {
     UNS8 line = 0;
     UNS8 err;
@@ -2844,7 +2881,7 @@ UNS8 getWriteResultNetworkDict(CO_Data* d, UNS8 nodeId, UNS32 * abortCode)
     * abortCode = 0;
     
     /* First let's find the corresponding SDO client in our OD  */
-    CliNbr = GetSDOClientFromNodeId(d, nodeId);
+    CliNbr = getSDOClientFromNodeId(d, nodeId);
     if(CliNbr >= 0xFE)
     {
         return SDO_ABORTED_INTERNAL;
