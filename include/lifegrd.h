@@ -63,16 +63,16 @@ extern "C" {
 
 
 typedef void (*heartbeatError_t)(CO_Data*, UNS8);
-void _heartbeatError(CO_Data* d, UNS8 heartbeatID);
+void dummy_heartbeatError(CO_Data *d, UNS8 heartbeatID);
 
 typedef void (*post_SlaveBootup_t)(CO_Data*, UNS8);
-void _post_SlaveBootup(CO_Data* d, UNS8 SlaveID);
+void dummy_post_SlaveBootup(CO_Data *d, UNS8 SlaveID);
 
 typedef void (*post_SlaveStateChange_t)(CO_Data*, UNS8, e_nodeState);
-void _post_SlaveStateChange(CO_Data* d, UNS8 nodeId, e_nodeState newNodeState);
+void dummy_post_SlaveStateChange(CO_Data *d, UNS8 nodeId, e_nodeState newNodeState);
 
 typedef void (*nodeguardError_t)(CO_Data*, UNS8);
-void _nodeguardError(CO_Data* d, UNS8 id);
+void dummy_nodeguardError(CO_Data *d, UNS8 id);
 
 /*************************************************************************
  * Functions
@@ -84,7 +84,7 @@ void _nodeguardError(CO_Data* d, UNS8 id);
  * @param *d Pointer on a CAN object data structure
  * @ingroup nodeguardo
  */
-void nodeguardInit(CO_Data* d);
+void nodeguardInit(CO_Data *d);
 
 /** 
  * @brief Stop producing node guarding messages
@@ -92,7 +92,7 @@ void nodeguardInit(CO_Data* d);
  * @param *d Pointer on a CAN object data structure
  * @ingroup nodeguardo
  */
-void nodeguardStop(CO_Data* d);
+void nodeguardStop(CO_Data *d);
 
 /** 
  * @brief Start the life guarding service (heartbeat/node guarding).
@@ -102,14 +102,14 @@ void nodeguardStop(CO_Data* d);
  *
  * @param *d Pointer on a CAN object data structure
  */
-void lifeGuardInit(CO_Data* d);
+void lifeGuardInit(CO_Data *d);
 
 /** 
  * @brief Stop the life guarding service (heartbeat/node guarding).
  *
  * @param *d Pointer on a CAN object data structure
  */
-void lifeGuardStop(CO_Data* d);
+void lifeGuardStop(CO_Data *d);
 
 /** 
  * @ingroup statemachine
@@ -120,7 +120,7 @@ void lifeGuardStop(CO_Data* d);
  * @param nodeId Id of a node
  * @return e_nodeState State of the node corresponding to the nodeId
  */
-e_nodeState getNodeState(CO_Data* d, UNS8 nodeId);
+e_nodeState getNodeState(CO_Data *d, UNS8 nodeId);
 
 /** 
  * @brief Start heartbeat consumer and producer
@@ -129,14 +129,14 @@ e_nodeState getNodeState(CO_Data* d, UNS8 nodeId);
  * @param *d Pointer on a CAN object data structure
  * @ingroup heartbeato
  */
-void heartbeatInit(CO_Data* d);
+void heartbeatInit(CO_Data *d);
 
 /** 
  * @brief Stop heartbeat consumer and producer
  * @param *d Pointer on a CAN object data structure
  * @ingroup heartbeato
  */
-void heartbeatStop(CO_Data* d);
+void heartbeatStop(CO_Data *d);
 
 /** 
  * @brief Process a CANopen message that belongs to NMT Error Control services.
@@ -145,7 +145,7 @@ void heartbeatStop(CO_Data* d);
  * @param *m Pointer on the CAN-message which has to be analysed.
  * @ingroup nodeguardo
  */
-void proceedNODE_GUARD(CO_Data* d, Message* m);
+void proceedNODE_GUARD(CO_Data *d, Message *m);
 
 #ifdef __cplusplus
 }

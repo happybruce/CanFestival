@@ -39,7 +39,7 @@
 #include "sysdep.h"
 #include "config.h"
 
-UNS32 OnNumberOfErrorsUpdate(CO_Data* d, UNS16 unsused_indextable, UNS8 unsused_bSubindex);
+UNS32 OnNumberOfErrorsUpdate(CO_Data *d, UNS16 unsused_indextable, UNS8 unsused_bSubindex);
 
 #define Data data  /* temporary fix */
 
@@ -53,7 +53,7 @@ UNS32 OnNumberOfErrorsUpdate(CO_Data* d, UNS16 unsused_indextable, UNS8 unsused_
 **
 ** @return
 **/
-UNS32 OnNumberOfErrorsUpdate(CO_Data* d, UNS16 unsused_indextable, UNS8 unsused_bSubindex)
+UNS32 OnNumberOfErrorsUpdate(CO_Data *d, UNS16 unsused_indextable, UNS8 unsused_bSubindex)
 {
     UNS8 index;
     (void)unsused_indextable;
@@ -79,7 +79,7 @@ UNS32 OnNumberOfErrorsUpdate(CO_Data* d, UNS16 unsused_indextable, UNS8 unsused_
 **
 ** @param d
 **/
-void emergencyInit(CO_Data* d)
+void emergencyInit(CO_Data *d)
 {
     RegisterSetODentryCallBack(d, 0x1003, 0x00, &OnNumberOfErrorsUpdate);
 
@@ -91,7 +91,7 @@ void emergencyInit(CO_Data* d)
 **
 ** @param d
 **/
-void emergencyStop(CO_Data* d)
+void emergencyStop(CO_Data *d)
 {
     (void)d;
 }
@@ -106,7 +106,7 @@ void emergencyStop(CO_Data* d)
  **
  ** @return
  **/
-UNS8 sendEMCY(CO_Data* d, UNS16 errCode, UNS8 errRegister, const UNS8 errSpecific[5])
+UNS8 sendEMCY(CO_Data *d, UNS16 errCode, UNS8 errRegister, const UNS8 errSpecific[5])
 {
     Message m;
 
@@ -140,7 +140,7 @@ UNS8 sendEMCY(CO_Data* d, UNS16 errCode, UNS8 errRegister, const UNS8 errSpecifi
  ** @param addInfo
  ** @return 1 if error, 0 if successful
  */
-UNS8 EMCY_setError(CO_Data* d, UNS16 errCode, UNS8 errRegMask, UNS16 addInfo)
+UNS8 EMCY_setError(CO_Data *d, UNS16 errCode, UNS8 errRegMask, UNS16 addInfo)
 {
     UNS8 index;
     UNS8 errRegister_tmp;
@@ -225,7 +225,7 @@ UNS8 EMCY_setError(CO_Data* d, UNS16 errCode, UNS8 errRegMask, UNS16 addInfo)
  ** @param errCode Code of the error
  ** @return 1 if error, 0 if successful
  */
-void EMCY_errorRecovered(CO_Data* d, UNS16 errCode)
+void EMCY_errorRecovered(CO_Data *d, UNS16 errCode)
 {
     UNS8 index;
     UNS8 errRegister_tmp;
@@ -279,7 +279,7 @@ void EMCY_errorRecovered(CO_Data* d, UNS16 errCode)
  ** @param m The CAN-message which has to be analysed.
  **
  **/
-void proceedEMCY(CO_Data* d, Message* m)
+void proceedEMCY(CO_Data *d, Message *m)
 {
     UNS8 nodeID;
     UNS16 errCode;
@@ -301,7 +301,7 @@ void proceedEMCY(CO_Data* d, Message* m)
     (*d->post_emcy)(d, nodeID, errCode, errReg, (const UNS8*)&m->Data[3]);
 }
 
-void _post_emcy(CO_Data* d, UNS8 nodeID, UNS16 errCode, UNS8 errReg, const UNS8 errSpec[5])
+void dummy_post_emcy(CO_Data *d, UNS8 nodeID, UNS16 errCode, UNS8 errReg, const UNS8 errSpec[5])
 {
     (void)d;
     (void)nodeID;

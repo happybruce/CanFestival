@@ -20,15 +20,12 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef __APPLICFG_LINUX__
-#define __APPLICFG_LINUX__
+#ifndef __APPLICFG_STM32__
+#define __APPLICFG_STM32__
 
-
-#include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <sys/types.h>
-
+#include <string.h>
 
 /*  Define the architecture : little_endian or big_endian
  -----------------------------------------------------
@@ -60,30 +57,28 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define INTEGER64 int64_t
 
 /* Unsigned integers */
-#define UNS8   u_int8_t
-#define UNS16  u_int16_t
-#define UNS32  u_int32_t
-#define UNS24  u_int32_t
-#define UNS40  u_int64_t
-#define UNS48  u_int64_t
-#define UNS56  u_int64_t
-#define UNS64  u_int64_t
+#define UNS8   uint8_t
+#define UNS16  uint16_t
+#define UNS32  uint32_t
+#define UNS24  uint32_t
+#define UNS40  uint64_t
+#define UNS48  uint64_t
+#define UNS56  uint64_t
+#define UNS64  uint64_t
 
 /* Reals */
-#define REAL32  float
-#define REAL64  double
+#define REAL32	float
+#define REAL64 double
 
 /* Definition of error and warning macros */
 /* -------------------------------------- */
-
-#define MSG(...) printf (__VA_ARGS__)
-
+#	define MSG(...) printf (__VA_ARGS__)
 
 /* Definition of MSG_ERR */
 /* --------------------- */
 #ifdef DEBUG_ERR_CONSOLE_ON
 #   define MSG_ERR(num, str, val)            \
-        MSG("%s,%d : 0X%X %s 0X%X \n", __FILE__, __LINE__, num, str, val);
+          MSG("%s,%d : 0X%x %s 0X%x \n", __FILE__, __LINE__, num, str, val);
 #else
 #   define MSG_ERR(num, str, val)
 #endif
@@ -92,7 +87,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /* --------------------- */
 #ifdef DEBUG_WAR_CONSOLE_ON
 #   define MSG_WAR(num, str, val)          \
-        MSG("%s,%d : 0X%X %s 0X%X \n", __FILE__, __LINE__, num, str, val);
+          MSG("%s,%d : 0X%x %s 0X%x \n", __FILE__, __LINE__, num, str, val);
 #else
 #   define MSG_WAR(num, str, val)
 #endif
@@ -101,4 +96,4 @@ typedef void* CAN_HANDLE;
 
 typedef void* CAN_PORT;
 
-#endif /* __APPLICFG_LINUX__ */
+#endif

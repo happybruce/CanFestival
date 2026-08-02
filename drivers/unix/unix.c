@@ -54,7 +54,7 @@ typedef struct {
     char used;  /**< flag indicating CAN port usage, will be used to abort Receiver task*/
     CAN_HANDLE fd; /**< CAN port file descriptor*/
     TASK_HANDLE receiveTask; /**< CAN Receiver task*/
-    CO_Data* d; /**< CAN object data*/
+    CO_Data *d; /**< CAN object data*/
 } CANPort;
 
 #include "can_driver.h"
@@ -200,7 +200,7 @@ CAN_PORT canOpen(s_BOARD *board, CO_Data * d)
  * @param d CAN object data
  * @return success or error
  */
-int canClose(CO_Data* d)
+int canClose(CO_Data *d)
 {
     int res = 0;
 

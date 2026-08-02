@@ -10,16 +10,16 @@ static TIMEVAL elapsed_time = 0;
 
 static CO_Data *co_data = NULL;
 
-static CAN_HandleTypeDef * CanPtr   = NULL;
-static TIM_HandleTypeDef * TimerPtr = NULL;
+static CAN_HandleTypeDef *CanPtr   = NULL;
+static TIM_HandleTypeDef *TimerPtr = NULL;
 
 
-void selectTimer(TIM_HandleTypeDef* timer)
+void selectTimer(TIM_HandleTypeDef *timer)
 {
     TimerPtr = timer;
 }
 
-void selectCAN(CAN_HandleTypeDef* can)
+void selectCAN(CAN_HandleTypeDef *can)
 {
     CanPtr = can;
 }
@@ -41,7 +41,7 @@ void setTimer(TIMEVAL value)
 }
 
 //Return the elapsed time to tell the Stack how much time is spent since last call.
-TIMEVAL getElapsedTime(void)
+TIMEVAL getElapsedTime()
 {
     if (!TimerPtr)
     {
@@ -61,7 +61,7 @@ TIMEVAL getElapsedTime(void)
 
 
 //Initialize the CAN hardware 
-unsigned char canInit(CO_Data * d, uint32_t bitrate)
+unsigned char canInit(CO_Data *d, uint32_t bitrate)
 {
     // Set CANopen data pointer
     co_data = d;

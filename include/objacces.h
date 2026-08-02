@@ -49,9 +49,10 @@ extern "C" {
 
 // Function pointer type
 typedef UNS32 (*valueRangeTest_t)(UNS8 typeValue, void* Value);
-typedef UNS32 (*storeODSubIndex_t)(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
+typedef UNS32 (*storeODSubIndex_t)(CO_Data *d, UNS16 wIndex, UNS8 bSubindex);
+typedef UNS32 (*onWrDomainInd_t)(CO_Data *d, UNS16 wIndex, UNS8 bSubindex, UNS32 offset, UNS32 nbBytes, UNS8 *data);
 
-UNS32 _storeODSubIndex(CO_Data* d, UNS16 wIndex, UNS8 bSubindex);
+UNS32 dummy_storeODSubIndex(CO_Data *d, UNS16 wIndex, UNS8 bSubindex);
 
 /**
  * @brief Print MSG_WAR logs if an object dictionary access error occurs.
@@ -114,12 +115,12 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
  * - OD_SUCCESSFUL is returned upon success. 
  * - SDO abort code is returned if error occurs . (See file def.h)
  */
-UNS32 _getODentry(CO_Data* d,
+UNS32 _getODentry(CO_Data *d,
               UNS16 wIndex,
               UNS8 bSubindex,
-              void* pDestData,
-              UNS32* pExpectedSize,
-              UNS8* pDataType,
+              void *pDestData,
+              UNS32 *pExpectedSize,
+              UNS8 *pDataType,
               UNS8 checkAccess,
               UNS8 endianize);
 
@@ -197,11 +198,11 @@ UNS32 _getODentry(CO_Data* d,
  * - OD_SUCCESSFUL is returned upon success. 
  * - SDO abort code is returned if error occurs . (See file def.h)
  */
-UNS32 _setODentry(CO_Data* d,
+UNS32 _setODentry(CO_Data *d,
               UNS16 wIndex,
               UNS8 bSubindex,
-              void* pSourceData,
-              UNS32* pExpectedSize,
+              void *pSourceData,
+              UNS32 *pExpectedSize,
               UNS8 checkAccess,
               UNS8 endianize);
 
@@ -271,7 +272,7 @@ UNS32 _setODentry(CO_Data* d,
 #endif
 
 
-UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCallback_t Callback);
+UNS32 RegisterSetODentryCallBack(CO_Data *d, UNS16 wIndex, UNS8 bSubindex, ODCallback_t Callback);
 
 #ifdef __cplusplus
 }

@@ -29,9 +29,9 @@ EXPORTS
         check_and_start_node
 
         ; lifegrd.h
-        _heartbeatError
-        _post_SlaveBootup
-        _post_SlaveStateChange
+        dummy_heartbeatError
+        dummy_post_SlaveBootup
+        dummy_post_SlaveStateChange
         getNodeState
         heartbeatInit
         heartbeatStop
@@ -47,7 +47,7 @@ EXPORTS
         slaveSendBootUp
         
         ; objacces.h
-        _storeODSubIndex
+        dummy_storeODSubIndex
         accessDictionaryError
         _getODentry
         _setODentry
@@ -94,10 +94,10 @@ EXPORTS
         getWriteResultNetworkDict
         
         ; states.h
-        _operational
-        _preOperational
-        _initialisation
-        _stopped
+        dummy_operational
+        default_preOperational
+        dummy_initialisation
+        dummy_stopped
         canDispatch
         getState
         setState
@@ -108,8 +108,8 @@ EXPORTS
         ; sync.h
         startSYNC
         stopSYNC
-        _post_sync
-        _post_TPDO
+        dummy_post_sync
+        dummy_post_TPDO
         sendSYNC
         proceedSYNC
         
@@ -118,7 +118,7 @@ EXPORTS
         emergencyStop
         EMCY_setError
         EMCY_errorRecovered
-        _post_emcy
+        dummy_post_emcy
         
         ; timer.h
         SetAlarm

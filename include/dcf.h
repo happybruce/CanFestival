@@ -45,7 +45,7 @@ extern "C" {
  * @return 1: dcf check started
  *         0: nothing to do   
  */
-UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId);
+UNS8 init_consise_dcf(CO_Data *d, UNS8 nodeId);
 
 /**
  * @brief Function to be called from post_SlaveBootup 
@@ -57,7 +57,7 @@ UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId);
  *         1: nothing to check, node started
  *         2: dcf check started
 */
-UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId);
+UNS8 check_and_start_node(CO_Data *d, UNS8 nodeId);
 
 #ifdef __cplusplus
 }

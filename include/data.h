@@ -29,7 +29,6 @@ extern "C" {
 
 #include "applicfg.h"
 #include "def.h"
-#include "can.h"
 #include "objdictdef.h"
 #include "objacces.h"
 #include "sdo.h"
@@ -37,8 +36,6 @@ extern "C" {
 #include "states.h"
 #include "lifegrd.h"
 #include "sync.h"
-#include "nmtSlave.h"
-#include "nmtMaster.h"
 #include "emcy.h"
 #ifdef CO_ENABLE_LSS
 #include "lss.h"
@@ -108,25 +105,26 @@ struct CO_Data
     CAN_PORT canHandle;
     scanIndexOD_t scanIndexOD;
     storeODSubIndex_t storeODSubIndex;
+    onWrDomainInd_t onWrDomainInd;
     
     /* DCF concise */
-    const indextable* dcf_odentry;
+    const indextable *dcf_odentry;
     //union {
-        UNS8* dcf_cursor;
+        UNS8 *dcf_cursor;
         //const UNS8* dcf_cursor_const;
     //};
     UNS32 dcf_entries_count;
     UNS8 dcf_status;
     UNS32 dcf_size;
-    UNS8* dcf_data;
+    UNS8 *dcf_data;
     
     /* EMCY */
     e_errorState error_state;
     UNS8 error_history_size;
-    UNS8* error_number;
-    UNS32* error_first_element;
-    UNS8* error_register;
-    UNS32* error_cobid;
+    UNS8 *error_number;
+    UNS32 *error_first_element;
+    UNS8 *error_register;
+    UNS32 *error_cobid;
     s_errors error_data[EMCY_MAX_ERRORS];
     post_emcy_t post_emcy;
     
@@ -278,10 +276,10 @@ struct CO_Data
         0,          /* csPDO */\
         0           /* csLSS */\
     },\
-    _initialisation,     /* initialisation */\
-    _preOperational,     /* preOperational */\
-    _operational,        /* operational */\
-    _stopped,            /* stopped */\
+    dummy_initialisation,     /* initialisation */\
+    default_preOperational,   /* preOperational */\
+    dummy_operational,        /* operational */\
+    dummy_stopped,            /* stopped */\
     NULL,                /* NMT node reset callback */\
     NULL,                /* NMT communications reset callback */\
     \
@@ -291,7 +289,7 @@ struct CO_Data
     NODE_PREFIX ## _heartBeatTimers,           /* ConsumerHeartBeatTimers  */\
     & NODE_PREFIX ## _obj1017,                 /* ProducerHeartBeatTime */\
     TIMER_NONE,                                /* ProducerHeartBeatTimer */\
-    _heartbeatError,           /* heartbeatError */\
+    dummy_heartbeatError,           /* heartbeatError */\
     \
     {REPEAT_NMT_MAX_NODE_ID_TIMES(NMTable_Initializer)},\
                                                    /* is  well initialized at "Unknown_state". Is it ok ? (FD)*/\
@@ -299,7 +297,7 @@ struct CO_Data
     /* NMT-nodeguarding */\
     TIMER_NONE,                                /* GuardTimeTimer */\
     TIMER_NONE,                                /* LifeTimeTimer */\
-    _nodeguardError,                           /* nodeguardError */\
+    dummy_nodeguardError,                      /* nodeguardError */\
     & NODE_PREFIX ## _obj100C,                 /* GuardTime */\
     & NODE_PREFIX ## _obj100D,                 /* LifeTimeFactor */\
     {REPEAT_NMT_MAX_NODE_ID_TIMES(nodeGuardStatus_Initializer)},\
@@ -309,16 +307,17 @@ struct CO_Data
     & NODE_PREFIX ## _obj1005,                 /* COB_ID_Sync */\
     & NODE_PREFIX ## _obj1006,                 /* Sync_Cycle_Period */\
     /*& NODE_PREFIX ## _obj1007, */            /* Sync_window_length */\
-    _post_sync,                                /* post_sync */\
-    _post_TPDO,                                /* post_TPDO */\
-    _post_SlaveBootup,                         /* post_SlaveBootup */\
-    _post_SlaveStateChange,                    /* post_SlaveStateChange */\
+    dummy_post_sync,                           /* post_sync */\
+    dummy_post_TPDO,                           /* post_TPDO */\
+    dummy_post_SlaveBootup,                    /* post_SlaveBootup */\
+    dummy_post_SlaveStateChange,               /* post_SlaveStateChange */\
     \
     /* General */\
     0,                                         /* toggle */\
     NULL,                                      /* canHandle */\
     NODE_PREFIX ## _scanIndexOD,               /* scanIndexOD */\
-    _storeODSubIndex,                          /* storeODSubIndex */\
+    dummy_storeODSubIndex,                     /* storeODSubIndex */\
+    NULL,                                      /* onWrDomainInd */\
     /* DCF concise */\
     NULL,        /*dcf_odentry*/\
     NULL,        /*dcf_cursor*/\
@@ -338,7 +337,7 @@ struct CO_Data
     {\
     REPEAT_EMCY_MAX_ERRORS_TIMES(ERROR_DATA_INITIALIZER)\
     },\
-    _post_emcy,              /* post_emcy */\
+    dummy_post_emcy,              /* post_emcy */\
     /* LSS */\
     lss_Initializer\
 }

@@ -1,11 +1,11 @@
-#ifndef __CM3_CANFESTIVAL_H__
-#define __CM3_CANFESTIVAL_H__
+#ifndef __CM0_CANFESTIVAL_H__
+#define __CM0_CANFESTIVAL_H__
 
 
 #include "can_driver.h"
 #include "declaration.h"
 #include "applicfg.h"
-#include "stm32f1xx_hal.h"
+#include "stm32l0xx_hal.h"
 
 
 /*********** These APIs are from drivers/cm4/cm4.c ***********/
@@ -50,4 +50,4 @@ void handleCANPendingMessage();
  */
 void handleTimerPeriodElapsed();
 
-#endif /* __CM3_CANFESTIVAL_H__ */
+#endif /* __CM0_CANFESTIVAL_H__ */

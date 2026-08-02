@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "data.h"
 #include "sysdep.h"
 #include "objaccessinternal.h"
+#include "nmtSlave.h"
+#include "nmtMaster.h"
 
 /** Prototypes for internals functions */
 /*!                                                                                                
@@ -41,7 +43,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ** @param d                                                                                        
 ** @param newCommunicationState                                                                    
 **/     
-void switchCommunicationState(CO_Data* d, 
+void switchCommunicationState(CO_Data *d, 
     s_state_communication* newCommunicationState);
     
 /*!                                                                                                
@@ -51,7 +53,7 @@ void switchCommunicationState(CO_Data* d,
 **                                                                                                 
 ** @return                                                                                         
 **/    
-e_nodeState getState(CO_Data* d)
+e_nodeState getState(CO_Data *d)
 {
     return d->nodeState;
 }
@@ -62,7 +64,7 @@ e_nodeState getState(CO_Data* d)
 ** @param d                                                                                        
 ** @param m                                                                                        
 **/  
-void canDispatch(CO_Data* d, Message* m)
+void canDispatch(CO_Data *d, Message *m)
 {
     UNS16 cob_id = UNS16_LE(m->cob_id);
     switch(cob_id >> 7)
@@ -118,7 +120,7 @@ void canDispatch(CO_Data* d, Message* m)
             break;
 #ifdef CO_ENABLE_LSS
         case LSS:
-            if (!d->CurrentCommunicationState.csLSS)break;
+            if (!d->CurrentCommunicationState.csLSS) break;
             if ((*(d->iam_a_slave)) && (cob_id == MLSS_ADRESS))
             {
                 proceedLSS_Slave(d, m);
@@ -150,7 +152,7 @@ void canDispatch(CO_Data* d, Message* m)
 ** @param d                                                                                        
 ** @param newCommunicationState                                                                    
 **/      
-void switchCommunicationState(CO_Data * d, s_state_communication * newCommunicationState)
+void switchCommunicationState(CO_Data * d, s_state_communication *newCommunicationState)
 {
 #ifdef CO_ENABLE_LSS
     StartOrStop(csLSS,        startLSS(d),      stopLSS(d))
@@ -171,7 +173,7 @@ void switchCommunicationState(CO_Data * d, s_state_communication * newCommunicat
 **                                                                                                 
 ** @return                                                                                         
 **/  
-UNS8 setState(CO_Data* d, e_nodeState newState)
+UNS8 setState(CO_Data *d, e_nodeState newState)
 {
     if(newState != d->nodeState)
     {
@@ -240,7 +242,7 @@ UNS8 setState(CO_Data* d, e_nodeState newState)
 **                                                                                                 
 ** @return                                                                                         
 **/ 
-UNS8 getNodeId(CO_Data* d)
+UNS8 getNodeId(CO_Data *d)
 {
     return *d->bDeviceNodeId;
 }
@@ -251,7 +253,7 @@ UNS8 getNodeId(CO_Data* d)
 ** @param d                                                                                        
 ** @param nodeId                                                                                   
 **/   
-void setNodeId(CO_Data* d, UNS8 nodeId)
+void setNodeId(CO_Data *d, UNS8 nodeId)
 {
     UNS16 offset = d->firstIndex->SDO_SVR;
   
@@ -353,13 +355,13 @@ void setNodeId(CO_Data* d, UNS8 nodeId)
     *d->bDeviceNodeId = nodeId;
 }
 
-void _initialisation(CO_Data* d) { (void)d; }
-void _preOperational(CO_Data* d)
+void dummy_initialisation(CO_Data *d) { (void)d; }
+void default_preOperational(CO_Data *d)
 {
     if (!(*(d->iam_a_slave)))
     {
         masterSendNMTstateChange(d, 0, NMT_Reset_Node);
     }
 }
-void _operational(CO_Data* d) { (void)d; }
-void _stopped(CO_Data* d) { (void)d; }
+void dummy_operational(CO_Data *d) { (void)d; }
+void dummy_stopped(CO_Data *d) { (void)d; }

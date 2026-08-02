@@ -58,7 +58,7 @@ UNS8 canSend(CAN_PORT port, Message *m);
  *       - CanFestival file descriptor is returned upon success.
  *       - NULL is returned if the CANOpen board can't be opened.
  */
-CAN_PORT canOpen(s_BOARD* board, CO_Data* d);
+CAN_PORT canOpen(s_BOARD* board, CO_Data *d);
 
 /**
  * @ingroup can
@@ -68,7 +68,7 @@ CAN_PORT canOpen(s_BOARD* board, CO_Data* d);
  *       - 0 is returned upon success.
  *       - errorcode if error. (if implemented)  
  */
-int canClose(CO_Data* d);
+int canClose(CO_Data *d);
 
 /**
  * @ingroup can

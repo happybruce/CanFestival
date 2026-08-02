@@ -42,11 +42,11 @@ extern "C" {
 
 #define TIMER_NONE -1
 
-typedef void (*TimerCallback_t)(CO_Data* d, UNS32 id);
+typedef void (*TimerCallback_t)(CO_Data *d, UNS32 id);
 
 struct struct_s_timer_entry {
     UNS8 state;
-    CO_Data* d;
+    CO_Data *d;
     TimerCallback_t callback; /* The callback func. */
     UNS32 id; /* The callback func. */
     TIMEVAL val;
@@ -67,7 +67,7 @@ typedef struct struct_s_timer_entry s_timer_entry;
  * @param period Call periodically the callback function
  * @return handle The timer handle
  */
-TIMER_HANDLE SetAlarm(CO_Data* d, UNS32 id, TimerCallback_t callback, TIMEVAL value, TIMEVAL period);
+TIMER_HANDLE SetAlarm(CO_Data *d, UNS32 id, TimerCallback_t callback, TIMEVAL value, TIMEVAL period);
 
 /**
  * @ingroup timer
@@ -77,7 +77,7 @@ TIMER_HANDLE SetAlarm(CO_Data* d, UNS32 id, TimerCallback_t callback, TIMEVAL va
  */
 TIMER_HANDLE DelAlarm(TIMER_HANDLE handle);
 
-void TimeDispatch(void);
+void TimeDispatch();
 
 /**
  * @ingroup timer
@@ -91,7 +91,7 @@ void setTimer(TIMEVAL value);
  * @brief Get the time elapsed since latest timer occurence.
  * @return time elapsed since latest timer occurence
  */
-TIMEVAL getElapsedTime(void);
+TIMEVAL getElapsedTime();
 
 #ifdef __cplusplus
 }

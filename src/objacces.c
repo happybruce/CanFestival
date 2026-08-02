@@ -93,12 +93,12 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
   return 0;
 }
 
-UNS32 _getODentry( CO_Data* d,
+UNS32 _getODentry( CO_Data *d,
                    UNS16 wIndex,
                    UNS8 bSubindex,
-                   void* pDestData,
-                   UNS32* pExpectedSize,
-                   UNS8* pDataType,
+                   void *pDestData,
+                   UNS32 *pExpectedSize,
+                   UNS8 *pDataType,
                    UNS8 checkAccess,
                    UNS8 endianize)
 { /* DO NOT USE MSG_ERR because the macro may send a PDO -> infinite
@@ -204,11 +204,11 @@ UNS32 _getODentry( CO_Data* d,
     return OD_SUCCESSFUL;
 }
 
-UNS32 _setODentry( CO_Data* d,
+UNS32 _setODentry( CO_Data *d,
                    UNS16 wIndex,
                    UNS8 bSubindex,
-                   void * pSourceData,
-                   UNS32 * pExpectedSize,
+                   void *pSourceData,
+                   UNS32 *pExpectedSize,
                    UNS8 checkAccess,
                    UNS8 endianize)
 {
@@ -254,12 +254,14 @@ UNS32 _setODentry( CO_Data* d,
         {
             /* we invert the data source directly. This let us do range testing without */
             /* additional temp variable */
-            UNS8 i;
-            for ( i = 0 ; i < ( ptrTable->pSubindex[bSubindex].size >> 1); i++)
+            for (UNS8 i = 0 ; i < ( ptrTable->pSubindex[bSubindex].size >> 1); i++)
             {
-                UNS8 tmp = ((UNS8 *)pSourceData) [(ptrTable->pSubindex[bSubindex].size - 1) - i];
-                ((UNS8 *)pSourceData) [(ptrTable->pSubindex[bSubindex].size - 1) - i] = ((UNS8 *)pSourceData)[i];
-                ((UNS8 *)pSourceData)[i] = tmp;
+                // i from left to right, dataIdx from right to left
+                UNS32 dataIdx = (ptrTable->pSubindex[bSubindex].size - 1) - i;
+                UNS8* dataPtr = (UNS8 *)pSourceData;
+                UNS8 tmp = dataPtr[dataIdx];
+                dataPtr[dataIdx] = dataPtr[i];
+                dataPtr[i] = tmp;
             }
         }
 #endif
@@ -293,7 +295,7 @@ UNS32 _setODentry( CO_Data* d,
         }
 
         /* Store value if requested with user defined function
-	     Function should return OD_ACCES_FAILED in case of store error */
+         Function should return OD_ACCES_FAILED in case of store error */
         if (ptrTable->pSubindex[bSubindex].bAccessType & TO_BE_SAVE)
         {
             return (*d->storeODSubIndex)(d, wIndex, bSubindex);
@@ -308,12 +310,12 @@ UNS32 _setODentry( CO_Data* d,
     }
 }
 
-const indextable* scanIndexOD (CO_Data* d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback)
+const indextable* scanIndexOD (CO_Data *d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback)
 {
     return (*(d->scanIndexOD))(wIndex, errorCode, Callback);
 }
 
-UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCallback_t Callback)
+UNS32 RegisterSetODentryCallBack(CO_Data *d, UNS16 wIndex, UNS8 bSubindex, ODCallback_t Callback)
 {
     UNS32 errorCode;
     ODCallback_t *CallbackList;
@@ -327,10 +329,7 @@ UNS32 RegisterSetODentryCallBack(CO_Data* d, UNS16 wIndex, UNS8 bSubindex, ODCal
     return errorCode;
 }
 
-UNS32 _storeODSubIndex (CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
+UNS32 dummy_storeODSubIndex (CO_Data *d, UNS16 wIndex, UNS8 bSubindex)
 {
-    (void)d;
-    (void)wIndex;
-    (void)bSubindex;
     return OD_SUCCESSFUL;
 }

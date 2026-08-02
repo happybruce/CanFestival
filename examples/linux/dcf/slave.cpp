@@ -20,8 +20,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdint>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
@@ -42,20 +42,20 @@ void display_usage(char *prog)
 }
 
 /* A callback called when position is written */
-UNS32 callback_on_position(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
+UNS32 callback_on_position(CO_Data *d, UNS16 wIndex, UNS8 bSubindex)
 {
     printf("position have been set to %d\n", position);
     return 0;
 }
 
-UNS32 callback_on_4003h(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
+UNS32 callback_on_4003h(CO_Data *d, UNS16 wIndex, UNS8 bSubindex)
 {
     printf("Set value to 4003h :  %d\n", hehe);
     return 0;
 }
 
 /* A callback called when node state changes */
-void state_change(CO_Data* d)
+void state_change(CO_Data *d)
 {
     if(d->nodeState == Initialisation)
         printf("Node state is now  : Initialisation\n");
@@ -77,7 +77,7 @@ void state_change(CO_Data* d)
         printf("Error : unexpected node state\n");
 }
 
-void Exit(CO_Data* d, UNS32 id)
+void Exit(CO_Data *d, UNS32 id)
 {
     setState(&slavedic_Data, Stopped);
     printf("Program terminating\n");

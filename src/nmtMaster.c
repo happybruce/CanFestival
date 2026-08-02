@@ -46,7 +46,7 @@
 **
 ** @return
 **/
-UNS8 masterSendNMTstateChange(CO_Data* d, UNS8 nodeId, UNS8 cs)
+UNS8 masterSendNMTstateChange(CO_Data *d, UNS8 nodeId, UNS8 cs)
 {
     Message m;
 
@@ -71,7 +71,7 @@ UNS8 masterSendNMTstateChange(CO_Data* d, UNS8 nodeId, UNS8 cs)
 **
 ** @return
 **/
-UNS8 masterSendNMTnodeguard(CO_Data* d, UNS8 nodeId)
+UNS8 masterSendNMTnodeguard(CO_Data *d, UNS8 nodeId)
 {
     Message m;
 
@@ -94,7 +94,7 @@ UNS8 masterSendNMTnodeguard(CO_Data* d, UNS8 nodeId)
 **
 ** @return
 **/
-UNS8 masterRequestNodeState(CO_Data* d, UNS8 nodeId)
+UNS8 masterRequestNodeState(CO_Data *d, UNS8 nodeId)
 {
     /* FIXME: should warn for bad toggle bit. */
 

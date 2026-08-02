@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "canfestival.h"
 #include "gendcf.h"
 #include "dcf.h"
+#include "nmtMaster.h"
 
 extern subindex masterdic_Index1F22[]; // TODO: need fix, masterdic_Index1F22 is const
 
@@ -64,19 +65,19 @@ void display_usage(char *prog)
     printf("Ex: %s can0\n", prog);
 }
 
-void slave_bootup_callback(CO_Data* d, UNS8 nodeid)
+void slave_bootup_callback(CO_Data *d, UNS8 nodeid)
 {
     printf("Master : node %u bootup received\n",nodeid);
     check_and_start_node(d, nodeid);
 }
 
-void Exit(CO_Data* d, UNS32 id)
+void Exit(CO_Data *d, UNS32 id)
 {
     masterSendNMTstateChange(&masterdic_Data, 0x0, NMT_Reset_Node);    
     setState(&masterdic_Data, Stopped);
 }
 
-void slave_state_change_callback(CO_Data* d, UNS8 nodeId, e_nodeState newNodeState)
+void slave_state_change_callback(CO_Data *d, UNS8 nodeId, e_nodeState newNodeState)
 {
     if(newNodeState == Initialisation)
         printf("Node %u state is now  : Initialisation\n", nodeId);
@@ -100,7 +101,7 @@ void slave_state_change_callback(CO_Data* d, UNS8 nodeId, e_nodeState newNodeSta
     gNewNodeState = newNodeState;
 }
 
-void heartbeatTimeOut(CO_Data* d, UNS8 nodeid)
+void heartbeatTimeOut(CO_Data *d, UNS8 nodeid)
 {
     slave_state_change_callback(d, nodeid, Disconnected);
 }

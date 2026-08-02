@@ -34,7 +34,7 @@
 */
 
 #include "dcf.h"
-#include "data.h"
+#include "nmtMaster.h"
 #include "sysdep.h"
 #include "objaccessinternal.h"
 
@@ -45,15 +45,15 @@ typedef struct {
     UNS8 *Data;
 } dcf_entry_t;
 
-void SaveNode(CO_Data* d, UNS8 nodeId);
-static UNS8 read_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId);
-static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId);
-UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId);
+void SaveNode(CO_Data *d, UNS8 nodeId);
+static UNS8 read_consise_dcf_next_entry(CO_Data *d, UNS8 nodeId);
+static UNS8 write_consise_dcf_next_entry(CO_Data *d, UNS8 nodeId);
+UNS8 init_consise_dcf(CO_Data *d, UNS8 nodeId);
 
 
 
 
-void start_node(CO_Data* d, UNS8 nodeId)
+void start_node(CO_Data *d, UNS8 nodeId)
 {
     /* Ask slave node to go in operational mode */
     masterSendNMTstateChange(d, nodeId, NMT_Start_Node);
@@ -66,7 +66,7 @@ void start_node(CO_Data* d, UNS8 nodeId)
 ** @param d
 ** @param nodeId
 */
-UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
+UNS8 check_and_start_node(CO_Data *d, UNS8 nodeId)
 {   
     if(d->dcf_status != DCF_STATUS_INIT)
     {
@@ -127,7 +127,7 @@ UNS8 check_and_start_node(CO_Data* d, UNS8 nodeId)
 ** @param d
 ** @param nodeId
 */
-void start_and_seek_node(CO_Data* d, UNS8 nodeId)
+void start_and_seek_node(CO_Data *d, UNS8 nodeId)
 {
     UNS8 node;
     if(nodeId)
@@ -156,7 +156,7 @@ void start_and_seek_node(CO_Data* d, UNS8 nodeId)
 ** @param d
 ** @param nodeId
 */
-static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
+static void CheckSDOAndContinue(CO_Data *d, UNS8 nodeId)
 {
     UNS32 abortCode = 0;
     UNS8 buf[4], match = 0;
@@ -238,7 +238,7 @@ dcferror:
 **
 ** @return
 */
-UNS8 init_consise_dcf(CO_Data* d, UNS8 nodeId)
+UNS8 init_consise_dcf(CO_Data *d, UNS8 nodeId)
 {
     /* Fetch DCF OD entry */
     UNS32 errorCode;
@@ -261,7 +261,7 @@ DCF_finish:
     return 0;
 }
 
-UNS8 get_next_DCF_data(CO_Data* d, dcf_entry_t* dcf_entry, UNS8 nodeId)
+UNS8 get_next_DCF_data(CO_Data *d, dcf_entry_t *dcf_entry, UNS8 nodeId)
 {
     UNS8* dcfend;
     UNS32 dcf_header;
@@ -329,7 +329,7 @@ UNS8 get_next_DCF_data(CO_Data* d, dcf_entry_t* dcf_entry, UNS8 nodeId)
     return 0;
 }
 
-static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
+static UNS8 write_consise_dcf_next_entry(CO_Data *d, UNS8 nodeId)
 {
     UNS8 Ret;
     dcf_entry_t dcf_entry;
@@ -338,7 +338,7 @@ static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
         return 0;
     }
         
-    Ret = writeNetworkDictCallBackAI(d, /* CO_Data* d*/
+    Ret = writeNetworkDictCallBackAI(d, /* CO_Data *d*/
                     nodeId, /* UNS8 nodeId*/
                     dcf_entry.Index, /* UNS16 index*/
                     dcf_entry.Subindex, /* UNS8 subindex*/
@@ -355,13 +355,13 @@ static UNS8 write_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
     return 1;
 }
 
-static UNS8 read_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
+static UNS8 read_consise_dcf_next_entry(CO_Data *d, UNS8 nodeId)
 {
     UNS8 Ret;
     dcf_entry_t dcf_entry;
     if(!get_next_DCF_data(d, &dcf_entry, nodeId))
         return 0;
-    Ret = readNetworkDictCallbackAI(d, /* CO_Data* d*/
+    Ret = readNetworkDictCallbackAI(d, /* CO_Data *d*/
                    nodeId, /* UNS8 nodeId*/
                    dcf_entry.Index, /* UNS16 index*/
                    dcf_entry.Subindex, /* UNS8 subindex*/
@@ -375,11 +375,11 @@ static UNS8 read_consise_dcf_next_entry(CO_Data* d, UNS8 nodeId)
     return 1;
 }
 
-void SaveNode(CO_Data* d, UNS8 nodeId)
+void SaveNode(CO_Data *d, UNS8 nodeId)
 {
     UNS8 Ret;
     UNS32 data=0x65766173;
-    Ret = writeNetworkDictCallBackAI(d, /* CO_Data* d*/
+    Ret = writeNetworkDictCallBackAI(d, /* CO_Data *d*/
                     nodeId, /* UNS8 nodeId*/
                     0x1010, /* UNS16 index*/
                     1, /* UNS8 subindex*/
