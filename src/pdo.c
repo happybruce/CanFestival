@@ -47,7 +47,7 @@
 ** @return
 **/
 
-UNS8 buildPDO(CO_Data* d, UNS8 numPdo, Message* pdo)
+UNS8 buildPDO(CO_Data *d, UNS8 numPdo, Message *pdo)
 {
     UNS8 prp_j = 0x00;
     UNS32 offset = 0x00000000;
@@ -126,7 +126,7 @@ UNS8 buildPDO(CO_Data* d, UNS8 numPdo, Message* pdo)
 ** @return
 **/
 UNS8
-sendPDOrequest (CO_Data * d, UNS16 RPDOIndex)
+sendPDOrequest (CO_Data *d, UNS16 RPDOIndex)
 {
     UNS16 offset = d->firstIndex->PDO_RCV;
     UNS16 lastIndex = d->lastIndex->PDO_RCV;
@@ -174,7 +174,7 @@ sendPDOrequest (CO_Data * d, UNS16 RPDOIndex)
 ** @return
 **/
 UNS8
-proceedPDO(CO_Data* d, Message* m)
+proceedPDO(CO_Data *d, Message *m)
 {
     // UNS8 numPdo = 0; /* Number of  */
     // UNS8 numMap = 0; /* Number of the mapped varable */
@@ -382,8 +382,8 @@ proceedPDO(CO_Data* d, Message* m)
 ** @param DestBigEndian
 **/
 void
-CopyBits (UNS8 NbBits, UNS8 * SrcByteIndex, UNS8 SrcBitIndex,
-          UNS8 SrcBigEndian, UNS8 * DestByteIndex, UNS8 DestBitIndex,
+CopyBits (UNS8 NbBits, UNS8 *SrcByteIndex, UNS8 SrcBitIndex,
+          UNS8 SrcBigEndian, UNS8 *DestByteIndex, UNS8 DestBitIndex,
           UNS8 DestBigEndian)
 {
     /* This loop copy as many bits that it can each time, crossing */
@@ -437,7 +437,7 @@ CopyBits (UNS8 NbBits, UNS8 * SrcByteIndex, UNS8 SrcBitIndex,
 
 }
 
-static void sendPdo(CO_Data * d, UNS32 pdoNum, Message * pdo)
+static void sendPdo(CO_Data *d, UNS32 pdoNum, Message *pdo)
 {
     /*store_as_last_message */
     d->PDO_status[pdoNum].last_message = *pdo;
@@ -457,14 +457,14 @@ static void sendPdo(CO_Data * d, UNS32 pdoNum, Message * pdo)
 **/
 
 UNS8
-sendPDOevent (CO_Data * d)
+sendPDOevent (CO_Data *d)
 {
     /* Calls _sendPDOevent specifying it is not a sync event */
     return _sendPDOevent (d, 0);
 }
 
 UNS8
-sendOnePDOevent (CO_Data * d, UNS8 pdoNum)
+sendOnePDOevent (CO_Data *d, UNS8 pdoNum)
 {
     UNS16 offsetObjdict;
     Message pdo;
@@ -539,7 +539,7 @@ sendOnePDOevent (CO_Data * d, UNS8 pdoNum)
 }
 
 void
-PDOEventTimerAlarm (CO_Data * d, UNS32 pdoNum)
+PDOEventTimerAlarm (CO_Data *d, UNS32 pdoNum)
 {
     /* This is needed to avoid deletion of re-attribuated timer */
     d->PDO_status[pdoNum].event_timer = TIMER_NONE;
@@ -549,7 +549,7 @@ PDOEventTimerAlarm (CO_Data * d, UNS32 pdoNum)
 }
 
 void
-PDOInhibitTimerAlarm (CO_Data * d, UNS32 pdoNum)
+PDOInhibitTimerAlarm (CO_Data *d, UNS32 pdoNum)
 {
     /* This is needed to avoid deletion of re-attribuated timer */
     d->PDO_status[pdoNum].inhibit_timer = TIMER_NONE;
@@ -575,7 +575,7 @@ _RxPDO_EventTimers_Handler(CO_Data *d, UNS32 pdoNum)
 **/
 
 UNS8
-_sendPDOevent (CO_Data * d, UNS8 isSyncEvent)
+_sendPDOevent (CO_Data *d, UNS8 isSyncEvent)
 {
     UNS8 pdoNum = 0x00;           /* number of the actual processed pdo-nr. */
     UNS8 status = state3;
@@ -707,7 +707,7 @@ _sendPDOevent (CO_Data * d, UNS8 isSyncEvent)
 **/
 
 UNS32
-TPDO_Communication_Parameter_Callback (CO_Data * d,
+TPDO_Communication_Parameter_Callback (CO_Data *d,
                                        UNS16 wIndex,
                                        UNS8 bSubindex)
 {
@@ -747,7 +747,7 @@ TPDO_Communication_Parameter_Callback (CO_Data * d,
 }
 
 void
-PDOInit (CO_Data * d)
+PDOInit (CO_Data *d)
 {
     /* For each TPDO mapping parameters */
     UNS16 pdoIndex = 0x1800;      /* OD index of TDPO */
@@ -783,7 +783,7 @@ PDOInit (CO_Data * d)
 }
 
 void
-PDOStop (CO_Data * d)
+PDOStop (CO_Data *d)
 {
     /* For each TPDO mapping parameters */
     UNS8 pdoNum = 0x00;           /* number of the actual processed pdo-nr. */
@@ -808,7 +808,7 @@ PDOStop (CO_Data * d)
 }
 
 void
-PDOEnable (CO_Data * d, UNS8 pdoNum)
+PDOEnable (CO_Data *d, UNS8 pdoNum)
 {
     UNS16 offsetObjdict;
     if(!d->firstIndex->PDO_TRS)
@@ -818,7 +818,7 @@ PDOEnable (CO_Data * d, UNS8 pdoNum)
 }
 
 void
-PDODisable (CO_Data * d, UNS8 pdoNum)
+PDODisable (CO_Data *d, UNS8 pdoNum)
 {
     UNS16 offsetObjdict;
     if(!d->firstIndex->PDO_TRS)

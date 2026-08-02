@@ -35,18 +35,18 @@
 #include "lifegrd.h"
 #include "data.h"
 #include "canfestival.h"
-#include "dcf.h"
+#include "nmtMaster.h"
 #include "sysdep.h"
 #include "config.h"
 
-void ConsumerHeartbeatAlarm(CO_Data* d, UNS32 id);
-void ProducerHeartbeatAlarm(CO_Data* d, UNS32 id);
+void ConsumerHeartbeatAlarm(CO_Data *d, UNS32 id);
+void ProducerHeartbeatAlarm(CO_Data *d, UNS32 dummy);
 
-void GuardTimeAlarm(CO_Data* d, UNS32 id);
-UNS32 OnNodeGuardUpdate(CO_Data* d, UNS16 unused_indextable, UNS8 unused_bSubindex);
+void GuardTimeAlarm(CO_Data *d, UNS32 dummy);
+UNS32 OnNodeGuardUpdate(CO_Data *d, UNS16 unused_indextable, UNS8 unused_bSubindex);
 
 
-e_nodeState getNodeState (CO_Data* d, UNS8 nodeId)
+e_nodeState getNodeState (CO_Data *d, UNS8 nodeId)
 {
     e_nodeState networkNodeState = Unknown_state;
 #if NMT_MAX_NODE_ID>0
@@ -66,7 +66,7 @@ e_nodeState getNodeState (CO_Data* d, UNS8 nodeId)
 ** @param id
  * @ingroup heartbeato
 **/
-void ConsumerHeartbeatAlarm(CO_Data* d, UNS32 id)
+void ConsumerHeartbeatAlarm(CO_Data *d, UNS32 id)
 {
     UNS8 nodeId = (UNS8)(((d->ConsumerHeartbeatEntries[id]) & (UNS32)0x00FF0000) >> (UNS8)16);
     /*MSG_WAR(0x00, "ConsumerHearbeatAlarm", 0x00);*/
@@ -81,11 +81,11 @@ void ConsumerHeartbeatAlarm(CO_Data* d, UNS32 id)
     (*d->heartbeatError)(d, nodeId);
 }
 
-void proceedNODE_GUARD(CO_Data* d, Message* m )
+void proceedNODE_GUARD(CO_Data *d, Message *m )
 {
     UNS8 nodeId = (UNS8) GET_NODE_ID((*m));
 
-    if((m->rtr == 1) )
+    if(m->rtr == 1)
     /*!
     ** Notice that only the master can have sent this
     ** node guarding request
@@ -176,9 +176,9 @@ void proceedNODE_GUARD(CO_Data* d, Message* m )
 ** @param id
  * @ingroup heartbeato
 **/
-void ProducerHeartbeatAlarm(CO_Data* d, UNS32 id)
+void ProducerHeartbeatAlarm(CO_Data *d, UNS32 dummy)
 {
-    (void)id;
+    (void)dummy;
     if(*d->ProducerHeartBeatTime)
     {
         Message msg;
@@ -215,9 +215,9 @@ void ProducerHeartbeatAlarm(CO_Data* d, UNS32 id)
  * @param id
  * @ingroup nodeguardo
  */
-void GuardTimeAlarm(CO_Data* d, UNS32 id)
+void GuardTimeAlarm(CO_Data *d, UNS32 dummy)
 {
-    (void)id;
+    (void)dummy;
     if (*d->GuardTime)
     {
         UNS8 i;
@@ -270,7 +270,7 @@ void GuardTimeAlarm(CO_Data* d, UNS32 id)
  * @param unused_bSubindex
  * @ingroup nodeguardo
  */
-UNS32 OnNodeGuardUpdate(CO_Data* d, UNS16 unused_indextable, UNS8 unused_bSubindex)
+UNS32 OnNodeGuardUpdate(CO_Data *d, UNS16 unused_indextable, UNS8 unused_bSubindex)
 {
     (void)unused_indextable;
     (void)unused_bSubindex;
@@ -290,7 +290,7 @@ UNS32 OnNodeGuardUpdate(CO_Data* d, UNS16 unused_indextable, UNS8 unused_bSubind
 ** @return
  * @ingroup heartbeato
 **/
-UNS32 OnHeartbeatProducerUpdate(CO_Data* d, UNS16 unused_indextable, UNS8 unused_bSubindex)
+UNS32 OnHeartbeatProducerUpdate(CO_Data *d, UNS16 unused_indextable, UNS8 unused_bSubindex)
 {
     (void)unused_indextable;
     (void)unused_bSubindex;
@@ -303,7 +303,7 @@ UNS32 OnHeartbeatProducerUpdate(CO_Data* d, UNS16 unused_indextable, UNS8 unused
     return 0;
 }
 
-void heartbeatInit(CO_Data* d)
+void heartbeatInit(CO_Data *d)
 {
     UNS8 index; /* Index to scan the table of heartbeat consumers */
     RegisterSetODentryCallBack(d, 0x1017, 0x00, &OnHeartbeatProducerUpdate);
@@ -327,7 +327,7 @@ void heartbeatInit(CO_Data* d)
 }
 
 
-void nodeguardInit(CO_Data* d)
+void nodeguardInit(CO_Data *d)
 {
     RegisterSetODentryCallBack(d, 0x100C, 0x00, &OnNodeGuardUpdate);
     RegisterSetODentryCallBack(d, 0x100D, 0x00, &OnNodeGuardUpdate);
@@ -353,7 +353,7 @@ void nodeguardInit(CO_Data* d)
     }
 }
 
-void heartbeatStop(CO_Data* d)
+void heartbeatStop(CO_Data *d)
 {
     UNS8 index;
     for( index = (UNS8)0x00; index < *d->ConsumerHeartbeatCount; index++ )
@@ -364,28 +364,28 @@ void heartbeatStop(CO_Data* d)
     d->ProducerHeartBeatTimer = DelAlarm(d->ProducerHeartBeatTimer);
 }
 
-void nodeguardStop(CO_Data* d)
+void nodeguardStop(CO_Data *d)
 {
     d->GuardTimeTimer = DelAlarm(d->GuardTimeTimer);
 }
 
 
-void lifeGuardInit(CO_Data* d)
+void lifeGuardInit(CO_Data *d)
 {
     heartbeatInit(d);
     nodeguardInit(d);
 }
 
 
-void lifeGuardStop(CO_Data* d)
+void lifeGuardStop(CO_Data *d)
 {
     heartbeatStop(d);
     nodeguardStop(d);
 }
 
 
-void _heartbeatError(CO_Data* d, UNS8 heartbeatID) {(void)d;(void)heartbeatID;}
-void _post_SlaveBootup(CO_Data* d, UNS8 SlaveID) {(void)d;(void)SlaveID;}
-void _post_SlaveStateChange(CO_Data* d, UNS8 nodeId, e_nodeState newNodeState) {(void)d;(void)nodeId;(void)newNodeState;}
-void _nodeguardError(CO_Data* d, UNS8 id) {(void)d;(void)id;}
+void dummy_heartbeatError(CO_Data *d, UNS8 heartbeatID) {(void)d;(void)heartbeatID;}
+void dummy_post_SlaveBootup(CO_Data *d, UNS8 SlaveID) {(void)d;(void)SlaveID;}
+void dummy_post_SlaveStateChange(CO_Data *d, UNS8 nodeId, e_nodeState newNodeState) {(void)d;(void)nodeId;(void)newNodeState;}
+void dummy_nodeguardError(CO_Data *d, UNS8 id) {(void)d;(void)id;}
 

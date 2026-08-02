@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include <cstdio>
-#include <cstdint>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
@@ -31,7 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 
-CO_Data* objDictData = &update_firmware_ObjDictData;
+CO_Data* pObjData = &update_firmware_ObjDictData;
 
 static s_BOARD SlaveBoard0 = {"0", ""};
 static char Run;
@@ -44,21 +43,9 @@ void display_usage(char *prog)
     printf("Ex: %s can0 12\n", prog);
 }
 
-/* A callback called when position is written */
-// UNS32 callback_on_position(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
-// {
-//     printf("position have been set to %d\n", position);
-//     return 0;
-// }
-
-// UNS32 callback_on_4003h(CO_Data* d, UNS16 wIndex, UNS8 bSubindex)
-// {
-//     printf("Set value to 4003h :  %d\n", hehe);
-//     return 0;
-// }
 
 /* A callback called when node state changes */
-void state_change(CO_Data* d)
+void state_change(CO_Data *d)
 {
     if(d->nodeState == Initialisation)
         printf("Node state is now  : Initialisation\n");
@@ -80,28 +67,36 @@ void state_change(CO_Data* d)
         printf("Error : unexpected node state\n");
 }
 
-void Exit(CO_Data* d, UNS32 id)
+void Exit(CO_Data *d, UNS32 id)
 {
-    setState(objDictData, Stopped);
+    setState(pObjData, Stopped);
     printf("Program terminating\n");
 }
 
+UNS32 userOnWrDomainInd(CO_Data *d, UNS16 wIndex, UNS8 bSubindex, UNS32 offset, UNS32 nbBytes, UNS8* data)
+{
+    printf("offset: %d\n", offset);
+    for (UNS32 i = 0; i < nbBytes; ++i)
+    {
+        printf("%d ", data[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+
+
 /*--- handler on SIGINT (CTL-C) signal ---*/
-void sortie(int sig)
+void stopHandler(int sig)
 {
     Run = 0;
 }
 
 int main(int argc,char **argv)
 {
-    struct sigaction act;
-    uint8_t nodeid = 2;
-
     // register handler on SIGINT signal 
-    act.sa_handler=sortie;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags=0;
-    sigaction(SIGINT,&act,0);
+    signal(SIGINT, stopHandler);
+    signal(SIGTERM, stopHandler);
 
     // Check that we have the right command line parameters
     if(argc != 3)
@@ -110,46 +105,43 @@ int main(int argc,char **argv)
         exit(1);
     }
 
+    // register domain write callback
+    pObjData->onWrDomainInd = userOnWrDomainInd;
+
     // get command line parameters
-    nodeid = strtoul(argv[2], NULL, 10);
+    UNS8 nodeid = strtoul(argv[2], NULL, 10);
     SlaveBoard0.busname = argv[1];
     printf("Starting on %s with node id = %u\n", SlaveBoard0.busname, nodeid);
 
-    // register the callbacks we use
-    // RegisterSetODentryCallBack(&slavedic_Data, 0x2001, 0, callback_on_position);
-    // RegisterSetODentryCallBack(&slavedic_Data, 0x4003, 0, callback_on_4003h);
-    // slavedic_Data.initialisation=state_change;
-    // slavedic_Data.preOperational=state_change;
-    // slavedic_Data.operational=state_change;
-    // slavedic_Data.stopped=state_change;
+    // register the callbacks
+    pObjData->initialisation = state_change;
+    pObjData->preOperational = state_change;
+    pObjData->operational = state_change;
+    pObjData->stopped = state_change;
 
 
-    if(!canOpen(&SlaveBoard0, objDictData))
+    if(!canOpen(&SlaveBoard0, pObjData))
     {
         printf("Cannot open can interface %s\n",SlaveBoard0.busname);
         exit(1);
     }
 
     TimerInit();
-    setNodeId(objDictData, nodeid);
-    setState(objDictData, Initialisation);
+    setNodeId(pObjData, nodeid);
+    setState(pObjData, Initialisation);
 
     printf("Canfestival initialisation done\n");
     Run = 1;
     while(Run)
     {
         sleep(1);
-        // EnterMutex();
-        // counter += nodeid;
-        // LeaveMutex();
     }
 
     // Stop timer thread
     StopTimerLoop(&Exit);
     // Close CAN devices (and can threads)
-    canClose(objDictData);
+    canClose(pObjData);
     return 0;
-
 }
 
 

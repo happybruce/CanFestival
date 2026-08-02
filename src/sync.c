@@ -50,8 +50,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ** @param d                                                                                        
 ** @param id                                                                                       
 **/  
-void SyncAlarm(CO_Data* d, UNS32 id);
-UNS32 OnCOB_ID_SyncUpdate(CO_Data* d, UNS16 unsused_indextable,
+void SyncAlarm(CO_Data *d, UNS32 dumy);
+UNS32 OnCOB_ID_SyncUpdate(CO_Data *d, UNS16 unsused_indextable,
                         UNS8 unsused_bSubindex);
 
 /*!                                                                                                
@@ -60,9 +60,9 @@ UNS32 OnCOB_ID_SyncUpdate(CO_Data* d, UNS16 unsused_indextable,
 ** @param d                                                                                        
 ** @param id                                                                                       
 **/   
-void SyncAlarm(CO_Data* d, UNS32 id)
+void SyncAlarm(CO_Data *d, UNS32 dummy)
 {
-    (void)id;
+    (void)dummy;
     sendSYNC(d);
 }
 
@@ -75,7 +75,7 @@ void SyncAlarm(CO_Data* d, UNS32 id)
 **                                                                                                 
 ** @return                                                                                         
 **/  
-UNS32 OnCOB_ID_SyncUpdate(CO_Data* d, UNS16 unsused_indextable, UNS8 unsused_bSubindex)
+UNS32 OnCOB_ID_SyncUpdate(CO_Data *d, UNS16 unsused_indextable, UNS8 unsused_bSubindex)
 {
     (void)unsused_indextable;
     (void)unsused_bSubindex;
@@ -88,7 +88,7 @@ UNS32 OnCOB_ID_SyncUpdate(CO_Data* d, UNS16 unsused_indextable, UNS8 unsused_bSu
 **                                                                                                 
 ** @param d                                                                                        
 **/ 
-void startSYNC(CO_Data* d)
+void startSYNC(CO_Data *d)
 {
     if(d->syncTimer != TIMER_NONE)
     {
@@ -114,7 +114,7 @@ void startSYNC(CO_Data* d)
 **                                                                                                 
 ** @param d                                                                                        
 **/   
-void stopSYNC(CO_Data* d)
+void stopSYNC(CO_Data *d)
 {
     RegisterSetODentryCallBack(d, 0x1005, 0, NULL);
     RegisterSetODentryCallBack(d, 0x1006, 0, NULL);
@@ -129,7 +129,7 @@ void stopSYNC(CO_Data* d)
 **                                                                                                 
 ** @return                                                                                         
 **/  
-UNS8 sendSYNCMessage(CO_Data* d)
+UNS8 sendSYNCMessage(CO_Data *d)
 {
     Message m;
 
@@ -150,7 +150,7 @@ UNS8 sendSYNCMessage(CO_Data* d)
 **                                                                                                 
 ** @return                                                                                         
 **/  
-UNS8 sendSYNC(CO_Data* d)
+UNS8 sendSYNC(CO_Data *d)
 {
     UNS8 res = sendSYNCMessage(d);
     proceedSYNC(d);
@@ -164,7 +164,7 @@ UNS8 sendSYNC(CO_Data* d)
 **                                                                                                 
 ** @return                                                                                         
 **/ 
-UNS8 proceedSYNC(CO_Data* d)
+UNS8 proceedSYNC(CO_Data *d)
 {
     UNS8 res;
 
@@ -187,5 +187,5 @@ UNS8 proceedSYNC(CO_Data* d)
 }
 
 
-void _post_sync(CO_Data* d) {(void)d;}
-void _post_TPDO(CO_Data* d) {(void)d;}
+void dummy_post_sync(CO_Data *d) {(void)d;}
+void dummy_post_TPDO(CO_Data *d) {(void)d;}

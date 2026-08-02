@@ -33,6 +33,6 @@
  * @param **Callback
  * @return NULL if index not found. Else : return the table part of the object dictionary.
  */
-const indextable* scanIndexOD (CO_Data* d, UNS16 wIndex, UNS32* errorCode, ODCallback_t** Callback);
+const indextable* scanIndexOD (CO_Data *d, UNS16 wIndex, UNS32 *errorCode, ODCallback_t **Callback);
 
 #endif /* __objaccessinternal_h__ */

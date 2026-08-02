@@ -11,7 +11,7 @@
 EXPORT_SYMBOL (send_consise_dcf);
 
 // emcy.h
-EXPORT_SYMBOL (_post_emcy);
+EXPORT_SYMBOL (dummy_post_emcy);
 EXPORT_SYMBOL (EMCY_setError);
 EXPORT_SYMBOL (EMCY_errorRecovered);
 EXPORT_SYMBOL (emergencyInit);
@@ -19,8 +19,8 @@ EXPORT_SYMBOL (emergencyStop);
 EXPORT_SYMBOL (proceedEMCY);
 
 // lifegrd.h
-EXPORT_SYMBOL (_heartbeatError);
-EXPORT_SYMBOL (_post_SlaveBootup);
+EXPORT_SYMBOL (dummy_heartbeatError);
+EXPORT_SYMBOL (dummy_post_SlaveBootup);
 EXPORT_SYMBOL (getNodeState);
 EXPORT_SYMBOL (heartbeatInit);
 EXPORT_SYMBOL (heartbeatStop);
@@ -49,7 +49,7 @@ EXPORT_SYMBOL (proceedNMTstateChange);
 EXPORT_SYMBOL (slaveSendBootUp);
 
 // objacces.h
-EXPORT_SYMBOL (_storeODSubIndex);
+EXPORT_SYMBOL (dummy_storeODSubIndex);
 #ifdef DEBUG_WAR_CONSOLE_ON
 EXPORT_SYMBOL (accessDictionaryError);
 #endif
@@ -98,10 +98,10 @@ EXPORT_SYMBOL (getReadResultNetworkDict);
 EXPORT_SYMBOL (getWriteResultNetworkDict);
 
 // states.h
-EXPORT_SYMBOL (_initialisation);
-EXPORT_SYMBOL (_preOperational);
-EXPORT_SYMBOL (_operational);
-EXPORT_SYMBOL (_stopped);
+EXPORT_SYMBOL (dummy_initialisation);
+EXPORT_SYMBOL (default_preOperational);
+EXPORT_SYMBOL (dummy_operational);
+EXPORT_SYMBOL (dummy_stopped);
 EXPORT_SYMBOL (canDispatch);
 EXPORT_SYMBOL (getState);
 EXPORT_SYMBOL (setState);
@@ -111,8 +111,8 @@ EXPORT_SYMBOL (setNodeId);
 // sync.h
 EXPORT_SYMBOL (startSYNC);
 EXPORT_SYMBOL (stopSYNC);
-EXPORT_SYMBOL (_post_sync);
-EXPORT_SYMBOL (_post_TPDO);
+EXPORT_SYMBOL (dummy_post_sync);
+EXPORT_SYMBOL (dummy_post_TPDO);
 EXPORT_SYMBOL (sendSYNC);
 EXPORT_SYMBOL (sendSYNCMessage);
 EXPORT_SYMBOL (proceedSYNC);

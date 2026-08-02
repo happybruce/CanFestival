@@ -93,12 +93,12 @@ extern "C" {
 
 
 
-typedef void (*LSSCallback_t)(CO_Data* d, UNS8 command); 
+typedef void (*LSSCallback_t)(CO_Data *d, UNS8 command); 
 
-typedef void (*lss_StoreConfiguration_t)(CO_Data* d, UNS8*, UNS8*);
+typedef void (*lss_StoreConfiguration_t)(CO_Data *d, UNS8*, UNS8*);
 //void _lss_StoreConfiguration(UNS8 *error, UNS8 *spec_error);
 
-//typedef void (*lss_ChangeBaudRate_t)(CO_Data* d,char*);
+//typedef void (*lss_ChangeBaudRate_t)(CO_Data *d,char*);
 //void _lss_ChangeBaudRate(char *BaudRate);
 
 
@@ -130,7 +130,7 @@ struct struct_lss_transfer {
     UNS8 addr_sel_match;      /* The matching mask for the LSS Switch Mode Selective service */
     UNS8 addr_ident_match;    /* The matching mask for the LSS Identify Remote Slaves service*/
 
-    char* baudRate;           /* New baud rate stored to update node baud rate when an Activate Bit
+    char *baudRate;           /* New baud rate stored to update node baud rate when an Activate Bit
                                 * Timing Parameters is received*/
     UNS16 switchDelay;        /* the period of the two delay */
     UNS8  switchDelayState;   /* the state machine for the switchDelay */
@@ -175,8 +175,8 @@ typedef UNS8 lss_transfer_t;
   
 
 
-void startLSS(CO_Data* d);
-void stopLSS(CO_Data* d);
+void startLSS(CO_Data *d);
+void stopLSS(CO_Data *d);
 
 
 /** transmit a LSS message 
@@ -184,7 +184,7 @@ void stopLSS(CO_Data* d);
  * dat1 and dat2 are pointers to optional data (depend on command)
  * return sendLSSMessage(d,command,dat1,dat2)
  */
-UNS8 sendLSS(CO_Data* d, UNS8 command, void* dat1, void* dat2);
+UNS8 sendLSS(CO_Data *d, UNS8 command, void *dat1, void *dat2);
 
 /** transmit a LSS message on CAN bus
  * command is the LSS command specifier
@@ -193,27 +193,27 @@ UNS8 sendLSS(CO_Data* d, UNS8 command, void* dat1, void* dat2);
  * return canSend(bus_id,&m)
  */
  
-UNS8 sendLSSMessage(CO_Data* d, UNS8 command, void* dat1, void* dat2);
+UNS8 sendLSSMessage(CO_Data *d, UNS8 command, void *dat1, void *dat2);
 
 /** This function is called when the node is receiving a Master LSS message (cob-id = 0x7E5).
  *  - Check if there is a callback which will take care of the response. If not return 0 but does nothing.
  *  - Stops the timer so the alarm wont raise an error.
  *  - return 0 if OK
  */
-UNS8 proceedLSS_Master(CO_Data* d, Message* m );
+UNS8 proceedLSS_Master(CO_Data *d, Message *m );
 
 /** This function is called when the node is receiving a Slave LSS message (cob-id = 0x7E4).
  *  - Call the callback function or send the response message depending on the LSS command within m.
  *  - return 0 if OK
  */
-UNS8 proceedLSS_Slave(CO_Data* d, Message* m );
+UNS8 proceedLSS_Slave(CO_Data *d, Message *m );
 
 /** Used by the Master application to send a LSS command, WITHOUT response, to the slave. 
  * command: the LSS command. LSS_...
  * dat1 and dat2: pointers to optional data (depend on command).
  * return sendLSS(d,command,dat1,dat2)
  */
-//UNS8 configNetworkNode(CO_Data* d, UNS8 command, void *dat1, void* dat2);
+//UNS8 configNetworkNode(CO_Data *d, UNS8 command, void *dat1, void* dat2);
 
 /** 
  * @ingroup lss
@@ -227,7 +227,7 @@ UNS8 proceedLSS_Slave(CO_Data* d, Message* m );
  * @return sendLSS(d,command,dat1,dat2)
  * The LSS_MSG_TIMER timer is started to control the timeout
  */
-UNS8 configNetworkNode(CO_Data* d, UNS8 command, void* dat1, void* dat2, LSSCallback_t Callback);
+UNS8 configNetworkNode(CO_Data *d, UNS8 command, void *dat1, void *dat2, LSSCallback_t Callback);
 
 /**
  * @ingroup lss 
@@ -249,7 +249,7 @@ UNS8 configNetworkNode(CO_Data* d, UNS8 command, void* dat1, void* dat2, LSSCall
  * while (getConfigResultNetworkNode (&_Data, LSS_INQ_NODE_ID, &dat1, &dat2) != LSS_TRANS_IN_PROGRESS);
  * @endcode
 */
-UNS8 getConfigResultNetworkNode(CO_Data* d, UNS8 command, UNS32* dat1, UNS8* dat2);
+UNS8 getConfigResultNetworkNode(CO_Data *d, UNS8 command, UNS32 *dat1, UNS8 *dat2);
 
 #ifdef __cplusplus
 }

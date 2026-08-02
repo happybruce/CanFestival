@@ -1,4 +1,6 @@
 import canopen
+import sys
+
 
 def createOD():
     od = canopen.ObjectDictionary()
@@ -26,18 +28,21 @@ def createOD():
 
 
 
+nodeid = int(sys.argv[1]) if (len(sys.argv) > 1) else 12
+
+
 # 1. 初始化网络与节点
 network = canopen.Network()
 # 假设使用虚拟CAN总线或物理CAN接口进行网络调试
 network.connect(bustype='socketcan', channel='vcan0') 
 
 # 加载目标节点的 EDS 文件（对象字典）
-node = canopen.RemoteNode(12, createOD())  # 节点ID为12
+node = canopen.RemoteNode(nodeid, createOD())
 network.add_node(node)
 
 # 2. 准备要下载的大数据（超过4字节，触发Segment/Block传输）
 # 比如要写入一段配置数据或固件片段
-data_to_write = b'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A' * 2 
+data_to_write = b'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B' * 50 
 
 # 3. 使用文件对象接口进行分段下载
 

@@ -42,7 +42,7 @@
 ** @param d
 ** @param m
 **/
-void proceedNMTstateChange(CO_Data* d, Message *m)
+void proceedNMTstateChange(CO_Data *d, Message *m)
 {
     if( (d->nodeState == Pre_operational) ||
         (d->nodeState == Operational) ||
@@ -135,7 +135,7 @@ void proceedNMTstateChange(CO_Data* d, Message *m)
 **
 ** @return
 **/
-UNS8 slaveSendBootUp(CO_Data* d)
+UNS8 slaveSendBootUp(CO_Data *d)
 {
     Message m;
 

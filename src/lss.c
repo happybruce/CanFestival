@@ -64,9 +64,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define getLSSNext(msg) msg->data[7]
 
 /* Prototypes for internals functions */
-UNS8 sendMasterLSSMessage(CO_Data* d, UNS8 command,void *dat1,void *dat2);
-void LssAlarmMSG(CO_Data* d, UNS32 id);
-void LssAlarmSDELAY(CO_Data* d, UNS32 id);
+UNS8 sendMasterLSSMessage(CO_Data *d, UNS8 command,void *dat1,void *dat2);
+void LssAlarmMSG(CO_Data *d, UNS32 dummy);
+void LssAlarmSDELAY(CO_Data *d, UNS32 dummy);
 
 
 #define StopLSS_MSG_TIMER(){\
@@ -88,7 +88,7 @@ void LssAlarmSDELAY(CO_Data* d, UNS32 id);
 
 #ifdef CO_ENABLE_LSS_FS
 /* Prototypes for internals functions */
-void LssAlarmFS(CO_Data* d, UNS32 id);
+void LssAlarmFS(CO_Data *d, UNS32 dummy);
 
 #define StopLSS_FS_TIMER(){\
  MSG_WAR(0x3D05, "StopLSS_FS_TIMER", id);\
@@ -100,9 +100,9 @@ void LssAlarmFS(CO_Data* d, UNS32 id);
 #endif
 
 
-void LssAlarmMSG(CO_Data* d, UNS32 id)
+void LssAlarmMSG(CO_Data *d, UNS32 dummy)
 {    
-    (void)id;
+    (void)dummy;
     StopLSS_MSG_TIMER();
 #ifdef CO_ENABLE_LSS_FS
     if(d->lss_transfer.command == LSS_IDENT_FASTSCAN)
@@ -173,9 +173,9 @@ void LssAlarmMSG(CO_Data* d, UNS32 id)
 ** @param d                                                                                        
 ** @param id                                                                                       
 **/   
-void LssAlarmSDELAY(CO_Data* d, UNS32 id)
+void LssAlarmSDELAY(CO_Data *d, UNS32 dummy)
 {    
-    (void)id;
+    (void)dummy;
     /* The first switch_delay period expired. Store the node state, change it 
       * so no CAN messages will be sent or received, call the ChangeBaudRate function*/
     if(d->lss_transfer.switchDelayState == SDELAY_FIRST)
@@ -215,7 +215,7 @@ void LssAlarmSDELAY(CO_Data* d, UNS32 id)
 ** @param d                                                                                        
 ** @param id                                                                                       
 **/   
-void LssAlarmFS(CO_Data* d, UNS32 id)
+void LssAlarmFS(CO_Data *d, UNS32 dummy)
 {    
     StopLSS_FS_TIMER();
         
@@ -319,7 +319,7 @@ void LssAlarmFS(CO_Data* d, UNS32 id)
 **                                                                                                 
 ** @param d                                                                                        
 **/ 
-void startLSS(CO_Data* d)
+void startLSS(CO_Data *d)
 {
     (void)d;
     /*MSG_WAR(0x3D09, "LSS services started",0);*/
@@ -330,7 +330,7 @@ void startLSS(CO_Data* d)
 **                                                                                                 
 ** @param d                                                                                        
 **/   
-void stopLSS(CO_Data* d)
+void stopLSS(CO_Data *d)
 {
     (void)d;
     /*MSG_WAR(0x3D09, "LSS services stopped",0);*/
@@ -344,7 +344,7 @@ void stopLSS(CO_Data* d)
 **                                                                                                 
 ** @return                                                                                         
 **/  
-UNS8 sendSlaveLSSMessage(CO_Data* d, UNS8 command,void *dat1,void *dat2)
+UNS8 sendSlaveLSSMessage(CO_Data *d, UNS8 command,void *dat1,void *dat2)
 {
     Message m;
     UNS8 i;
@@ -402,7 +402,7 @@ UNS8 sendSlaveLSSMessage(CO_Data* d, UNS8 command,void *dat1,void *dat2)
 }
             
 /* If a baud rate is not supported just comment the line. */
-static UNS8 CO_TranslateBaudRate(char* optarg)
+static UNS8 CO_TranslateBaudRate(char *optarg)
 {
     if(!strcmp( optarg, "1M")) return 0x00;
     if(!strcmp( optarg, "800K")) return 0x01;
@@ -424,7 +424,7 @@ static UNS8 CO_TranslateBaudRate(char* optarg)
 **                                                                                                 
 ** @return                                                                                         
 **/  
-UNS8 sendMasterLSSMessage(CO_Data* d, UNS8 command,void *dat1,void *dat2)
+UNS8 sendMasterLSSMessage(CO_Data *d, UNS8 command,void *dat1,void *dat2)
 {
     Message m;
     UNS8 i;
@@ -588,7 +588,7 @@ UNS8 sendMasterLSSMessage(CO_Data* d, UNS8 command,void *dat1,void *dat2)
 **                                                                                                 
 ** @return                                                                                         
 **/  
-UNS8 sendLSS(CO_Data* d, UNS8 command,void *dat1,void *dat2)
+UNS8 sendLSS(CO_Data *d, UNS8 command,void *dat1,void *dat2)
 {
     UNS8 res = 1;
     
@@ -613,7 +613,7 @@ UNS8 sendLSS(CO_Data* d, UNS8 command,void *dat1,void *dat2)
 **                                                                                                 
 ** @return                                                                                         
 **/ 
-UNS8 proceedLSS_Master(CO_Data* d, Message* m )
+UNS8 proceedLSS_Master(CO_Data *d, Message *m )
 { 
     UNS8 msg_cs;
     UNS32 Dat1 = 0;
@@ -713,7 +713,7 @@ ErrorProcessMaster:
 **                                                                                                 
 ** @return                                                                                         
 **/ 
-UNS8 proceedLSS_Slave(CO_Data* d, Message* m )
+UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
 {  
     MSG_WAR(0x3D21, "SlaveLSS proceedLSS; command ", m->data[0]);
     UNS8 msg_cs = m->data[0];
@@ -1093,12 +1093,12 @@ UNS8 proceedLSS_Slave(CO_Data* d, Message* m )
     return 0;
 }
 
-/*UNS8 configNetworkNode(CO_Data* d, UNS8 command, void *dat1, void* dat2)
+/*UNS8 configNetworkNode(CO_Data *d, UNS8 command, void *dat1, void* dat2)
 {
     return sendMasterLSSMessage(d,command,dat1,dat2);
 }*/
 
-UNS8 configNetworkNode (CO_Data* d, UNS8 command, void *dat1, void* dat2, LSSCallback_t Callback)
+UNS8 configNetworkNode (CO_Data *d, UNS8 command, void *dat1, void *dat2, LSSCallback_t Callback)
 {
     //d->lss_transfer.state=LSS_TRANS_IN_PROGRESS;
     d->lss_transfer.Callback = Callback;
@@ -1110,7 +1110,7 @@ UNS8 configNetworkNode (CO_Data* d, UNS8 command, void *dat1, void* dat2, LSSCal
     return sendMasterLSSMessage(d, command, dat1, dat2);
 }
 
-UNS8 getConfigResultNetworkNode (CO_Data* d, UNS8 command, UNS32* dat1, UNS8* dat2)
+UNS8 getConfigResultNetworkNode (CO_Data *d, UNS8 command, UNS32 *dat1, UNS8 *dat2)
 { 
     (void)command;
     *dat1 = d->lss_transfer.dat1;

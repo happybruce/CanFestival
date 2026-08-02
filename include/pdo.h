@@ -46,7 +46,7 @@ typedef struct struct_s_PDO_status s_PDO_status;
 
 
 /* Handler for RxPDO event timers : empty function that user can overload */
-void _RxPDO_EventTimers_Handler(CO_Data* d, UNS32 pdoNum);
+void _RxPDO_EventTimers_Handler(CO_Data *d, UNS32 pdoNum);
 
 /* Status of the TPDO */
 #define PDO_INHIBITED 0x01
@@ -84,7 +84,7 @@ struct struct_s_PDO_status {
  * @param pdo Pointer on a CAN message structure
  * @return 0 or 0xFF if error.
  */
-UNS8 buildPDO(CO_Data* d, UNS8 numPdo, Message* pdo);
+UNS8 buildPDO(CO_Data *d, UNS8 numPdo, Message *pdo);
 
 /** 
  * @ingroup pdo
@@ -97,7 +97,7 @@ UNS8 buildPDO(CO_Data* d, UNS8 numPdo, Message* pdo);
  
  * @return 0xFF if error, other in success.
  */
-UNS8 sendPDOrequest(CO_Data* d, UNS16 RPDOIndex);
+UNS8 sendPDOrequest(CO_Data *d, UNS16 RPDOIndex);
 
 /**
  * @brief Compute a PDO frame reception
@@ -106,7 +106,7 @@ UNS8 sendPDOrequest(CO_Data* d, UNS16 RPDOIndex);
  * @param m Pointer on a CAN message structure
  * @return 0xFF if error, else return 0
  */
-UNS8 proceedPDO(CO_Data* d, Message* m);
+UNS8 proceedPDO(CO_Data *d, Message *m);
 
 /** 
  * @brief Used by the application to signal changes in process data
@@ -116,22 +116,22 @@ UNS8 proceedPDO(CO_Data* d, Message* m);
  * type and content changes before sending them.
  * @param d Pointer on a CAN object data structure
  */
-UNS8 sendPDOevent(CO_Data* d);
-UNS8 sendOnePDOevent(CO_Data* d, UNS8 pdoNum);
+UNS8 sendPDOevent(CO_Data *d);
+UNS8 sendOnePDOevent(CO_Data *d, UNS8 pdoNum);
 
 /** 
  * @brief Enable a PDO by setting to 0 the bit 32 of the COB-ID parameter
  * @param d Pointer on a CAN object data structure
  * @param pdoNum The PDO number
  */
-void PDOEnable(CO_Data* d, UNS8 pdoNum);
+void PDOEnable(CO_Data *d, UNS8 pdoNum);
 
 /** 
  * @brief Disable a PDO by setting to 1 the bit 32 of the COB-ID parameter
  * @param d Pointer on a CAN object data structure
  * @param pdoNum The PDO number
  */
-void PDODisable(CO_Data* d, UNS8 pdoNum);
+void PDODisable(CO_Data *d, UNS8 pdoNum);
 
 /** 
  * @ingroup pdo
@@ -139,19 +139,19 @@ void PDODisable(CO_Data* d, UNS8 pdoNum);
  * @param d Pointer on a CAN object data structure
  * @param isSyncEvent Indicates if the PDO event is triggered by a SYNC message
  */
-UNS8 _sendPDOevent(CO_Data* d, UNS8 isSyncEvent);
+UNS8 _sendPDOevent(CO_Data *d, UNS8 isSyncEvent);
 
 /** 
  * @brief Initialize PDO feature
  * @param d Pointer on a CAN object data structure
  */
-void PDOInit(CO_Data* d);
+void PDOInit(CO_Data *d);
 
 /** 
  * @brief Stop PDO feature
  * @param d Pointer on a CAN object data structure
  */
-void PDOStop(CO_Data* d);
+void PDOStop(CO_Data *d);
 
 /** 
  * @ingroup pdo
@@ -159,7 +159,7 @@ void PDOStop(CO_Data* d);
  * @param d Pointer on a CAN object data structure
  * @param pdoNum The PDO number
  */
-void PDOEventTimerAlarm(CO_Data* d, UNS32 pdoNum);
+void PDOEventTimerAlarm(CO_Data *d, UNS32 pdoNum);
 
 /** 
  * @ingroup pdo
@@ -167,7 +167,7 @@ void PDOEventTimerAlarm(CO_Data* d, UNS32 pdoNum);
  * @param d Pointer on a CAN object data structure
  * @param pdoNum The PDO number
  */
-void PDOInhibitTimerAlarm(CO_Data* d, UNS32 pdoNum);
+void PDOInhibitTimerAlarm(CO_Data *d, UNS32 pdoNum);
 
 /* Copy bits in little-endian order */
 void CopyBits(UNS8 NbBits, UNS8* SrcByteIndex, UNS8 SrcBitIndex, UNS8 SrcBigEndian, UNS8* DestByteIndex, UNS8 DestBitIndex, UNS8 DestBigEndian);
