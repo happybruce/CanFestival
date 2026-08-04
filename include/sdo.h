@@ -52,7 +52,7 @@ typedef enum {RXSTEP_INIT, RXSTEP_STARTED, RXSTEP_END } rxStep_t;
 
 typedef void (*SDOCallback_t)(CO_Data *d, UNS8 nodeId);
 
-typedef void  (*WrDomainCallback_t)(CO_Data *d, UNS16 index, UNS8 subindex, UNS32 offset, UNS32 nbBytes, UNS8 *data);
+typedef void (*WrDomainCallback_t)(CO_Data *d, UNS16 index, UNS8 subindex, UNS32 offset, UNS32 nbBytes, UNS8 *data);
 
 /* The Transfer structure
  * Used to store the different segments of

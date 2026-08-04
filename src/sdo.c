@@ -2878,7 +2878,7 @@ UNS8 getWriteResultNetworkDict(CO_Data *d, UNS8 nodeId, UNS32 *abortCode)
     UNS8 line = 0;
     UNS8 err;
     UNS8 CliNbr;
-    * abortCode = 0;
+    *abortCode = 0;
     
     /* First let's find the corresponding SDO client in our OD  */
     CliNbr = getSDOClientFromNodeId(d, nodeId);
@@ -2894,7 +2894,7 @@ UNS8 getWriteResultNetworkDict(CO_Data *d, UNS8 nodeId, UNS32 *abortCode)
         MSG_ERR(0x1AF1, "SDO error : No line found for communication with node : ", nodeId);
         return SDO_ABORTED_INTERNAL;
     }
-    * abortCode = d->transfers[line].abortCode;
+    *abortCode = d->transfers[line].abortCode;
     if (d->transfers[line].state != SDO_FINISHED)
     {
         return d->transfers[line].state;
