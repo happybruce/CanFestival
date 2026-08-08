@@ -72,24 +72,29 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /* Definition of error and warning macros */
 /* -------------------------------------- */
-#define MSG(...) printf (__VA_ARGS__)
 
 /* Definition of MSG_ERR */
 /* --------------------- */
 #ifdef DEBUG_ERR_CONSOLE_ON
-#   define MSG_ERR(num, str, val)            \
-          MSG("%s,%d : 0X%x %s 0X%x \n", __FILE__, __LINE__, num, str, val);
+#define MSG_ERR(...) do { \
+    printf("[ERROR] [%s %s:%d] ", __FILE__, __func__, __LINE__); \
+    printf(__VA_ARGS__); \
+    printf("\n"); \
+} while(0)
 #else
-#   define MSG_ERR(num, str, val)
+#   define MSG_ERR(...)
 #endif
 
 /* Definition of MSG_WAR */
 /* --------------------- */
 #ifdef DEBUG_WAR_CONSOLE_ON
-#   define MSG_WAR(num, str, val)          \
-          MSG("%s,%d : 0X%x %s 0X%x \n", __FILE__, __LINE__, num, str, val);
+#define MSG_WAR(...) do { \
+    printf("[WARN] [%s %s:%d] ", __FILE__, __func__, __LINE__); \
+    printf(__VA_ARGS__); \
+    printf("\n"); \
+} while(0)
 #else
-#   define MSG_WAR(num, str, val)
+#   define MSG_WAR(...)
 #endif
 
 typedef void* CAN_HANDLE;
