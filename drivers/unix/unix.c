@@ -190,7 +190,7 @@ CAN_PORT canOpen(s_BOARD *board, CO_Data * d)
     }
     else
     {
-        MSG("CanOpen : Cannot open board {busname='%s',baudrate='%s'}\n",board->busname, board->baudrate);
+        MSG_ERR("CanOpen : Cannot open board {busname='%s',baudrate='%s'}\n",board->busname, board->baudrate);
         return NULL;
     }
 }
