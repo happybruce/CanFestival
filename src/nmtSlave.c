@@ -48,7 +48,7 @@ void proceedNMTstateChange(CO_Data *d, Message *m)
         (d->nodeState == Operational) ||
         (d->nodeState == Stopped) )
     {
-        MSG_WAR(0x3400, "NMT received. for node :  ", (*m).data[1]);
+        MSG_WAR("NMT received. for node : %d", (*m).data[1]);
 
         /* Check if this NMT-message is for this node */
         /* byte 1 = 0 : all the nodes are concerned (broadcast) */
@@ -143,7 +143,7 @@ UNS8 slaveSendBootUp(CO_Data *d)
     if(*(d->bDeviceNodeId) == 0xFF) { return 0; }
 #endif
 
-    MSG_WAR(0x3407, "Send a Boot-Up msg ", 0);
+    MSG_WAR("Send a Boot-Up msg ");
 
     /* message configuration */
     

@@ -136,11 +136,11 @@ void canDispatch(CO_Data *d, Message *m)
 
 #define StartOrStop(CommType, FuncStart, FuncStop) \
     if(newCommunicationState->CommType && (d->CurrentCommunicationState.CommType == 0)) {\
-        MSG_WAR(0x9999, #FuncStart, 9999);\
+        MSG_WAR(#FuncStart);\
         d->CurrentCommunicationState.CommType = 1;\
         FuncStart;\
     }else if(!newCommunicationState->CommType && (d->CurrentCommunicationState.CommType == 1)) {\
-        MSG_WAR(0x9999, #FuncStop, 9999);\
+        MSG_WAR(#FuncStop);\
         d->CurrentCommunicationState.CommType = 0;\
         FuncStop;\
     }
@@ -268,7 +268,7 @@ void setNodeId(CO_Data *d, UNS8 nodeId)
 #endif
     if(!(nodeId>0 && nodeId<=127))
     {
-        MSG_WAR(0x2D01, "Invalid NodeID",nodeId);
+        MSG_WAR("Invalid NodeID %d", nodeId);
         return;
     }
 

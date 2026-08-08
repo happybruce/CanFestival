@@ -116,7 +116,7 @@ void proceedNODE_GUARD(CO_Data *d, Message *m )
             }
 
             /* send the nodeguard response. */
-            MSG_WAR(0x3130, "Sending NMT Nodeguard to master, state: ", d->nodeState);
+            MSG_WAR("Sending NMT Nodeguard to master, state: %d", d->nodeState);
             canSend(d->canHandle,&msg );
         }
 
@@ -124,7 +124,7 @@ void proceedNODE_GUARD(CO_Data *d, Message *m )
         /* The state is stored on 7 bit */
         e_nodeState newNodeState = (e_nodeState) ((*m).data[0] & 0x7F);
 
-        MSG_WAR(0x3110, "Received NMT nodeId : ", nodeId);
+        MSG_WAR("Received NMT nodeId : %d", nodeId);
         
         /*!
         ** Record node response for node guarding service
@@ -146,7 +146,7 @@ void proceedNODE_GUARD(CO_Data *d, Message *m )
             ** to indicate the master that it is entered in
             ** pre_operational mode
             */
-            MSG_WAR(0x3100, "The NMT is a bootup from node : ", nodeId);
+            MSG_WAR("The NMT is a bootup from node : %d", nodeId);
             /* call post SlaveBootup with NodeId */
             (*d->post_SlaveBootup)(d, nodeId);
         }
@@ -193,7 +193,7 @@ void ProducerHeartbeatAlarm(CO_Data *d, UNS32 dummy)
         msg.rtr = 0;
         msg.data[0] = d->nodeState; /* No toggle for heartbeat !*/
         /* send the heartbeat */
-        MSG_WAR(0x3130, "Producing heartbeat: ", d->nodeState);
+        MSG_WAR("Producing heartbeat: %d", d->nodeState);
         canSend(d->canHandle,&msg );
     }
     else
@@ -222,7 +222,7 @@ void GuardTimeAlarm(CO_Data *d, UNS32 dummy)
     {
         UNS8 i;
 
-        MSG_WAR(0x00, "Producing nodeguard-requests: ", 0);
+        MSG_WAR("Producing nodeguard-requests: ");
 
         for (i = 0; i < NMT_MAX_NODE_ID; i++)
         {
@@ -237,7 +237,7 @@ void GuardTimeAlarm(CO_Data *d, UNS32 dummy)
                 */
                 if (d->nodeGuardStatus[i] <= 0)
                 {
-                    MSG_WAR(0x00, "Node Guard alarm for nodeId : ", i);
+                    MSG_WAR("Node Guard alarm for nodeId : %d", i);
 
                     // Call error-callback function
                     if (*d->nodeguardError)
@@ -338,7 +338,7 @@ void nodeguardInit(CO_Data *d)
 
         TIMEVAL time = *d->GuardTime;
         d->GuardTimeTimer = SetAlarm(d, 0, &GuardTimeAlarm, MS_TO_TIMEVAL(time), MS_TO_TIMEVAL(time));
-        MSG_WAR(0x0, "GuardTime: ", time);
+        MSG_WAR("GuardTime: %d", time);
 
         for (i = 0; i < NMT_MAX_NODE_ID; i++)
         {
@@ -349,7 +349,7 @@ void nodeguardInit(CO_Data *d)
             }
         }
 
-        MSG_WAR(0x0, "Timer for node-guarding startet", 0);
+        MSG_WAR("Timer for node-guarding startet");
     }
 }
 

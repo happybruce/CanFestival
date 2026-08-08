@@ -82,7 +82,7 @@ UNS8 check_and_start_node(CO_Data *d, UNS8 nodeId)
     {
         if (d->objdict[offset].bSubCount <= 3) 
         {
-            MSG_ERR(0x1A00, "Subindex 3 not found at index ", 0x1280 + CliNbr);
+            MSG_ERR("Subindex 3 not found at index 0x%X", 0x1280 + CliNbr);
             return 3;
         }
         /* looking for the server nodeId */
@@ -222,8 +222,8 @@ static void CheckSDOAndContinue(CO_Data *d, UNS8 nodeId)
     return;
 
 dcferror:
-    MSG_ERR(0x1A01, "SDO error in consise DCF", abortCode);
-    MSG_WAR(0x2A02, "slave node : ", nodeId);
+    MSG_ERR("SDO error in consise DCF 0x%X", abortCode);
+    MSG_WAR("slave node : %d", nodeId);
     resetClientSDOLineFromNodeId(d, nodeId);
     d->NMTable[nodeId] = Unknown_state;
     d->dcf_status = DCF_STATUS_INIT;
@@ -350,7 +350,7 @@ static UNS8 write_consise_dcf_next_entry(CO_Data *d, UNS8 nodeId)
                     0); /* no block mode */
     if(Ret)
     {
-        MSG_ERR(0x1A02, "Error writeNetworkDictCallBackAI", Ret);
+        MSG_ERR("Error writeNetworkDictCallBackAI, ret:%d", Ret);
     }
     return 1;
 }
@@ -370,7 +370,7 @@ static UNS8 read_consise_dcf_next_entry(CO_Data *d, UNS8 nodeId)
                    0); /* no block mode */
     if(Ret)
     {
-        MSG_ERR(0x1A03,"Error readNetworkDictCallbackAI",Ret);
+        MSG_ERR("Error readNetworkDictCallbackAI, ret: %d",Ret);
     }
     return 1;
 }
@@ -391,6 +391,6 @@ void SaveNode(CO_Data *d, UNS8 nodeId)
                     0); /* no block mode */
     if(Ret)
     {
-        MSG_ERR(0x1A04,"Error writeNetworkDictCallBackAI",Ret);
+        MSG_ERR("Error writeNetworkDictCallBackAI, ret: %d", Ret);
     }
 }

@@ -59,34 +59,34 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
                            UNS32 sizeDataDict, UNS32 sizeDataGiven, UNS32 code)
 {
 #ifdef DEBUG_WAR_CONSOLE_ON
-  MSG_WAR(0x2B09,"Dictionary index : ", index);
-  MSG_WAR(0X2B10,"           subindex : ", subIndex);
+  MSG_WAR("Dictionary index : 0x%X", index);
+  MSG_WAR("        subindex : 0x%X", subIndex);
   switch (code)
   {
   case OD_NO_SUCH_OBJECT:
-    MSG_WAR(0x2B11, "Index not found ", index);
+    MSG_WAR("Index 0x%X not found", index);
     break;
   case OD_NO_SUCH_SUBINDEX :
-    MSG_WAR(0x2B12, "SubIndex not found ", subIndex);
+    MSG_WAR("SubIndex 0x%X not found ", subIndex);
     break;
   case OD_WRITE_NOT_ALLOWED :
-    MSG_WAR(0x2B13, "Write not allowed, data is read only ", index);
+    MSG_WAR("Write not allowed, data is read only");
     break;
   case OD_LENGTH_DATA_INVALID :
-    MSG_WAR(0x2B14, "Conflict size data. Should be (bytes)  : ", sizeDataDict);
-    MSG_WAR(0x2B15, "But you have given the size  : ", sizeDataGiven);
+    MSG_WAR("Conflict size data. Should be (bytes) : %d", sizeDataDict);
+    MSG_WAR("But you have given the size : %d", sizeDataGiven);
     break;
   case OD_NOT_MAPPABLE :
-    MSG_WAR(0x2B16, "Not mappable data in a PDO at index    : ", index);
+    MSG_WAR("Not mappable data in a PDO at index 0x%X: ", index);
     break;
   case OD_VALUE_TOO_LOW :
-    MSG_WAR(0x2B17, "Value range error : value too low. SDOabort : ", code);
+    MSG_WAR("Value range error : value too low. SDOabort : 0x%X", code);
     break;
   case OD_VALUE_TOO_HIGH :
-    MSG_WAR(0x2B18, "Value range error : value too high. SDOabort : ", code);
+    MSG_WAR("Value range error : value too high. SDOabort : 0x%X", code);
     break;
   default :
-    MSG_WAR(0x2B20, "Unknown error code : ", code);
+    MSG_WAR("Unknown error code : 0x%X", code);
   }
   #endif
 
@@ -123,9 +123,10 @@ UNS32 _getODentry( CO_Data *d,
         return OD_NO_SUCH_SUBINDEX;
     }
 
-    if (checkAccess && (ptrTable->pSubindex[bSubindex].bAccessType == WO))
+    const subindex* pSubIdx = &(ptrTable->pSubindex[bSubindex]);
+    if (checkAccess && (pSubIdx->bAccessType == WO))
     {
-        MSG_WAR(0x2B30, "Access Type : ", ptrTable->pSubindex[bSubindex].bAccessType);
+        MSG_WAR("Access Type : %d", pSubIdx->bAccessType);
         accessDictionaryError(wIndex, bSubindex, 0, 0, OD_READ_NOT_ALLOWED);
         return OD_READ_NOT_ALLOWED;
     }
@@ -135,49 +136,47 @@ UNS32 _getODentry( CO_Data *d,
         return SDOABT_GENERAL_ERROR;
     }
 
-    if (ptrTable->pSubindex[bSubindex].size > (*pExpectedSize))
+    if (pSubIdx->size > (*pExpectedSize))
     {
         /* Requested variable is too large to fit into a transfer line, inform    *
         * the caller about the real size of the requested variable.              */
-        *pExpectedSize = ptrTable->pSubindex[bSubindex].size;
+        *pExpectedSize = pSubIdx->size;
         return SDOABT_OUT_OF_MEMORY;
     }
 
-    *pDataType = ptrTable->pSubindex[bSubindex].bDataType;
-    szData = ptrTable->pSubindex[bSubindex].size;
+    *pDataType = pSubIdx->bDataType;
+    szData = pSubIdx->size;
 
 #ifdef CANOPEN_BIG_ENDIAN
     if( endianize && (*pDataType > boolean) && !(*pDataType >= visible_string && *pDataType <= domain) )
     {
         /* data must be transmited with low byte first */
-        UNS8 i, j = 0;
-        MSG_WAR(boolean, "data type ", *pDataType);
-        MSG_WAR(visible_string, "data type ", *pDataType);
-        for ( i = szData ; i > 0 ; i--)
+        MSG_WAR("data type %d (bool: %d; visible_string: %d)", *pDataType, boolean, visible_string);
+        UNS8 j = 0;
+        for (UNS8 i = szData; i > 0; i--)
         {
-            MSG_WAR(i," ", j);
-            ((UNS8*)pDestData)[j++] = ((UNS8*)ptrTable->pSubindex[bSubindex].bAccessType == CONST ? ptrTable->pSubindex[bSubindex].pObjectConst)[i-1] :
-                ptrTable->pSubindex[bSubindex].pObject)[i-1];
+            ((UNS8*)pDestData)[j] = (pSubIdx->bAccessType == CONST) ? (pSubIdx->pObjectConst)[i-1] : (pSubIdx->pObject)[i-1];
+            ++j;
         }
         *pExpectedSize = szData;
     }
     else /* no endianisation change */
 #endif
-    if(ptrTable->pSubindex[bSubindex].bAccessType == CONST)
+    if(pSubIdx->bAccessType == CONST)
     {
-        if(ptrTable->pSubindex[bSubindex].bDataType == visible_string && bSubindex != 0) 
+        if((pSubIdx->bDataType == visible_string) && (bSubindex != 0))
         {
-            const char* dp = *(const char* const *)ptrTable->pSubindex[bSubindex].pObjectConst;
+            const char* dp = *(const char* const *)(pSubIdx->pObjectConst);
             memcpy_flash(pDestData, dp, szData);
         }
         else
         {
-            memcpy_flash(pDestData, ptrTable->pSubindex[bSubindex].pObjectConst, szData);
+            memcpy_flash(pDestData, pSubIdx->pObjectConst, szData);
         }
     }
     else
     {
-        memcpy(pDestData, ptrTable->pSubindex[bSubindex].pObject,szData);
+        memcpy(pDestData, pSubIdx->pObject,szData);
     }
 
     if(*pDataType != visible_string)
@@ -191,7 +190,7 @@ UNS32 _getODentry( CO_Data *d,
         * Note:  If the parameter "Default String Size" of the Object Dictionary *
         *        Editor is larger than the string, then the \0 byte will be      *
         *        appended anyways!                                               */
-        if((*pExpectedSize) > ptrTable->pSubindex[bSubindex].size)
+        if((*pExpectedSize) > pSubIdx->size)
         {
             *((UNS8*)pDestData + szData) = '\0';
             *pExpectedSize = szData + 1;
@@ -234,7 +233,7 @@ UNS32 _setODentry( CO_Data *d,
 
     if (checkAccess && (ptrTable->pSubindex[bSubindex].bAccessType == RO || ptrTable->pSubindex[bSubindex].bAccessType == CONST)) 
     {
-        MSG_WAR(0x2B25, "Access Type : ", ptrTable->pSubindex[bSubindex].bAccessType);
+        MSG_WAR("Access Type : %d", ptrTable->pSubindex[bSubindex].bAccessType);
         accessDictionaryError(wIndex, bSubindex, 0, *pExpectedSize, OD_WRITE_NOT_ALLOWED);
         return OD_WRITE_NOT_ALLOWED;
     }
