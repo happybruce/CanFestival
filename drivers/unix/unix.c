@@ -138,13 +138,14 @@ void canReceiveLoop(CAN_PORT port)
 {
     Message m;
 
-    while (((CANPort*)port)->used)
+    CANPort *pCANPort = (CANPort*)port;
+    while (pCANPort->used)
     {
-        if (DLL_CALL(canReceive)(((CANPort*)port)->fd, &m) != 0)
+        if (DLL_CALL(canReceive)(pCANPort->fd, &m) != 0)
             break;
 
         EnterMutex();
-        canDispatch(((CANPort*)port)->d, &m);
+        canDispatch(pCANPort->d, &m);
         LeaveMutex();
     }
 }

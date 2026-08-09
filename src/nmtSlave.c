@@ -31,6 +31,7 @@
 **
 */
 #include "nmtSlave.h"
+#include "applicfg.h"
 #include "states.h"
 #include "canfestival.h"
 #include "sysdep.h"
@@ -48,7 +49,7 @@ void proceedNMTstateChange(CO_Data *d, Message *m)
         (d->nodeState == Operational) ||
         (d->nodeState == Stopped) )
     {
-        MSG_WAR("NMT received. for node : %d", (*m).data[1]);
+        MSG_DEBUG("NMT received, for node : %d", (*m).data[1]);
 
         /* Check if this NMT-message is for this node */
         /* byte 1 = 0 : all the nodes are concerned (broadcast) */
@@ -143,7 +144,7 @@ UNS8 slaveSendBootUp(CO_Data *d)
     if(*(d->bDeviceNodeId) == 0xFF) { return 0; }
 #endif
 
-    MSG_WAR("Send a Boot-Up msg ");
+    MSG_DEBUG("Send a Boot-Up msg");
 
     /* message configuration */
     

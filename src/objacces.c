@@ -38,15 +38,15 @@
 /* #define DEBUG_ERR_CONSOLE_ON */
 
 #include "objacces.h"
+#include "applicfg.h"
 #include "data.h"
 
 
-void* memcpy_flash(void* dest, const void* source, size_t length)
+void* memcpy_flash(void *dest, const void *source, size_t length)
 {
-    char* dstPointer = dest;
-    const char* srcPointer = source;
-    size_t i;
-    for(i = 0; i < length; i++) 
+    char *dstPointer = (char*)dest;
+    const char *srcPointer = (const char*)source;
+    for(size_t i = 0; i < length; i++) 
     {
         dstPointer[i] = srcPointer[i];
     }
@@ -59,8 +59,7 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
                            UNS32 sizeDataDict, UNS32 sizeDataGiven, UNS32 code)
 {
 #ifdef DEBUG_WAR_CONSOLE_ON
-  MSG_WAR("Dictionary index : 0x%X", index);
-  MSG_WAR("        subindex : 0x%X", subIndex);
+  MSG_WAR("Dictionary index : 0x%X, subindex: 0x%X", index, subIndex);
   switch (code)
   {
   case OD_NO_SUCH_OBJECT:
@@ -105,9 +104,8 @@ UNS32 _getODentry( CO_Data *d,
     loop if it fails. */
     (void)endianize;
     UNS32 errorCode;
-    UNS32 szData;
-    const indextable* ptrTable;
-    ODCallback_t* Callback;
+    const indextable* ptrTable = NULL;
+    ODCallback_t* Callback = NULL;
 
     ptrTable = (*(d->scanIndexOD))(wIndex, &errorCode, &Callback);
 
@@ -115,7 +113,7 @@ UNS32 _getODentry( CO_Data *d,
     {
         return errorCode;
     }
-        
+
     if( ptrTable->bSubCount <= bSubindex )
     {
         /* Subindex not found */
@@ -123,10 +121,10 @@ UNS32 _getODentry( CO_Data *d,
         return OD_NO_SUCH_SUBINDEX;
     }
 
-    const subindex* pSubIdx = &(ptrTable->pSubindex[bSubindex]);
-    if (checkAccess && (pSubIdx->bAccessType == WO))
+    const subindex* pSubidxEntry = &(ptrTable->pSubindex[bSubindex]);
+    if (checkAccess && (pSubidxEntry->bAccessType == WO))
     {
-        MSG_WAR("Access Type : %d", pSubIdx->bAccessType);
+        MSG_DEBUG("Access Type : %d", pSubidxEntry->bAccessType);
         accessDictionaryError(wIndex, bSubindex, 0, 0, OD_READ_NOT_ALLOWED);
         return OD_READ_NOT_ALLOWED;
     }
@@ -136,47 +134,48 @@ UNS32 _getODentry( CO_Data *d,
         return SDOABT_GENERAL_ERROR;
     }
 
-    if (pSubIdx->size > (*pExpectedSize))
+    if (pSubidxEntry->size > (*pExpectedSize))
     {
         /* Requested variable is too large to fit into a transfer line, inform    *
         * the caller about the real size of the requested variable.              */
-        *pExpectedSize = pSubIdx->size;
+        *pExpectedSize = pSubidxEntry->size;
         return SDOABT_OUT_OF_MEMORY;
     }
 
-    *pDataType = pSubIdx->bDataType;
-    szData = pSubIdx->size;
+    *pDataType = pSubidxEntry->bDataType;
+    UNS32 szData = pSubidxEntry->size;
 
 #ifdef CANOPEN_BIG_ENDIAN
     if( endianize && (*pDataType > boolean) && !(*pDataType >= visible_string && *pDataType <= domain) )
     {
         /* data must be transmited with low byte first */
-        MSG_WAR("data type %d (bool: %d; visible_string: %d)", *pDataType, boolean, visible_string);
+        MSG_DEBUG("data type %d (bool: %d; visible_string: %d)", *pDataType, boolean, visible_string);
+        const UNS8 *srcData = (const UNS8*)((pSubidxEntry->bAccessType == CONST) ? (pSubidxEntry->pObjectConst) : (pSubidxEntry->pObject));
         UNS8 j = 0;
         for (UNS8 i = szData; i > 0; i--)
         {
-            ((UNS8*)pDestData)[j] = (pSubIdx->bAccessType == CONST) ? (pSubIdx->pObjectConst)[i-1] : (pSubIdx->pObject)[i-1];
+            ((UNS8*)pDestData)[j] = srcData[i-1];
             ++j;
         }
         *pExpectedSize = szData;
     }
     else /* no endianisation change */
 #endif
-    if(pSubIdx->bAccessType == CONST)
+    if(pSubidxEntry->bAccessType == CONST)
     {
-        if((pSubIdx->bDataType == visible_string) && (bSubindex != 0))
+        if((pSubidxEntry->bDataType == visible_string) && (bSubindex != 0))
         {
-            const char* dp = *(const char* const *)(pSubIdx->pObjectConst);
+            const char* dp = *(const char* const *)(pSubidxEntry->pObjectConst);
             memcpy_flash(pDestData, dp, szData);
         }
         else
         {
-            memcpy_flash(pDestData, pSubIdx->pObjectConst, szData);
+            memcpy_flash(pDestData, pSubidxEntry->pObjectConst, szData);
         }
     }
     else
     {
-        memcpy(pDestData, pSubIdx->pObject,szData);
+        memcpy(pDestData, pSubidxEntry->pObject, szData);
     }
 
     if(*pDataType != visible_string)
@@ -190,7 +189,7 @@ UNS32 _getODentry( CO_Data *d,
         * Note:  If the parameter "Default String Size" of the Object Dictionary *
         *        Editor is larger than the string, then the \0 byte will be      *
         *        appended anyways!                                               */
-        if((*pExpectedSize) > pSubIdx->size)
+        if((*pExpectedSize) > pSubidxEntry->size)
         {
             *((UNS8*)pDestData + szData) = '\0';
             *pExpectedSize = szData + 1;
@@ -212,11 +211,9 @@ UNS32 _setODentry( CO_Data *d,
                    UNS8 endianize)
 {
     (void)endianize;
-    UNS32 szData;
-    UNS8 dataType;
     UNS32 errorCode;
-    const indextable *ptrTable;
-    ODCallback_t *Callback;
+    const indextable *ptrTable = NULL;
+    ODCallback_t *Callback = NULL;
 
     ptrTable = (*d->scanIndexOD)(wIndex, &errorCode, &Callback);
     if (errorCode != OD_SUCCESSFUL)
@@ -224,28 +221,30 @@ UNS32 _setODentry( CO_Data *d,
         return errorCode;
     }
 
-    if( ptrTable->bSubCount <= bSubindex )
+    if ( ptrTable->bSubCount <= bSubindex )
     {
         /* Subindex not found */
         accessDictionaryError(wIndex, bSubindex, 0, *pExpectedSize, OD_NO_SUCH_SUBINDEX);
         return OD_NO_SUCH_SUBINDEX;
     }
 
-    if (checkAccess && (ptrTable->pSubindex[bSubindex].bAccessType == RO || ptrTable->pSubindex[bSubindex].bAccessType == CONST)) 
+    const subindex *pSubidxEntry = &(ptrTable->pSubindex[bSubindex]);
+
+    if (checkAccess && (pSubidxEntry->bAccessType == RO || pSubidxEntry->bAccessType == CONST)) 
     {
-        MSG_WAR("Access Type : %d", ptrTable->pSubindex[bSubindex].bAccessType);
+        MSG_DEBUG("Access Type : %d", pSubidxEntry->bAccessType);
         accessDictionaryError(wIndex, bSubindex, 0, *pExpectedSize, OD_WRITE_NOT_ALLOWED);
         return OD_WRITE_NOT_ALLOWED;
     }
 
 
-    dataType = ptrTable->pSubindex[bSubindex].bDataType;
-    szData = ptrTable->pSubindex[bSubindex].size;
+    UNS8 dataType = pSubidxEntry->bDataType;
+    UNS32 szData = pSubidxEntry->size;
 
     /* check the size, we must allow to store less bytes than data size, even for intergers
 	 (e.g. UNS40 : objdictedit will store it in a uint64_t, setting the size to 8 but PDO comes
 	 with 5 bytes so ExpectedSize is 5 */
-    if( (*pExpectedSize == 0) || (*pExpectedSize <= szData) )
+    if ( (*pExpectedSize == 0) || (*pExpectedSize <= szData) )
     {
 #ifdef CANOPEN_BIG_ENDIAN
         /* re-endianize do not occur for bool, strings time and domains */
@@ -253,10 +252,10 @@ UNS32 _setODentry( CO_Data *d,
         {
             /* we invert the data source directly. This let us do range testing without */
             /* additional temp variable */
-            for (UNS8 i = 0 ; i < ( ptrTable->pSubindex[bSubindex].size >> 1); i++)
+            for (UNS8 i = 0 ; i < ( pSubidxEntry->size >> 1); i++)
             {
                 // i from left to right, dataIdx from right to left
-                UNS32 dataIdx = (ptrTable->pSubindex[bSubindex].size - 1) - i;
+                UNS32 dataIdx = (pSubidxEntry->size - 1) - i;
                 UNS8* dataPtr = (UNS8 *)pSourceData;
                 UNS8 tmp = dataPtr[dataIdx];
                 dataPtr[dataIdx] = dataPtr[i];
@@ -270,21 +269,21 @@ UNS32 _setODentry( CO_Data *d,
             accessDictionaryError(wIndex, bSubindex, szData, *pExpectedSize, errorCode);
             return errorCode;
         }
-        memcpy(ptrTable->pSubindex[bSubindex].pObject, pSourceData, *pExpectedSize);
+        memcpy(pSubidxEntry->pObject, pSourceData, *pExpectedSize);
         /* TODO : CONFORM TO DS-301 : 
         *  - stop using NULL terminated strings
         *  - store string size in td_subindex 
         * */
         /* terminate visible_string with '\0' */
-        if(dataType == visible_string && *pExpectedSize < szData)
+        if (dataType == visible_string && *pExpectedSize < szData)
         {
-            ((UNS8*)ptrTable->pSubindex[bSubindex].pObject)[*pExpectedSize] = 0;
+            ((UNS8*)pSubidxEntry->pObject)[*pExpectedSize] = 0;
         }
 
         *pExpectedSize = szData;
 
         /* Callbacks */
-        if(Callback && Callback[bSubindex])
+        if (Callback && Callback[bSubindex])
         {
             errorCode = (Callback[bSubindex])(d, wIndex, bSubindex);
             if(errorCode != OD_SUCCESSFUL)
@@ -295,7 +294,7 @@ UNS32 _setODentry( CO_Data *d,
 
         /* Store value if requested with user defined function
          Function should return OD_ACCES_FAILED in case of store error */
-        if (ptrTable->pSubindex[bSubindex].bAccessType & TO_BE_SAVE)
+        if (pSubidxEntry->bAccessType & TO_BE_SAVE)
         {
             return (*d->storeODSubIndex)(d, wIndex, bSubindex);
         }
@@ -318,12 +317,18 @@ UNS32 RegisterSetODentryCallBack(CO_Data *d, UNS16 wIndex, UNS8 bSubindex, ODCal
 {
     UNS32 errorCode;
     ODCallback_t *CallbackList;
-    const indextable *odentry;
 
-    odentry = scanIndexOD(d, wIndex, &errorCode, &CallbackList);
-    if((errorCode == OD_SUCCESSFUL)  &&  CallbackList  &&  (bSubindex < odentry->bSubCount))
+    const indextable *odentry = scanIndexOD(d, wIndex, &errorCode, &CallbackList);
+    if((errorCode == OD_SUCCESSFUL)  &&  (bSubindex < odentry->bSubCount))
     {
-        CallbackList[bSubindex] = Callback;
+        if (CallbackList)
+        {
+            CallbackList[bSubindex] = Callback;
+        }
+        else
+        {
+            MSG_WAR("Index 0x%X doesn't have callback setting", wIndex);
+        }
     }
     return errorCode;
 }

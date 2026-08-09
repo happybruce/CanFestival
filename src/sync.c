@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include "sync.h"
+#include "applicfg.h"
 #include "data.h"
 #include "canfestival.h"
 #include "sysdep.h"
@@ -133,7 +134,7 @@ UNS8 sendSYNCMessage(CO_Data *d)
 {
     Message m;
 
-    MSG_WAR("sendSYNC ");
+    MSG_DEBUG("sendSYNCMessage");
 
     m.cob_id = (UNS16)UNS16_LE(*(d->COB_ID_Sync));
     m.rtr = NOT_A_REQUEST;
@@ -168,7 +169,7 @@ UNS8 proceedSYNC(CO_Data *d)
 {
     UNS8 res;
 
-    MSG_WAR("SYNC received. Proceed. ");
+    MSG_DEBUG("SYNC received. Proceed.");
 
     (*(d->post_sync))(d);
 

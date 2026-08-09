@@ -104,7 +104,7 @@ TIMER_HANDLE SetAlarm(CO_Data *d, UNS32 id, TimerCallback_t callback, TIMEVAL va
 TIMER_HANDLE DelAlarm(TIMER_HANDLE handle)
 {
     /* Quick and dirty. system timer will continue to be trigged, but no action will be preformed. */
-    MSG_WAR("DelAlarm. handle = %d", handle);
+    MSG_DEBUG("DelAlarm. handle = %d", handle);
     if(handle != TIMER_NONE)
     {
         if(handle == last_timer_raw)

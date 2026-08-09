@@ -136,11 +136,11 @@ void canDispatch(CO_Data *d, Message *m)
 
 #define StartOrStop(CommType, FuncStart, FuncStop) \
     if(newCommunicationState->CommType && (d->CurrentCommunicationState.CommType == 0)) {\
-        MSG_WAR(#FuncStart);\
+        MSG_DEBUG(#FuncStart);\
         d->CurrentCommunicationState.CommType = 1;\
         FuncStart;\
     }else if(!newCommunicationState->CommType && (d->CurrentCommunicationState.CommType == 1)) {\
-        MSG_WAR(#FuncStop);\
+        MSG_DEBUG(#FuncStop);\
         d->CurrentCommunicationState.CommType = 0;\
         FuncStop;\
     }

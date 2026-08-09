@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #include "lss.h"
+#include "applicfg.h"
 #include "data.h"
 #include "canfestival.h"
 #include "sysdep.h"
@@ -149,8 +150,7 @@ void LssAlarmMSG(CO_Data *d, UNS32 dummy)
     }
     else
     {
-        MSG_ERR("LSS timeout. LSS response not received.");
-        MSG_WAR("LSS timeout command specifier : 0x%X", d->lss_transfer.command);
+        MSG_ERR("LSS timeout. LSS response not received, cs 0x%X", d->lss_transfer.command);
         /* Set aborted state */
         d->lss_transfer.state = LSS_ABORTED_INTERNAL;
 #ifdef CO_ENABLE_LSS_FS
@@ -322,7 +322,7 @@ void LssAlarmFS(CO_Data *d, UNS32 dummy)
 void startLSS(CO_Data *d)
 {
     (void)d;
-    /*MSG_WAR("LSS services started");*/
+    MSG_DEBUG("LSS services started");
 }
 
 /*!                                                                                                
@@ -333,7 +333,7 @@ void startLSS(CO_Data *d)
 void stopLSS(CO_Data *d)
 {
     (void)d;
-    /*MSG_WAR("LSS services stopped");*/
+    MSG_DEBUG("LSS services stopped");
 }
 
 /*!                                                                                                
@@ -626,7 +626,7 @@ UNS8 proceedLSS_Master(CO_Data *d, Message *m )
         goto ErrorProcessMaster;
     }
     
-    MSG_WAR("MasterLSS proceedLSS; command 0x%X", m->data[0]);
+    MSG_DEBUG("MasterLSS proceedLSS; command 0x%X", m->data[0]);
     
     switch(msg_cs = m->data[0])
     {
@@ -715,7 +715,7 @@ ErrorProcessMaster:
 **/ 
 UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
 {  
-    MSG_WAR("SlaveLSS proceedLSS; command 0x%X", m->data[0]);
+    MSG_DEBUG("SlaveLSS proceedLSS; command 0x%X", m->data[0]);
     UNS8 msg_cs = m->data[0];
     switch(msg_cs)
     {
@@ -729,21 +729,21 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
         
         if(m->data[1] == LSS_CONFIGURATION_MODE)
         {
-            MSG_WAR("SlaveLSS switching to configuration mode");
+            MSG_DEBUG("SlaveLSS switching to configuration mode");
             /* Store the NodeId in case it will be changed */
             //d->lss_transfer.nodeID=getNodeId(d);
             d->lss_transfer.mode = LSS_CONFIGURATION_MODE;
         }
         else if(m->data[1] == LSS_WAITING_MODE)
         {
-            MSG_WAR("SlaveLSS switching to operational mode ");
+            MSG_DEBUG("SlaveLSS switching to operational mode ");
             
             /* If the nodeID has changed update it and put the node state to Initialisation. */
             if(d->lss_transfer.nodeID != getNodeId(d))
             {
                 if(getNodeId(d) == 0xFF)
                 {/* The nodeID was 0xFF; initialize the application*/
-                    MSG_WAR("The node Id has changed. Reseting to Initialisation state");
+                    MSG_DEBUG("The node Id has changed. Reseting to Initialisation state");
                     setNodeId(d, d->lss_transfer.nodeID);
                     setState(d, Initialisation);
                 }
@@ -835,7 +835,7 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
         if(strcmp(d->lss_transfer.baudRate, "none"))
         {
             d->lss_transfer.switchDelay = getLSSDelay(m);
-            MSG_WAR("Slave Switch Delay set to: %d", d->lss_transfer.switchDelay);
+            MSG_DEBUG("Slave Switch Delay set to: %d", d->lss_transfer.switchDelay);
             d->lss_transfer.switchDelayState = SDELAY_FIRST;
             //d->lss_transfer.currentState=getState(d);
             //setState(d, LssTimingDelay);
@@ -898,7 +898,7 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
             /* If all the fields has been set */
             if(d->lss_transfer.addr_sel_match == 0x0F)
             {
-                MSG_WAR("SlaveLSS switching to configuration mode ");
+                MSG_DEBUG("SlaveLSS switching to configuration mode ");
                 d->lss_transfer.addr_sel_match = 0;
                 d->lss_transfer.nodeID = getNodeId(d);
                 d->lss_transfer.mode = LSS_CONFIGURATION_MODE;
@@ -943,7 +943,7 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
         /* If all the fields has been set.. */
         if(d->lss_transfer.addr_ident_match == 0x3F)
         {
-            MSG_WAR("SlaveLSS identified ");
+            MSG_DEBUG("SlaveLSS identified ");
             d->lss_transfer.addr_ident_match = 0;
             sendSlaveLSSMessage(d,LSS_IDENT_SLAVE, 0, 0);
         }
@@ -982,7 +982,7 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
 
         ptrTable = (*d->scanIndexOD)(0x1018, &errorCode, &Callback);
         _SpecificNodeInfo = READ_UNS32(ptrTable, 0, msg_cs-(LSS_INQ_VENDOR_ID-1));
-        MSG_WAR("SlaveLSS identity field inquired, %d", _SpecificNodeInfo);
+        MSG_DEBUG("SlaveLSS identity field inquired, %d", _SpecificNodeInfo);
             
         sendSlaveLSSMessage(d, msg_cs, &_SpecificNodeInfo, 0);
     }
@@ -992,7 +992,7 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
         if(d->lss_transfer.mode == LSS_CONFIGURATION_MODE)
         {
             UNS8 NodeID = getNodeId(d);
-            MSG_WAR("SlaveLSS Node ID %d inquired ", NodeID);
+            MSG_DEBUG("SlaveLSS Node ID %d inquired ", NodeID);
             sendSlaveLSSMessage(d, msg_cs, &NodeID, 0);
         }
         else
@@ -1016,7 +1016,7 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
             const indextable *ptrTable;
             ODCallback_t *Callback;
                 
-            MSG_WAR("SlaveLSS Reseting LSSPos");
+            MSG_DEBUG("SlaveLSS Reseting LSSPos");
             d->lss_transfer.LSSPos=0;
             d->lss_transfer.FastScan_SM=LSS_FS_PROCESSING;
             
@@ -1032,15 +1032,14 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
         {
             UNS32 Mask = 0xFFFFFFFF<<getLSSBitCheck(m);
             
-            MSG_WAR("SlaveLSS FastScan IDNumber %d", getLSSIdent(m));
-            MSG_WAR("SlaveLSS FastScan BitMask 0x%X", Mask);
-            MSG_WAR("SlaveLSS FastScan LSS-ID %d", d->lss_transfer.IDNumber);
+            MSG_DEBUG("SlaveLSS FastScan IDNumber %d, BitMask 0x%X, LSS-ID %d",
+                    getLSSIdent(m), mask, d->lss_transfer.IDNumber);
             
             if((getLSSIdent(m) & Mask) == (d->lss_transfer.IDNumber & Mask))
             {
                 sendSlaveLSSMessage(d, LSS_IDENT_SLAVE, 0, 0);
             }
-            
+
             if(getLSSBitCheck(m) == 0)
             {
                 d->lss_transfer.FastScan_SM = LSS_FS_CONFIRMATION;
@@ -1054,11 +1053,11 @@ UNS8 proceedLSS_Slave(CO_Data *d, Message *m )
                 if(getLSSIdent(m) == d->lss_transfer.IDNumber)
                 {
                     /* Current LSS-ID[sub] confirmed correctly */
-                    MSG_WAR("SlaveLSS FastScan IDNumber and LSS-ID match=> %d", d->lss_transfer.IDNumber);
+                    MSG_DEBUG("SlaveLSS FastScan IDNumber and LSS-ID match=> %d", d->lss_transfer.IDNumber);
                     if(d->lss_transfer.LSSPos == 3)
                     {
                         /* All LSS-ID[sub] identified correctly, switching to configuration mode */
-                        MSG_WAR("SlaveLSS switching to configuration mode ");
+                        MSG_DEBUG("SlaveLSS switching to configuration mode ");
                         d->lss_transfer.nodeID = getNodeId(d);
                         d->lss_transfer.mode = LSS_CONFIGURATION_MODE;
                         d->lss_transfer.FastScan_SM = LSS_FS_RESET;

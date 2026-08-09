@@ -223,7 +223,7 @@ static void CheckSDOAndContinue(CO_Data *d, UNS8 nodeId)
 
 dcferror:
     MSG_ERR("SDO error in consise DCF 0x%X", abortCode);
-    MSG_WAR("slave node : %d", nodeId);
+    MSG_ERR("slave node : %d", nodeId);
     resetClientSDOLineFromNodeId(d, nodeId);
     d->NMTable[nodeId] = Unknown_state;
     d->dcf_status = DCF_STATUS_INIT;

@@ -97,6 +97,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #   define MSG_WAR(...)
 #endif
 
+/* Definition of MSG_DEBUG */
+/* --------------------- */
+#ifdef DEBUG_DEBUG_CONSOLE_ON
+#define MSG_DEBUG(...) do { \
+    printf("[DEBUG] [%s %s:%d] ", __FILE__, __func__, __LINE__); \
+    printf(__VA_ARGS__); \
+    printf("\n"); \
+} while(0)
+#else
+#   define MSG_DEBUG(...)
+#endif
+
 typedef void* CAN_HANDLE;
 
 typedef void* CAN_PORT;

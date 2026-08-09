@@ -110,7 +110,7 @@ UNS8 sendEMCY(CO_Data *d, UNS16 errCode, UNS8 errRegister, const UNS8 errSpecifi
 {
     Message m;
 
-    MSG_WAR("sendEMCY");
+    MSG_DEBUG("sendEMCY");
 
     m.cob_id = (UNS16)(*(UNS32*)d->error_cobid);
     m.rtr = NOT_A_REQUEST;    
@@ -285,7 +285,7 @@ void proceedEMCY(CO_Data *d, Message *m)
     UNS16 errCode;
     UNS8 errReg;
     
-    MSG_WAR("EMCY received. Proceed. ");
+    MSG_DEBUG("EMCY received. Proceed.");
   
     /* Test if the size of the EMCY is ok */
     if ( m->len != 8)
